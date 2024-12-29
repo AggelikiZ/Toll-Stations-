@@ -1,7 +1,0 @@
-java -jar openapi-generator-cli-7.9.0.jar generate -i app.yaml -g spring -o ./output-spring --additional-properties=basePackage=com.payway.api,library=spring-boot
-
-app.yaml -> yaml file
-spring -> framework
-./output-spring -> directory for the generated code (better payway)
-com.payway.api -> path to main (better com.payway)
-library -> spring boot for spring framework
