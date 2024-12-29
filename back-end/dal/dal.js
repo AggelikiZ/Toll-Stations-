@@ -18,6 +18,8 @@ const getTollStationPasses = async (tollStationID, dateFrom, dateTo) => {
   return rows;
 };
 
+
+
 module.exports = {
   getTollStationPasses,
 };
