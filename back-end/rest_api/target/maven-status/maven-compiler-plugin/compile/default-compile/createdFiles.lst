@@ -1,3 +1,4 @@
+com\payway\controllers\HealthcheckController.class
 com\payway\api\ApiUtil.class
 com\payway\model\LoginPost200Response.class
 com\payway\controllers\HomeController.class

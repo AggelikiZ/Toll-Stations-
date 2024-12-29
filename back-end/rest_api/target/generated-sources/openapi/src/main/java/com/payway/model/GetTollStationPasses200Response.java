@@ -24,7 +24,7 @@ import jakarta.annotation.Generated;
  */
 
 @JsonTypeName("getTollStationPasses_200_response")
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2024-12-29T16:43:21.221861+02:00[Europe/Athens]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2024-12-29T20:20:36.405994100+02:00[Europe/Athens]")
 public class GetTollStationPasses200Response {
 
   private String stationID;

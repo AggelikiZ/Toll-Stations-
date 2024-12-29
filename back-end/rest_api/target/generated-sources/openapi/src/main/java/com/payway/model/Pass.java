@@ -19,7 +19,7 @@ import jakarta.annotation.Generated;
  * Pass
  */
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2024-12-29T18:23:09.494602900+02:00[Europe/Athens]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2024-12-29T20:20:36.405994100+02:00[Europe/Athens]")
 public class Pass {
 
   private Integer passIndex;
