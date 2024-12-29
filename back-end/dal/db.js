@@ -7,7 +7,7 @@ const pool = mysql.createPool({
   host: 'localhost',
   user: 'root', // modify if using another user
   password: 'password', // enter your password
-  database: 'softeng24_tolls', // database name
+  database: 'db_softeng24-25', // database name
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
