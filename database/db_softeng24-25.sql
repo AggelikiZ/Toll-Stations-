@@ -1,5 +1,5 @@
-CREATE DATABASE db_softeng24-25;
-USE db_softeng24-25;
+CREATE DATABASE db_softeng24_25;
+USE db_softeng24_25;
 
 -- Operators table
 CREATE TABLE Operators (
@@ -11,7 +11,7 @@ CREATE TABLE Operators (
 -- Tolls stations table
 CREATE TABLE TollStations (
     tollID VARCHAR(10) PRIMARY KEY,
-    opID VARCHAR(50) PRIMARY KEY,
+    opID VARCHAR(50),
     toll_name VARCHAR(255) NOT NULL,
     locality VARCHAR(255) NOT NULL,
     road VARCHAR(255) NOT NULL,
@@ -27,9 +27,9 @@ CREATE TABLE TollStations (
 -- Tags table
 CREATE TABLE Tags (
     tagRef VARCHAR(50) PRIMARY KEY,
-    ptagHomeID VARCHAR(50) NOT NULL,
+    tagHomeID VARCHAR(50) NOT NULL,
     balance DECIMAL(6, 2) DEFAULT 0.0,
-    FOREIGN KEY (tagHomeID) REFERENCES Operators(operatorID)
+    FOREIGN KEY (tagHomeID) REFERENCES Operators(opID)
 );
 
 -- Passes table
@@ -42,7 +42,7 @@ CREATE TABLE Passes (
     charge DECIMAL(4, 2) NOT NULL,
     FOREIGN KEY (tagRef) REFERENCES Tags(tagRef),
     FOREIGN KEY (tollID) REFERENCES TollStations(tollID),
-    FOREIGN KEY (tagHomeID) REFERENCES Tags(tagHomeID)
+    FOREIGN KEY (tagHomeID) REFERENCES Tags(tagRef)
 );
 
 -- Transactions between operators table
@@ -52,7 +52,7 @@ CREATE TABLE Transactions (
     toOperatorID VARCHAR(50) NOT NULL,
     amount FLOAT NOT NULL, -- float type to be discussed
     transactionDate DATE NOT NULL,
-    FOREIGN KEY (fromOperatorID) REFERENCES Operators(opeID),
+    FOREIGN KEY (fromOperatorID) REFERENCES Operators(opID),
     FOREIGN KEY (toOperatorID) REFERENCES Operators(opID)
 );
 
@@ -61,5 +61,5 @@ CREATE TABLE Users (
     userID INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     passwordHash VARCHAR(255) NOT NULL,
-    user_role ENUM('admin', 'user') DEFAULT 'user'
+    user_role ENUM('ministry', 'operator') DEFAULT 'operator'
 );
