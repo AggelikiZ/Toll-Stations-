@@ -1,6 +1,6 @@
 package com.payway.repositories;
 
-import com.payway.model.User;
+import com.payway.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

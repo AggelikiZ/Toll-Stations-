@@ -148,6 +148,51 @@ paths:
         '500':
           description: Internal Server Error - An unexpected error occurred
 
+  /admin/resetstations:
+    post:
+      tags:
+        - Admin
+      summary: Reset toll stations
+      description: Resets the toll stations table with the data from the `tollstations2024.csv` file.
+      operationId: ResetStations
+      responses:
+        '200':
+          description: Reset successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: OK
+        '400':
+          description: Reset failed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: failed
+                  info:
+                    type: string
+                    example: File not found or could not parse CSV
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: failed
+                  info:
+                    type: string
+                    example: Unexpected internal server error occurred while resetting toll stations
+
 components:
   schemas:
     Pass:
