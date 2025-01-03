@@ -70,6 +70,7 @@ public class AdminController{
             errorResponse.put("status", "failed");
             errorResponse.put("dbconnection", e.getMessage());
             return ResponseEntity.status(401).body(errorResponse);
+
         }
     }
 }
