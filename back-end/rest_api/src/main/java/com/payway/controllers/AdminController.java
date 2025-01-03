@@ -3,6 +3,7 @@ package com.payway.controllers;
 import com.payway.models.Generic500Response;
 import com.payway.models.ResetStations200Response;
 import com.payway.models.ResetStations400Response;
+import com.payway.services.PassService;
 import com.payway.services.TollStationService;
 import com.payway.services.HealthCheckService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,10 +30,12 @@ public class AdminController{
 
     private final TollStationService tollStationService;
     private final HealthCheckService healthcheckService;
+    private final PassService passService;
 
-    public AdminController(TollStationService tollStationService, HealthCheckService healthcheckService) {
+    public AdminController(TollStationService tollStationService, HealthCheckService healthcheckService, PassService passService) {
         this.tollStationService = tollStationService;
         this.healthcheckService = healthcheckService;
+        this.passService = passService;
     }
     @PostMapping(value = "/resetstations", produces = "application/json")
     @Operation(
@@ -56,6 +59,51 @@ public class AdminController{
                     .body(new Generic500Response().status("failed").info(e.getMessage()));
         }
     }
+
+    @PostMapping(value = "/resetpasses", produces = "application/json")
+    @Operation(
+            summary = "Reset passes",
+            description = "Resets the toll stations table with the data from the `tollstations2024.csv` file."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Reset successful", content = @Content(schema = @Schema(implementation = ResetStations200Response.class))),
+            @ApiResponse(responseCode = "400", description = "Reset failed due to illegal argument", content = @Content(schema = @Schema(implementation = ResetStations400Response.class))),
+            @ApiResponse(responseCode = "500", description = "Reset failed", content = @Content(schema = @Schema(implementation = Generic500Response.class)))
+    })
+    public ResponseEntity<?> resetPasses() {
+        try {
+            //PassService.resetPasses();
+            return ResponseEntity.ok(new ResetStations200Response().status("OK"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ResetStations400Response().status("failed").info(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new Generic500Response().status("failed").info(e.getMessage()));
+        }
+    }
+
+    @PostMapping(value = "/addpasses", produces = "application/json")
+    @Operation(
+            summary = "Reset passes",
+            description = "Resets the toll stations table with the data from the `tollstations2024.csv` file."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Reset successful", content = @Content(schema = @Schema(implementation = ResetStations200Response.class))),
+            @ApiResponse(responseCode = "400", description = "Reset failed due to illegal argument", content = @Content(schema = @Schema(implementation = ResetStations400Response.class))),
+            @ApiResponse(responseCode = "500", description = "Reset failed", content = @Content(schema = @Schema(implementation = Generic500Response.class)))
+    })
+    public ResponseEntity<?> addPasses() {
+        try {
+            //PassService.resetPasses();
+            return ResponseEntity.ok(new ResetStations200Response().status("OK"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(new ResetStations400Response().status("failed").info(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new Generic500Response().status("failed").info(e.getMessage()));
+        }
+    }
+
 
     //Healthcheck Controller
     @GetMapping("/healthcheck")
