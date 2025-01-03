@@ -4,6 +4,7 @@ import com.payway.models.Generic500Response;
 import com.payway.models.ResetStations200Response;
 import com.payway.models.ResetStations400Response;
 import com.payway.services.TollStationService;
+import com.payway.services.HealthCheckService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -12,19 +13,27 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+
+
+import java.util.HashMap;
+import java.util.Map;
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController{
 
     private final TollStationService tollStationService;
+    private final HealthCheckService healthcheckService;
 
-    public AdminController(TollStationService tollStationService) {
+    public AdminController(TollStationService tollStationService, HealthCheckService healthcheckService) {
         this.tollStationService = tollStationService;
+        this.healthcheckService = healthcheckService;
     }
-
     @PostMapping(value = "/resetstations", produces = "application/json")
     @Operation(
             summary = "Reset toll stations",
@@ -48,6 +57,12 @@ public class AdminController{
         }
     }
 
+    //Healthcheck Controller
+    @GetMapping(value = "/healthcheck", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> healthCheck() {
+        Map<String, Object> response = healthcheckService.getHealthStatus();
+        return ResponseEntity.ok(response);
+    }
 
 
 
