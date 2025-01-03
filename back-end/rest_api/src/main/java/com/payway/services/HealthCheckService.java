@@ -3,6 +3,7 @@ package com.payway.services;
 import com.payway.repositories.HealthCheckRepository;
 import org.springframework.stereotype.Service;
 
+import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,7 +17,7 @@ public class HealthCheckService {
         this.healthCheckRepository = healthCheckRepository;
     }
 
-    public Map<String, Object> getHealthStatus() {
+    public Map<String, Object> getHealthStatus()  throws Exception  {
         Map<String, Object> response = new HashMap<>();
         try {
             // Fetch data using HealthCheckRepository
@@ -33,11 +34,7 @@ public class HealthCheckService {
             response.put("nPasses", nPasses);
 
         } catch (Exception e) {
-            // Handle any issues accessing the database
-            response.put("status", "failed");
-            response.put("timestamp", LocalDateTime.now().toString());
-            response.put("dbConnection", "inactive");
-            response.put("error", e.getMessage());
+            throw new Exception("Failed to establish connection: " + e.getMessage(), e);
         }
         return response;
     }

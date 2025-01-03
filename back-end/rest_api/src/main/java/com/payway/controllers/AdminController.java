@@ -58,12 +58,20 @@ public class AdminController{
     }
 
     //Healthcheck Controller
-    @GetMapping(value = "/healthcheck", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/healthcheck")
     public ResponseEntity<?> healthCheck() {
-        Map<String, Object> response = healthcheckService.getHealthStatus();
-        return ResponseEntity.ok(response);
+        try {
+            // Call the service to get health status
+            Map<String, Object> healthStatus = healthcheckService.getHealthStatus();
+            return ResponseEntity.ok(healthStatus);
+        } catch (Exception e) {
+            // Handle failure and return 401 with error details
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status", "failed");
+            errorResponse.put("dbconnection", e.getMessage());
+            return ResponseEntity.status(401).body(errorResponse);
+        }
     }
-
-
-
 }
+
+
