@@ -108,18 +108,21 @@ def resetpasses(args):
     except requests.exceptions.RequestException as e:
         print(f"Error resetting passes: {e}")
 
-
-# Function to add passes
 def addpasses(args):
     url = "http://localhost:9115/api/admin/addpasses"
     try:
-        files = {'file': open(args.file, 'rb')}  # Upload the CSV file
-        response = requests.post(url, files=files, timeout=10)
-        response.raise_for_status()
-        print("Passes added successfully.")
+        # Open the file in binary mode and include its MIME type
+        with open(args.file, 'rb') as file:
+            files = {'file': (args.file, file, 'text/csv')}
+            response = requests.post(url, files=files, timeout=20)
+            response.raise_for_status()
+            print("Passes added successfully.")
+    except FileNotFoundError:
+        print(f"Error: The file '{args.file}' was not found.")
+    except requests.exceptions.Timeout:
+        print("Error: The request timed out.")
     except requests.exceptions.RequestException as e:
         print(f"Error adding passes: {e}")
-
 
 # Function to retrieve toll station passes
 def tollstationpasses(args):
@@ -190,4 +193,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
