@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,7 +31,6 @@ public class PassService {
         this.tagRepository = tagRepository;
         this.tollStationRepository = tollStationRepository;
     }
-
     public void resetPasses() {
         try {
             // Διαγραφή των διελεύσεων (passes)
@@ -109,4 +109,35 @@ public class PassService {
         }
     }
 
+    public Map<String, Object> getPassAnalysis(String stationID, String tagID, LocalDateTime dateFrom, LocalDateTime dateTo) {
+        // Ανακτούμε τις διελεύσεις από τη βάση δεδομένων
+        List<Pass> passes = passRepository.findPassesByStationAndTagAndDateRange(stationID, tagID, dateFrom, dateTo);
+
+        // Μετατρέπουμε τις διελεύσεις στη σωστή μορφή
+        List<Map<String, Object>> passList = new ArrayList<>();
+        int index = 1;
+
+        for (Pass pass : passes) {
+            passList.add(Map.of(
+                    "passIndex", index++,
+                    "passID", pass.getPassId(),
+                    "stationID", pass.getStationId(),
+                    "timestamp", pass.getPassTime().toString(),
+                    "tagID", pass.getTagRef(),
+                    "passCharge", pass.getCharge()
+            ));
+        }
+
+        // Δημιουργούμε το συνολικό response
+        return Map.of(
+                "stationOpID", stationID,
+                "tagOpID", tagID,
+                "requestTimestamp", LocalDateTime.now().toString(),
+                "periodFrom", dateFrom.toString(),
+                "periodTo", dateTo.toString(),
+                "nPasses", passList.size(),
+                "passList", passList
+        );
+    }
 }
+

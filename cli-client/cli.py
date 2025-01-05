@@ -91,8 +91,7 @@ def healthcheck(args):
 def resetstations(args):
     url = "http://localhost:9115/api/admin/resetstations"
     try:
-        files = {'file': open(args.file, 'rb')}  # Upload the CSV file
-        response = requests.post(url, files=files, timeout=5)
+        response = requests.post(url, timeout=5)
         response.raise_for_status()
         print("Stations reset successfully.")
     except requests.exceptions.RequestException as e:
@@ -115,7 +114,7 @@ def addpasses(args):
     url = "http://localhost:9115/api/admin/addpasses"
     try:
         files = {'file': open(args.file, 'rb')}  # Upload the CSV file
-        response = requests.post(url, files=files, timeout=5)
+        response = requests.post(url, files=files, timeout=10)
         response.raise_for_status()
         print("Passes added successfully.")
     except requests.exceptions.RequestException as e:
@@ -165,7 +164,6 @@ def main():
 
     # Subcommand: resetstations
     resetstations_parser = subparsers.add_parser("resetstations", help="Reset toll stations")
-    resetstations_parser.add_argument("--file", required=True, help="Path to CSV file with station data")
     resetstations_parser.set_defaults(func=resetstations)
 
     # Subcommand: resetpasses
