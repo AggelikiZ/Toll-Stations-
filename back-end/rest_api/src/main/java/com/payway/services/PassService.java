@@ -1,7 +1,9 @@
 package com.payway.services;
-
-import com.payway.models.Pass;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import com.payway.repositories.PassRepository;
+import com.payway.repositories.TagRepository;
+import com.payway.models.Pass;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -9,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
+@Service
 public class PassService {
     private final PassRepository passRepository;
     private final TagRepository tagRepository;
@@ -17,8 +20,16 @@ public class PassService {
         this.passRepository = passRepository;
         this.tagRepository = tagRepository;
     }
-    public void resetPasses() {}
+    public void resetPasses() {
+        try {
+            // Διαγραφή των διελεύσεων (passes)
+            passRepository.deleteAll();
 
+            // Διαγραφή των εξαρτώμενων δεδομένων (πχ: tags, αν υπάρχουν)
+            tagRepository.deleteAll();
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Failed to reset passes and dependent data: " + e.getMessage());
+        }
 
     public void addPasses(MultipartFile file) throws Exception {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
@@ -55,15 +66,10 @@ public class PassService {
             // Save all passes
             passRepository.saveAll(passes);
 
-            // Perform additional updates for dependent tables/collections (e.g., tags)
-            updateDependentData(passes);
         } catch (Exception e) {
             throw new Exception("Failed to process file: " + e.getMessage(), e);
         }
     }
 
-    private void updateDependentData(List<Pass> passes) {
-        // Implement logic to update dependent tables/collections (e.g., tags)
-    }
 
 }
