@@ -18,6 +18,8 @@ import com.payway.services.TollStationService;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -30,13 +32,12 @@ public class TollStationPassesController {
         this.tollStationService = tollStationService;
     }
 
-    @GetMapping(value = "/tollStationPasses/{tollStationID}/{date_from}/{date_to}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/tollStationPasses/{tollStationID}/{date_from}/{date_to}", produces = "application/json")
 
     @Operation(
             summary = "Toll Station Passes",
             description = "Get information for the Passes from a toll station for a period of time"
     )
-
 
     public ResponseEntity<?> getTollStationPasses(
             @PathVariable("tollStationID") String tollStationID,
@@ -65,7 +66,11 @@ public class TollStationPassesController {
             }
 
             // Fetch data from the service
-            Object tollStationPasses = tollStationService.getTollStationPasses(tollStationID, dateFrom, dateTo, format);
+            Object tollStationPasses = tollStationService.getTollStationPasses(tollStationID, fromDate, toDate, format);
+
+            if (tollStationPasses == null) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+            }
 
             return ResponseEntity.ok(tollStationPasses);
 
