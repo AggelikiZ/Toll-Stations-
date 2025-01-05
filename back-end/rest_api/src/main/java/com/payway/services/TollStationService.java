@@ -93,7 +93,9 @@ public class TollStationService {
     }
 
     public Map<String, Object> getStationDetails(String stationId,LocalDate from,LocalDate to) {
-        return tollStationRepository.findTollStationPassesByIdAndTimeRange(stationId,from ,to);
+        LocalDateTime timestamp = LocalDateTime.now();
+
+        return tollStationRepository.findTollStationPassesByIdAndTimeRange(stationId,from ,to, timestamp);
     }
 
 
@@ -115,25 +117,6 @@ public class TollStationService {
                         .header("Content-Disposition", "attachment; filename=toll_station_passes.csv")
                         .body(csv);
             }
-
-                // Return response in csv, or else in json
-//                StringBuilder csvResponse = new StringBuilder();
-//                csvResponse.append("passIndex,passID,timestamp,tagID,tagProvider,passType,passCharge\n");
-//                for (Map<String, Object> pass : passList) {
-//                    csvResponse.append(String.join(",",
-//                                    pass.get("passIndex").toString(),
-//                                    pass.get("passID").toString(),
-//                                    pass.get("timestamp").toString(),
-//                                    pass.get("tagID").toString(),
-//                                    pass.get("tagProvider").toString(),
-//                                    pass.get("passType").toString(),
-//                                    pass.get("passCharge").toString()))
-//                            .append("\n");
-//                }
-//                return ResponseEntity.ok()
-//                        .contentType(MediaType.TEXT_PLAIN)
-//                        .body(csvResponse.toString());
-//            }
 
             return ResponseEntity.ok(response);
         }
