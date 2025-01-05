@@ -91,8 +91,7 @@ def healthcheck(args):
 def resetstations(args):
     url = "http://localhost:9115/api/admin/resetstations"
     try:
-        files = {'file': open(args.file, 'rb')}  # Upload the CSV file
-        response = requests.post(url, files=files, timeout=5)
+        response = requests.post(url, timeout=5)
         response.raise_for_status()
         print("Stations reset successfully.")
     except requests.exceptions.RequestException as e:
@@ -109,18 +108,21 @@ def resetpasses(args):
     except requests.exceptions.RequestException as e:
         print(f"Error resetting passes: {e}")
 
-
-# Function to add passes
 def addpasses(args):
     url = "http://localhost:9115/api/admin/addpasses"
     try:
-        files = {'file': open(args.file, 'rb')}  # Upload the CSV file
-        response = requests.post(url, files=files, timeout=5)
-        response.raise_for_status()
-        print("Passes added successfully.")
+        # Open the file in binary mode and include its MIME type
+        with open(args.file, 'rb') as file:
+            files = {'file': (args.file, file, 'text/csv')}
+            response = requests.post(url, files=files, timeout=20)
+            response.raise_for_status()
+            print("Passes added successfully.")
+    except FileNotFoundError:
+        print(f"Error: The file '{args.file}' was not found.")
+    except requests.exceptions.Timeout:
+        print("Error: The request timed out.")
     except requests.exceptions.RequestException as e:
         print(f"Error adding passes: {e}")
-
 
 # Function to retrieve toll station passes
 def tollstationpasses(args):
@@ -165,7 +167,6 @@ def main():
 
     # Subcommand: resetstations
     resetstations_parser = subparsers.add_parser("resetstations", help="Reset toll stations")
-    resetstations_parser.add_argument("--file", required=True, help="Path to CSV file with station data")
     resetstations_parser.set_defaults(func=resetstations)
 
     # Subcommand: resetpasses
@@ -192,4 +193,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

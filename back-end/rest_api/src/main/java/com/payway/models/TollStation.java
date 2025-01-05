@@ -3,10 +3,14 @@ package com.payway.models;
 import jakarta.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.*;
+import com.payway.models.Pass;
+
 
 @Entity
 @Table(name = "tollstation")
 public class TollStation {
+
     @Id
     @Column(name = "station_id")
     private String id;
@@ -43,6 +47,8 @@ public class TollStation {
 
     @Column(name = "price4", nullable = false)
     private BigDecimal  price4;
+
+    // Getters and Setters
 
     public String getTollId() {
         return id;

@@ -1,7 +1,11 @@
 package com.payway.services;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.payway.models.TollStation;
+import com.payway.models.TollStationPassesDetails;
+import com.payway.models.PassDetails;
 import com.payway.repositories.TollStationRepository;
+import com.payway.utils.Json2CSV;
 import org.apache.catalina.connector.Response;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +16,8 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,9 +27,11 @@ import java.util.Map;
 @Service
 public class TollStationService {
     private final TollStationRepository tollStationRepository;
+    private final Json2CSV jsonToCsvConverter;
 
     public TollStationService(TollStationRepository tollStationRepository) {
         this.tollStationRepository = tollStationRepository;
+        this.jsonToCsvConverter = new Json2CSV();
     }
 
     public void resetStations(String resourcePath) throws Exception {
@@ -87,53 +95,63 @@ public class TollStationService {
         }
     }
 
-    public ResponseEntity<?> getTollStationPasses(String tollStationID, String date_from, String date_to, String format) throws Exception {
+    public List<Map<String, Object>> getStationDetails(String stationId,LocalDate from,LocalDate to) {
+        LocalDateTime timestamp = LocalDateTime.now();
+
+        return tollStationRepository.findTollStationPassesByIdAndTimeRange(stationId,from ,to, timestamp);
+    }
+
+
+    public TollStationPassesDetails getTollStationPasses(String tollStationID, LocalDate date_from, LocalDate date_to, String format) throws Exception {
         try {
 
-            // Dummy data for demonstration
-            // get something from database instead
-            Map<String, Object> response = new HashMap<>();
-            response.put("stationID", tollStationID);
-            response.put("stationOperator", "No one");
-            response.put("requestTimestamp", LocalDateTime.now().toString());
-            response.put("periodFrom", date_from);
-            response.put("periodTo", date_to);
-            response.put("nPasses", 3);
-            List<Map<String, Object>> passList = new ArrayList<>();
-            for (int i = 1; i <= 3; i++) {
-                Map<String, Object> pass = new HashMap<>();
-                pass.put("passIndex", i);
-                pass.put("passID", "PASS" + i);
-                pass.put("timestamp", "2023-12-25 12:0" + i);
-                pass.put("tagID", "TAG" + i);
-                pass.put("tagProvider", "Provider" + i);
-                pass.put("passType", i % 2 == 0 ? "home" : "visitor");
-                pass.put("passCharge", "10.00");
-                passList.add(pass);
-            }
-            response.put("passList", passList);
+            List<Map<String, Object>> response = getStationDetails(tollStationID, date_from, date_to);
 
-            // Return response in csv, or else in json
-            if ("csv".equalsIgnoreCase(format)) {
-                StringBuilder csvResponse = new StringBuilder();
-                csvResponse.append("passIndex,passID,timestamp,tagID,tagProvider,passType,passCharge\n");
-                for (Map<String, Object> pass : passList) {
-                    csvResponse.append(String.join(",",
-                                    pass.get("passIndex").toString(),
-                                    pass.get("passID").toString(),
-                                    pass.get("timestamp").toString(),
-                                    pass.get("tagID").toString(),
-                                    pass.get("tagProvider").toString(),
-                                    pass.get("passType").toString(),
-                                    pass.get("passCharge").toString()))
-                            .append("\n");
-                }
-                return ResponseEntity.ok()
-                        .contentType(MediaType.TEXT_PLAIN)
-                        .body(csvResponse.toString());
+            if (response.isEmpty()) {
+                return null;
             }
 
-            return ResponseEntity.ok(response);
+            // Create the main DTO object
+            TollStationPassesDetails detailsDTO = new TollStationPassesDetails();
+
+            // Set the main fields
+            detailsDTO.setStationID((String) response.get(0).get("stationID"));
+            detailsDTO.setStationOperator((String) response.get(0).get("stationOperator"));
+            detailsDTO.setRequestTimestamp((String) response.get(0).get("requestTimestamp"));
+            detailsDTO.setPeriodFrom((String) response.get(0).get("periodFrom"));
+            detailsDTO.setPeriodTo((String) response.get(0).get("periodTo"));
+            detailsDTO.setnPasses((Long) response.get(0).get("nPasses"));
+
+            // Set the list of passes
+            List<PassDetails> passList = new ArrayList<>();
+            for (Map<String, Object> result : response) {
+                PassDetails passDetail = new PassDetails();
+                passDetail.setPassIndex((Long) result.get("passIndex"));
+                passDetail.setPassID((Long) result.get("passID"));
+                passDetail.setTimestamp((Timestamp) result.get("timestamp"));
+                passDetail.setTagID((String) result.get("tagID"));
+                passDetail.setTagProvider((String) result.get("tagProvider"));
+                passDetail.setPassType((String) result.get("passType"));
+                passDetail.setPassCharge((BigDecimal) result.get("passCharge"));
+                passList.add(passDetail);
+            }
+
+            // Set the pass list to the main DTO
+            detailsDTO.setPassList(passList);
+            return detailsDTO;
+
+
+//            if ("csv".equalsIgnoreCase(format)) {
+//                String json = (String) response.get("passDetails");
+//
+//                // Convert JSON to CSV
+//                String csv = jsonToCsvConverter.convertJsonToCsv("[" + json + "]");
+//
+//                return ResponseEntity.ok()
+//                        .header("Content-Disposition", "attachment; filename=toll_station_passes.csv")
+//                        .body(csv);
+//            }
+
         }
         catch(Exception e) {
             throw new Exception("Failed to get toll station passes: " + e.getMessage(), e);
