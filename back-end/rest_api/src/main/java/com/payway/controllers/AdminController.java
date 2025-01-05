@@ -13,16 +13,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
 
 
 import java.util.HashMap;
 import java.util.Map;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -82,7 +81,7 @@ public class AdminController{
         }
     }
 
-    @PostMapping(value = "/addpasses", produces = "application/json")
+    @PostMapping(value = "/addpasses", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
     @Operation(
             summary = "Reset passes",
             description = "Resets the toll stations table with the data from the `tollstations2024.csv` file."
@@ -92,17 +91,25 @@ public class AdminController{
             @ApiResponse(responseCode = "400", description = "Reset failed due to illegal argument", content = @Content(schema = @Schema(implementation = ResetStations400Response.class))),
             @ApiResponse(responseCode = "500", description = "Reset failed", content = @Content(schema = @Schema(implementation = Generic500Response.class)))
     })
-    public ResponseEntity<?> addPasses() {
+    public ResponseEntity<?> addPasses(@RequestParam("file") MultipartFile file) {
         try {
-            //PassService.resetPasses();
-            return ResponseEntity.ok(new ResetStations200Response().status("OK"));
+            // Check file type
+            if (!Objects.equals(file.getContentType(), "text/csv")) {
+                return ResponseEntity.badRequest().body(Map.of("status", "failed", "info", "Invalid file type. Expected text/csv."));
+            }
+
+            // Pass the file to the service for processing
+            passService.addPasses(file);
+
+            return ResponseEntity.ok(Map.of("status", "OK"));
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(new ResetStations400Response().status("failed").info(e.getMessage()));
+            return ResponseEntity.badRequest().body(Map.of("status", "failed", "info", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new Generic500Response().status("failed").info(e.getMessage()));
+                    .body(Map.of("status", "failed", "info", "An unexpected error occurred: " + e.getMessage()));
         }
     }
+
 
 
     //Healthcheck Controller

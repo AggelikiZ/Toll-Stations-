@@ -1,4 +1,4 @@
-package com.payway.repository;
+package com.payway.repositories;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.payway.models.Pass;
 import org.springframework.stereotype.Repository;
