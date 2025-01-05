@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Repository
 public interface PassRepository extends JpaRepository<Pass, Long> {
@@ -33,4 +34,6 @@ public interface PassRepository extends JpaRepository<Pass, Long> {
             LocalDate startTime,
             LocalDate endTime
     );
+
+    List<Pass> findByStationIdInAndPassTimeBetween(Set<String> stationIds, LocalDateTime startDate, LocalDateTime endDate);
 }

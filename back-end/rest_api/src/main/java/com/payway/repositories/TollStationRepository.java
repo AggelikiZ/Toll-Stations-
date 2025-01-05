@@ -77,4 +77,6 @@ public interface TollStationRepository extends JpaRepository<TollStation, String
             LocalDate endTime,
             LocalDateTime currentTimestamp
     );
+
+    List<TollStation> findByOpId(String opId);
 }
