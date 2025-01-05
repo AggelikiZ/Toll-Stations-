@@ -1,71 +1,86 @@
 package com.payway.controllers;
 
+import com.payway.models.Generic500Response;
+import com.payway.models.ResetStations200Response;
+import com.payway.models.ResetStations400Response;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.payway.services.TollStationService;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 @RestController
 @RequestMapping("/api")
 public class TollStationPassesController {
+
+    private final TollStationService tollStationService;
+
+    @Autowired
+    public TollStationPassesController(TollStationService tollStationService) {
+        this.tollStationService = tollStationService;
+    }
+
     @GetMapping(value = "/tollStationPasses/{tollStationID}/{date_from}/{date_to}", produces = MediaType.APPLICATION_JSON_VALUE)
+
+    @Operation(
+            summary = "Toll Station Passes",
+            description = "Get information for the Passes from a toll station for a period of time"
+    )
+
+
     public ResponseEntity<?> getTollStationPasses(
-            @PathVariable String tollStationID,
-            @PathVariable String date_from,
-            @PathVariable String date_to,
+            @PathVariable("tollStationID") String tollStationID,
+            @PathVariable("date_from") String dateFrom,
+            @PathVariable("date_to") String dateTo,
             @RequestParam(required = false, defaultValue = "json") String format) {
-
-        // Validate the date format (basic validation for YYYYMMDD)
-        if (!date_from.matches("\\d{8}") || !date_to.matches("\\d{8}")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid date format. Use YYYYMMDD.");
-        }
-
-        // Dummy data for demonstration
-        Map<String, Object> response = new HashMap<>();
-        response.put("stationID", tollStationID);
-        response.put("stationOperator", "No one");
-        response.put("requestTimestamp", LocalDateTime.now().toString());
-        response.put("periodFrom", date_from);
-        response.put("periodTo", date_to);
-        response.put("nPasses", 3);
-
-        List<Map<String, Object>> passList = new ArrayList<>();
-        for (int i = 1; i <= 3; i++) {
-            Map<String, Object> pass = new HashMap<>();
-            pass.put("passIndex", i);
-            pass.put("passID", "PASS" + i);
-            pass.put("timestamp", "2023-12-25 12:0" + i);
-            pass.put("tagID", "TAG" + i);
-            pass.put("tagProvider", "Provider" + i);
-            pass.put("passType", i % 2 == 0 ? "home" : "visitor");
-            pass.put("passCharge", "10.00");
-            passList.add(pass);
-        }
-        response.put("passList", passList);
-
-        // Return response in the requested format
-        if ("csv".equalsIgnoreCase(format)) {
-            StringBuilder csvResponse = new StringBuilder();
-            csvResponse.append("passIndex,passID,timestamp,tagID,tagProvider,passType,passCharge\n");
-            for (Map<String, Object> pass : passList) {
-                csvResponse.append(String.join(",",
-                                pass.get("passIndex").toString(),
-                                pass.get("passID").toString(),
-                                pass.get("timestamp").toString(),
-                                pass.get("tagID").toString(),
-                                pass.get("tagProvider").toString(),
-                                pass.get("passType").toString(),
-                                pass.get("passCharge").toString()))
-                        .append("\n");
+        try {
+            if (tollStationID == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing tollStationID.");
             }
-            return ResponseEntity.ok()
-                    .contentType(MediaType.TEXT_PLAIN)
-                    .body(csvResponse.toString());
-        }
+            if (dateFrom == null || dateFrom.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing or empty date_from parameter.");
+            }
+            if (dateTo == null || dateTo.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing or empty date_to parameter.");
+            }
 
-        return ResponseEntity.ok(response);
+            // Validate and parse dates
+            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+            LocalDate fromDate = parseDate(dateFrom, dateFormatter);
+            LocalDate toDate = parseDate(dateTo, dateFormatter);
+
+            // Validate date range
+            if (fromDate.isAfter(toDate)) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid date range: 'date_from' must be before or equal to 'date_to'.");
+            }
+
+            // Fetch data from the service
+            Object tollStationPasses = tollStationService.getTollStationPasses(tollStationID, dateFrom, dateTo, format);
+
+            return ResponseEntity.ok(tollStationPasses);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: " + e.getMessage());
+        }
+    }
+
+    private LocalDate parseDate(String date, DateTimeFormatter formatter) {
+        try {
+            return LocalDate.parse(date, formatter);
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Invalid date format for '" + date + "'. Expected format: yyyyMMdd.");
+        }
     }
 }
