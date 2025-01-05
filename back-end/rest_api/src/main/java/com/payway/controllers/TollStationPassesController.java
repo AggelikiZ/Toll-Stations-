@@ -30,7 +30,7 @@ public class TollStationPassesController {
         this.tollStationService = tollStationService;
     }
 
-    @GetMapping(value = "/tollStationPasses/{tollStationID}/{date_from}/{date_to}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/tollStationPasses/{tollStationID}/{date_from}/{date_to}", produces = "application/json")
 
     @Operation(
             summary = "Toll Station Passes",
