@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.payway.services.TollStationService;
+import com.payway.models.TollStationPassesDetails;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -66,7 +67,7 @@ public class TollStationPassesController {
             }
 
             // Fetch data from the service
-            Object tollStationPasses = tollStationService.getTollStationPasses(tollStationID, fromDate, toDate, format);
+            TollStationPassesDetails tollStationPasses = tollStationService.getTollStationPasses(tollStationID, fromDate, toDate, format);
 
             if (tollStationPasses == null) {
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
