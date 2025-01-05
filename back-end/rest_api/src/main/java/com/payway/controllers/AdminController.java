@@ -83,34 +83,27 @@ public class AdminController{
 
     @PostMapping(value = "/addpasses", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
     @Operation(
-            summary = "Reset passes",
-            description = "Resets the toll stations table with the data from the `tollstations2024.csv` file."
+            summary = "Add passes",
+            description = "Adds passes and updates data structures with the data from the provided csv file."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Reset successful", content = @Content(schema = @Schema(implementation = ResetStations200Response.class))),
-            @ApiResponse(responseCode = "400", description = "Reset failed due to illegal argument", content = @Content(schema = @Schema(implementation = ResetStations400Response.class))),
-            @ApiResponse(responseCode = "500", description = "Reset failed", content = @Content(schema = @Schema(implementation = Generic500Response.class)))
+            @ApiResponse(responseCode = "200", description = "Update successful",content = @Content(schema = @Schema(implementation = ResetStations200Response.class))),
+            @ApiResponse(responseCode = "400", description = "Update failed due to illegal argument", content = @Content(schema = @Schema(implementation = ResetStations400Response.class))),
+            @ApiResponse(responseCode = "500", description = "Update failed due to interval server error", content = @Content(schema = @Schema(implementation = Generic500Response.class)))
     })
     public ResponseEntity<?> addPasses(@RequestParam("file") MultipartFile file) {
         try {
-            // Check file type
             if (!Objects.equals(file.getContentType(), "text/csv")) {
                 return ResponseEntity.badRequest().body(Map.of("status", "failed", "info", "Invalid file type. Expected text/csv."));
             }
-
-            // Pass the file to the service for processing
             passService.addPasses(file);
-
             return ResponseEntity.ok(Map.of("status", "OK"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("status", "failed", "info", e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("status", "failed", "info", "An unexpected error occurred: " + e.getMessage()));
+        } catch (Exception e) {return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new Generic500Response().status("failed").info(e.getMessage()));
         }
     }
-
-
 
     //Healthcheck Controller
     @GetMapping("/healthcheck")
