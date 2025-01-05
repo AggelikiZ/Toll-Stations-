@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="paywaydb@localhost" uuid="0229e7ce-4760-48c5-bdc8-fe7a557b2e4d">
+    <data-source source="LOCAL" name="@localhost" uuid="0229e7ce-4760-48c5-bdc8-fe7a557b2e4d">
       <driver-ref>mariadb</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.mariadb.jdbc.Driver</jdbc-driver>

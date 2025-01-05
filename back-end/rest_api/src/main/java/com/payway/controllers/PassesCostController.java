@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.payway.services.PassService;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -55,16 +56,15 @@ public class PassesCostController {
             }
 
             // Fetch data from the service
-//            Object passesCost = tollStationService.getTollStationPasses(tollStationID, dateFrom, dateTo, format);
-
-//            return ResponseEntity.ok(passesCost);
+//            Object passesCost = PassService.getpassesCost(tollOpID, tagOpID, fromDate, toDate, format);
+            Object passesCost = null;
+            return ResponseEntity.ok(passesCost);
 
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request: " + e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: " + e.getMessage());
         }
-    return null;
     }
 
     private LocalDate parseDate(String date, DateTimeFormatter formatter) {

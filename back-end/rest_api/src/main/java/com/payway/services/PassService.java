@@ -2,6 +2,10 @@ package com.payway.services;
 
 import com.payway.models.Pass;
 import com.payway.models.Tag;
+import com.payway.repositories.TollStationRepository;
+import com.payway.utils.Json2CSV;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import com.payway.models.TollStation;
 import com.payway.repositories.PassRepository;
 import com.payway.repositories.TagRepository;
@@ -12,6 +16,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -24,11 +29,13 @@ public class PassService {
     private final PassRepository passRepository;
     private final TagRepository tagRepository;
     private final TollStationRepository tollStationRepository;
+    private final Json2CSV jsonToCsvConverter;
 
     public PassService(PassRepository passRepository, TagRepository tagRepository, TollStationRepository tollStationRepository) {
         this.passRepository = passRepository;
         this.tagRepository = tagRepository;
         this.tollStationRepository = tollStationRepository;
+        this.jsonToCsvConverter = new Json2CSV();
     }
 
     public void resetPasses() {
@@ -149,4 +156,28 @@ public class PassService {
         );
     }
 
+    public ResponseEntity<?> getpassesCost(String tollOpID, String tagOpID, LocalDate fromDate,LocalDate toDate,String format) throws Exception{
+        try {
+
+//            Map<String, Object> response = PassRepository.getPassesCost(tollOpID, tagOpID, fromDate, toDate);
+            Map<String, Object> response = null;
+            if (response.isEmpty()) {
+                return null;
+            }
+            if ("csv".equalsIgnoreCase(format)) {
+                String json = (String) response.get("passDetails");
+
+                // Convert JSON to CSV
+                String csv = jsonToCsvConverter.convertJsonToCsv("[" + json + "]");
+
+                return ResponseEntity.ok()
+                        .body(csv);
+            }
+
+            return ResponseEntity.ok(response);
+        }
+        catch(Exception e) {
+            throw new Exception("Failed to get toll station passes: " + e.getMessage(), e);
+        }
+    }
 }
