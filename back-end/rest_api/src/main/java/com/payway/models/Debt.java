@@ -1,10 +1,16 @@
 package com.payway.models;
+
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "Debt")
+@IdClass(Debt.DebtId.class)
 public class Debt {
 
     @Id
@@ -53,5 +59,51 @@ public class Debt {
 
     public void setLastUpdate(LocalDateTime lastUpdate) {
         this.lastUpdate = lastUpdate;
+    }
+
+    // Inner class for composite key
+    public static class DebtId implements Serializable {
+
+        private String fromOpId;
+        private String toOpId;
+
+        public DebtId() {
+        }
+
+        public DebtId(String fromOpId, String toOpId) {
+            this.fromOpId = fromOpId;
+            this.toOpId = toOpId;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            DebtId debtId = (DebtId) o;
+            return Objects.equals(fromOpId, debtId.fromOpId) && Objects.equals(toOpId, debtId.toOpId);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(fromOpId, toOpId);
+        }
+
+        // Getters and Setters
+
+        public String getFromOpId() {
+            return fromOpId;
+        }
+
+        public void setFromOpId(String fromOpId) {
+            this.fromOpId = fromOpId;
+        }
+
+        public String getToOpId() {
+            return toOpId;
+        }
+
+        public void setToOpId(String toOpId) {
+            this.toOpId = toOpId;
+        }
     }
 }
