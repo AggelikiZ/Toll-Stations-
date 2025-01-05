@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 public class Pass {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-increment for primary key
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "pass_id")
     private Long passId;
 
@@ -65,16 +65,4 @@ public class Pass {
     public void setCharge(BigDecimal charge) {
         this.charge = charge;
     }
-
-    @Override
-    public String toString() {
-        return "Pass{" +
-                "passId=" + passId +
-                ", passTime=" + passTime +
-                ", tagRef='" + tagRef + '\'' +
-                ", stationId='" + stationId + '\'' +
-                ", charge=" + charge +
-                '}';
-    }
 }
-

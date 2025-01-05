@@ -1,5 +1,5 @@
 package com.payway.services;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.stereotype.Service;
 import com.payway.repositories.PassRepository;
 import com.payway.repositories.TagRepository;
@@ -7,12 +7,17 @@ import com.payway.models.Pass;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class PassService {
+
     private final PassRepository passRepository;
     private final TagRepository tagRepository;
 
@@ -20,6 +25,7 @@ public class PassService {
         this.passRepository = passRepository;
         this.tagRepository = tagRepository;
     }
+
     public void resetPasses() {
         try {
             // Διαγραφή των διελεύσεων (passes)
@@ -54,9 +60,10 @@ public class PassService {
 
                     // Map CSV fields to Pass entity
                     Pass pass = new Pass();
-                    //pass.setField1(values[0].trim()); // Example field mapping
-                    //pass.setField2(values[1].trim());
-                    // Continue mapping fields...
+                    pass.setStationId(values[0].trim());
+                    pass.setTagRef(values[1].trim());
+                    pass.setPassTime(LocalDateTime.parse(values[2].trim())); // Adjust date parsing as needed
+                    pass.setCharge(new BigDecimal(values[3].trim()));
 
                     passes.add(pass);
                 } catch (Exception e) {
@@ -72,5 +79,35 @@ public class PassService {
         }
     }
 
+    public Map<String, Object> getPassAnalysis(String stationID, String tagID, LocalDateTime dateFrom, LocalDateTime dateTo) {
+        // Ανακτούμε τις διελεύσεις από τη βάση δεδομένων
+        List<Pass> passes = passRepository.findPassesByStationAndTagAndDateRange(stationID, tagID, dateFrom, dateTo);
 
+        // Μετατρέπουμε τις διελεύσεις στη σωστή μορφή
+        List<Map<String, Object>> passList = new ArrayList<>();
+        int index = 1;
+
+        for (Pass pass : passes) {
+            passList.add(Map.of(
+                    "passIndex", index++,
+                    "passID", pass.getPassId(),
+                    "stationID", pass.getStationId(),
+                    "timestamp", pass.getPassTime().toString(),
+                    "tagID", pass.getTagRef(),
+                    "passCharge", pass.getCharge()
+            ));
+        }
+
+        // Δημιουργούμε το συνολικό response
+        return Map.of(
+                "stationOpID", stationID,
+                "tagOpID", tagID,
+                "requestTimestamp", LocalDateTime.now().toString(),
+                "periodFrom", dateFrom.toString(),
+                "periodTo", dateTo.toString(),
+                "nPasses", passList.size(),
+                "passList", passList
+        );
+    }
 }
+
