@@ -5,5 +5,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PassRepository extends JpaRepository<Pass, Long> {
-    // Κάποιες custom μέθοδοι, αν απαιτούνται
+
 }

@@ -2,6 +2,9 @@ package com.payway.services;
 
 import com.payway.models.TollStation;
 import com.payway.repositories.TollStationRepository;
+import org.apache.catalina.connector.Response;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -9,8 +12,11 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class TollStationService {
@@ -81,4 +87,56 @@ public class TollStationService {
         }
     }
 
+    public ResponseEntity<?> getTollStationPasses(String tollStationID, String date_from, String date_to, String format) throws Exception {
+        try {
+
+            // Dummy data for demonstration
+            // get something from database instead
+            Map<String, Object> response = new HashMap<>();
+            response.put("stationID", tollStationID);
+            response.put("stationOperator", "No one");
+            response.put("requestTimestamp", LocalDateTime.now().toString());
+            response.put("periodFrom", date_from);
+            response.put("periodTo", date_to);
+            response.put("nPasses", 3);
+            List<Map<String, Object>> passList = new ArrayList<>();
+            for (int i = 1; i <= 3; i++) {
+                Map<String, Object> pass = new HashMap<>();
+                pass.put("passIndex", i);
+                pass.put("passID", "PASS" + i);
+                pass.put("timestamp", "2023-12-25 12:0" + i);
+                pass.put("tagID", "TAG" + i);
+                pass.put("tagProvider", "Provider" + i);
+                pass.put("passType", i % 2 == 0 ? "home" : "visitor");
+                pass.put("passCharge", "10.00");
+                passList.add(pass);
+            }
+            response.put("passList", passList);
+
+            // Return response in csv, or else in json
+            if ("csv".equalsIgnoreCase(format)) {
+                StringBuilder csvResponse = new StringBuilder();
+                csvResponse.append("passIndex,passID,timestamp,tagID,tagProvider,passType,passCharge\n");
+                for (Map<String, Object> pass : passList) {
+                    csvResponse.append(String.join(",",
+                                    pass.get("passIndex").toString(),
+                                    pass.get("passID").toString(),
+                                    pass.get("timestamp").toString(),
+                                    pass.get("tagID").toString(),
+                                    pass.get("tagProvider").toString(),
+                                    pass.get("passType").toString(),
+                                    pass.get("passCharge").toString()))
+                            .append("\n");
+                }
+                return ResponseEntity.ok()
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .body(csvResponse.toString());
+            }
+
+            return ResponseEntity.ok(response);
+        }
+        catch(Exception e) {
+            throw new Exception("Failed to get toll station passes: " + e.getMessage(), e);
+        }
+    }
 }
