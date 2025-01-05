@@ -44,6 +44,8 @@ public class TollStation {
     @Column(name = "price4", nullable = false)
     private BigDecimal  price4;
 
+    // Getters and Setters
+
     public String getTollId() {
         return id;
     }

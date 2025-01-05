@@ -26,6 +26,7 @@ public class Pass {
     private BigDecimal charge;
 
     // Getters and Setters
+
     public Long getPassId() {
         return passId;
     }

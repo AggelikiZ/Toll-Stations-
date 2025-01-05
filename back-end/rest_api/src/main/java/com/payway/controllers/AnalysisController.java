@@ -4,6 +4,7 @@ import com.payway.services.PassService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -26,15 +27,14 @@ public class AnalysisController {
             @PathVariable String date_to
     ) {
         try {
-            // Format dates using the specified pattern
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-            LocalDateTime startDate = LocalDateTime.parse(date_from, formatter);
-            LocalDateTime endDate = LocalDateTime.parse(date_to, formatter);
+            // Format dates from "YYYYMMDD"
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+            LocalDateTime startDate = LocalDate.parse(date_from, formatter).atStartOfDay();
+            LocalDateTime endDate = LocalDate.parse(date_to, formatter).atTime(23, 59, 59);
 
-            // Call the PassService to get the analysis
+            // Call service
             Map<String, Object> response = passService.getPassAnalysis(stationOpID, tagOpID, startDate, endDate);
 
-            // Return the response
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
