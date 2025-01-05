@@ -72,7 +72,7 @@ public class AdminController{
     })
     public ResponseEntity<?> resetPasses() {
         try {
-            //PassService.resetPasses();
+            passService.resetPasses();
             return ResponseEntity.ok(new ResetStations200Response().status("OK"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(new ResetStations400Response().status("failed").info(e.getMessage()));
