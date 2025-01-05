@@ -3,9 +3,11 @@ package com.payway.controllers;
 import com.payway.models.Generic500Response;
 import com.payway.models.ResetStations200Response;
 import com.payway.models.ResetStations400Response;
+import com.payway.models.TollStation;
 import com.payway.services.PassService;
 import com.payway.services.TollStationService;
 import com.payway.services.HealthCheckService;
+import com.payway.services.StationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -19,10 +21,16 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController{
@@ -30,11 +38,13 @@ public class AdminController{
     private final TollStationService tollStationService;
     private final HealthCheckService healthcheckService;
     private final PassService passService;
+    private final StationService stationService;
 
-    public AdminController(TollStationService tollStationService, HealthCheckService healthcheckService, PassService passService) {
+    public AdminController(TollStationService tollStationService, HealthCheckService healthcheckService, PassService passService, StationService stationService) {
         this.tollStationService = tollStationService;
         this.healthcheckService = healthcheckService;
         this.passService = passService;
+        this.stationService = stationService;
     }
     @PostMapping(value = "/resetstations", produces = "application/json")
     @Operation(
@@ -106,7 +116,7 @@ public class AdminController{
     }
 
     //Healthcheck Controller
-    @GetMapping("/healthcheck")
+    @GetMapping(value = "/healthcheck", produces = "application/json")
     public ResponseEntity<?> healthCheck() {
         try {
             // Call the service to get health status
@@ -121,6 +131,13 @@ public class AdminController{
 
         }
     }
+
+    @GetMapping("/stations")
+    public ResponseEntity<List<TollStation>> getAllStations() {
+        List<TollStation> stations = stationService.getAllStations();
+        return ResponseEntity.ok(stations);
+    }
+
 }
 
 

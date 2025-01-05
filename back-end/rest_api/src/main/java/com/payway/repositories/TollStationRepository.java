@@ -26,52 +26,35 @@ public interface TollStationRepository extends JpaRepository<TollStation, String
             @Param("endTime") LocalDate endTime);
 
     @Query(value = """
-
             SELECT
                 ts.station_id AS stationID,
                 op.op_name AS stationOperator,
-                ?2 as periodFrom,
-                ?3 as periodTo,
-                ?4 as requestTimestamp,
-                COUNT(p.pass_id) AS nPasses,
-                GROUP_CONCAT(
-                    CONCAT(
-                        '{"passIndex":', row_num,\s
-                        ',"passID":', p.pass_id,
-                        ',"timestamp":"', p.pass_time,
-                        ',","tagID":"', p.tag_ref,
-                        ',"tagProvider":"', t.op_id,
-                        '","passCharge":', p.charge,
-                        ',"passType":"',\s
-                        CASE\s
-                            WHEN t.op_id = ts.op_id THEN 'home'
-                            ELSE 'visitor'
-                        END,  -- "home" or "visitor" based on provider match
-                        '"}'
-                    ) SEPARATOR ',') AS passDetails
+                ?2 AS periodFrom,
+                ?3 AS periodTo,
+                ?4 AS requestTimestamp,
+                COUNT(p.pass_id) OVER (PARTITION BY ts.station_id) AS nPasses,
+                ROW_NUMBER() OVER (PARTITION BY ts.station_id ORDER BY p.pass_time) AS passIndex,
+                p.pass_id AS passID,
+                p.pass_time AS timestamp,
+                p.tag_ref AS tagID,
+                t.op_id AS tagProvider,
+                p.charge AS passCharge,
+                CASE
+                    WHEN t.op_id = ts.op_id THEN 'home'
+                    ELSE 'visitor'
+                END AS passType
             FROM
                 TollStation ts
             LEFT JOIN Operator op ON ts.op_id = op.op_id
             LEFT JOIN Pass p ON ts.station_id = p.station_id
             LEFT JOIN Tag t ON p.tag_ref = t.tag_ref
-            JOIN (
-                SELECT\s
-                    p.pass_id,
-                    p.station_id,
-                    p.pass_time,
-                    p.tag_ref,
-                    p.charge,
-                    ROW_NUMBER() OVER (PARTITION BY p.station_id ORDER BY p.pass_time) AS row_num
-                FROM Pass p
-            ) AS numbered_passes
-            ON p.pass_id = numbered_passes.pass_id
             WHERE
                 ts.station_id = ?1
                 AND p.pass_time BETWEEN ?2 AND ?3
-            GROUP BY
-                ts.station_id, ts.station_name, ts.op_id, op.op_name;
+            ORDER BY
+                p.pass_time;
             """, nativeQuery = true)
-    Map<String, Object> findTollStationPassesByIdAndTimeRange(
+    List<Map<String, Object>> findTollStationPassesByIdAndTimeRange(
             String stationId,
             LocalDate startTime,
             LocalDate endTime,

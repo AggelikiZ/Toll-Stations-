@@ -2,6 +2,8 @@ package com.payway.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.payway.models.TollStation;
+import com.payway.models.TollStationPassesDetails;
+import com.payway.models.PassDetails;
 import com.payway.repositories.TollStationRepository;
 import com.payway.utils.Json2CSV;
 import org.apache.catalina.connector.Response;
@@ -14,6 +16,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -92,33 +95,63 @@ public class TollStationService {
         }
     }
 
-    public Map<String, Object> getStationDetails(String stationId,LocalDate from,LocalDate to) {
+    public List<Map<String, Object>> getStationDetails(String stationId,LocalDate from,LocalDate to) {
         LocalDateTime timestamp = LocalDateTime.now();
 
         return tollStationRepository.findTollStationPassesByIdAndTimeRange(stationId,from ,to, timestamp);
     }
 
 
-    public ResponseEntity<?> getTollStationPasses(String tollStationID, LocalDate date_from, LocalDate date_to, String format) throws Exception {
+    public TollStationPassesDetails getTollStationPasses(String tollStationID, LocalDate date_from, LocalDate date_to, String format) throws Exception {
         try {
 
-            Map<String, Object> response = getStationDetails(tollStationID, date_from, date_to);
+            List<Map<String, Object>> response = getStationDetails(tollStationID, date_from, date_to);
 
             if (response.isEmpty()) {
                 return null;
             }
-            if ("csv".equalsIgnoreCase(format)) {
-                String json = (String) response.get("passDetails");
 
-                // Convert JSON to CSV
-                String csv = jsonToCsvConverter.convertJsonToCsv("[" + json + "]");
+            // Create the main DTO object
+            TollStationPassesDetails detailsDTO = new TollStationPassesDetails();
 
-                return ResponseEntity.ok()
-                        .header("Content-Disposition", "attachment; filename=toll_station_passes.csv")
-                        .body(csv);
+            // Set the main fields
+            detailsDTO.setStationID((String) response.get(0).get("stationID"));
+            detailsDTO.setStationOperator((String) response.get(0).get("stationOperator"));
+            detailsDTO.setRequestTimestamp((String) response.get(0).get("requestTimestamp"));
+            detailsDTO.setPeriodFrom((String) response.get(0).get("periodFrom"));
+            detailsDTO.setPeriodTo((String) response.get(0).get("periodTo"));
+            detailsDTO.setnPasses((Long) response.get(0).get("nPasses"));
+
+            // Set the list of passes
+            List<PassDetails> passList = new ArrayList<>();
+            for (Map<String, Object> result : response) {
+                PassDetails passDetail = new PassDetails();
+                passDetail.setPassIndex((Long) result.get("passIndex"));
+                passDetail.setPassID((Long) result.get("passID"));
+                passDetail.setTimestamp((Timestamp) result.get("timestamp"));
+                passDetail.setTagID((String) result.get("tagID"));
+                passDetail.setTagProvider((String) result.get("tagProvider"));
+                passDetail.setPassType((String) result.get("passType"));
+                passDetail.setPassCharge((BigDecimal) result.get("passCharge"));
+                passList.add(passDetail);
             }
 
-            return ResponseEntity.ok(response);
+            // Set the pass list to the main DTO
+            detailsDTO.setPassList(passList);
+            return detailsDTO;
+
+
+//            if ("csv".equalsIgnoreCase(format)) {
+//                String json = (String) response.get("passDetails");
+//
+//                // Convert JSON to CSV
+//                String csv = jsonToCsvConverter.convertJsonToCsv("[" + json + "]");
+//
+//                return ResponseEntity.ok()
+//                        .header("Content-Disposition", "attachment; filename=toll_station_passes.csv")
+//                        .body(csv);
+//            }
+
         }
         catch(Exception e) {
             throw new Exception("Failed to get toll station passes: " + e.getMessage(), e);
