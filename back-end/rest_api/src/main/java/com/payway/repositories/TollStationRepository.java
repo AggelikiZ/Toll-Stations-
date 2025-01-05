@@ -4,5 +4,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TollStationRepository extends JpaRepository<TollStation, Long> {
+public interface TollStationRepository extends JpaRepository<TollStation, String> {
 }
