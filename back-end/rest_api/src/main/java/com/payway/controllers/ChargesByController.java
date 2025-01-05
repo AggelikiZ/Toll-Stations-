@@ -12,7 +12,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/chargesBy")
 public class ChargesByController {
-
+    /*
     private final ChargeService chargeService;
 
     public ChargesController(ChargeService chargeService) {
@@ -40,4 +40,5 @@ public class ChargesByController {
             return ResponseEntity.badRequest().body(Map.of("error", "Invalid request: " + e.getMessage()));
         }
     }
+     */
 }
