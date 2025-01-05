@@ -1,12 +1,16 @@
 package com.payway.services;
+
+import com.payway.models.Pass;
 import com.payway.models.Tag;
 import com.payway.repositories.TollStationRepository;
 import com.payway.utils.Json2CSV;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import com.payway.models.TollStation;
 import com.payway.repositories.PassRepository;
 import com.payway.repositories.TagRepository;
-import com.payway.models.Pass;
+import com.payway.repositories.TollStationRepository;
+import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -15,16 +19,13 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.Map;
+import java.util.*;
 
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class PassService {
+
     private final PassRepository passRepository;
     private final TagRepository tagRepository;
     private final TollStationRepository tollStationRepository;
@@ -36,12 +37,10 @@ public class PassService {
         this.tollStationRepository = tollStationRepository;
         this.jsonToCsvConverter = new Json2CSV();
     }
+
     public void resetPasses() {
         try {
-            // Διαγραφή των διελεύσεων (passes)
             passRepository.deleteAll();
-
-            // Διαγραφή των εξαρτώμενων δεδομένων (πχ: tags, αν υπάρχουν)
             tagRepository.deleteAll();
         } catch (Exception e) {
             throw new IllegalArgumentException("Failed to reset passes and dependent data: " + e.getMessage());
@@ -62,41 +61,37 @@ public class PassService {
             while ((line = reader.readLine()) != null) {
                 lineNumber++;
                 try {
-                    // Split CSV line
-                    String[] values = line.split(",", -1); // Handle trailing empty strings
+                    String[] values = line.split(",", -1);
 
-                    // Validate number of columns
                     if (values.length != 5) {
                         throw new IllegalArgumentException("Invalid number of columns at line " + lineNumber);
                     }
 
                     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-                    // Map CSV fields to Pass
                     Pass pass = new Pass();
                     String timestampStr = values[0].trim();
                     if (timestampStr.length() == 16) {
-                        timestampStr += ":00"; // Add seconds if missing
+                        timestampStr += ":00";
                     }
                     pass.setPassTime(Timestamp.valueOf(LocalDateTime.parse(timestampStr, formatter)).toLocalDateTime());
-                    String station_id = values[1].trim();
-                    if (!tollStationRepository.existsById(station_id)) {
-                        String mess = "Invalid toll station ID: " + station_id;
-                        throw new IllegalArgumentException(mess);
+
+                    String stationId = values[1].trim();
+                    if (!tollStationRepository.existsById(stationId)) {
+                        throw new IllegalArgumentException("Invalid toll station ID: " + stationId);
                     }
-                    pass.setStationId(station_id);
+                    pass.setStationId(stationId);
                     pass.setTagRef(values[2].trim());
                     pass.setCharge(new BigDecimal(values[4].trim()));
                     passes.add(pass);
 
-                    // Update Tag if it's a new tag reference
                     String tagRef = values[2].trim();
                     if (!existingTags.contains(tagRef)) {
                         Tag tag = new Tag();
                         tag.setTagRef(tagRef);
                         tag.setOpId(values[3].trim());
                         newTags.add(tag);
-                        existingTags.add(tagRef); // Avoid duplicate processing
+                        existingTags.add(tagRef);
                     }
 
                 } catch (Exception e) {
@@ -104,7 +99,6 @@ public class PassService {
                 }
             }
 
-            // Save new tags and all passes
             tagRepository.saveAll(newTags);
             passRepository.saveAll(passes);
             System.out.println("Passes saved successfully: " + passes.size() + " entries.");
@@ -114,32 +108,49 @@ public class PassService {
         }
     }
 
-    public Map<String, Object> getPassAnalysis(String stationID, String tagID, LocalDateTime dateFrom, LocalDateTime dateTo) {
-        // Ανακτούμε τις διελεύσεις από τη βάση δεδομένων
-        List<Pass> passes = passRepository.findPassesByStationAndTagAndDateRange(stationID, tagID, dateFrom, dateTo);
 
-        // Μετατρέπουμε τις διελεύσεις στη σωστή μορφή
-        List<Map<String, Object>> passList = new ArrayList<>();
-        int index = 1;
+    public Map<String, Object> getPassAnalysis(String stationOpID, String tagOpID, LocalDateTime dateFrom, LocalDateTime dateTo) {
+        // Βρίσκουμε TollStation βάσει του stationOpID
+        Optional<TollStation> tollStationOptional = tollStationRepository.findById(stationOpID);
+        if (tollStationOptional.isEmpty()) {
+            throw new IllegalArgumentException("Invalid stationOpID: " + stationOpID);
+        }
+        TollStation tollStation = tollStationOptional.get();
 
-        for (Pass pass : passes) {
-            passList.add(Map.of(
-                    "passIndex", index++,
-                    "passID", pass.getPassId(),
-                    "stationID", pass.getStationId(),
-                    "timestamp", pass.getPassTime().toString(),
-                    "tagID", pass.getTagRef(),
-                    "passCharge", pass.getCharge()
-            ));
+        // Βρίσκουμε όλες τις εγγραφές Tags βάσει του tagOpID
+        List<Tag> tags = tagRepository.findByOpId(tagOpID);
+        if (tags.isEmpty()) {
+            throw new IllegalArgumentException("Invalid tagOpID: " + tagOpID);
         }
 
-        // Δημιουργούμε το συνολικό response
+        // Δημιουργούμε μία λίστα για τα αποτελέσματα διέλευσης
+        List<Map<String, Object>> passList = new ArrayList<>();
+        int index = 1;
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+        for (Tag tag : tags) {
+            // Βρίσκουμε τις διελεύσεις για κάθε Tag
+            List<Pass> passes = passRepository.findPassesByStationAndTagAndDateRange(
+                    tollStation.getTollId(), tag.getTagRef(), dateFrom, dateTo);
+
+            for (Pass pass : passes) {
+                passList.add(Map.of(
+                        "passIndex", index++,
+                        "passID", pass.getPassId(),
+                        "stationID", pass.getStationId(),
+                        "timestamp", pass.getPassTime().format(outputFormatter),
+                        "tagID", pass.getTagRef(),
+                        "passCharge", pass.getCharge()
+                ));
+            }
+        }
+
         return Map.of(
-                "stationOpID", stationID,
-                "tagOpID", tagID,
-                "requestTimestamp", LocalDateTime.now().toString(),
-                "periodFrom", dateFrom.toString(),
-                "periodTo", dateTo.toString(),
+                "stationOpID", stationOpID,
+                "tagOpID", tagOpID,
+                "requestTimestamp", LocalDateTime.now().format(outputFormatter),
+                "periodFrom", dateFrom.format(outputFormatter),
+                "periodTo", dateTo.format(outputFormatter),
                 "nPasses", passList.size(),
                 "passList", passList
         );
@@ -170,4 +181,3 @@ public class PassService {
         }
     }
 }
-
