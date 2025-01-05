@@ -30,6 +30,7 @@ public class PassService {
         } catch (Exception e) {
             throw new IllegalArgumentException("Failed to reset passes and dependent data: " + e.getMessage());
         }
+    }
 
     public void addPasses(MultipartFile file) throws Exception {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
