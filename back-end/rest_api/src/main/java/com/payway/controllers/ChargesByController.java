@@ -10,7 +10,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/chargesBy")
+@RequestMapping("/api/chargesBy")
 public class ChargesByController {
     private final ChargeService chargeService;
 

@@ -140,18 +140,6 @@ public class TollStationService {
             detailsDTO.setPassList(passList);
             return detailsDTO;
 
-
-//            if ("csv".equalsIgnoreCase(format)) {
-//                String json = (String) response.get("passDetails");
-//
-//                // Convert JSON to CSV
-//                String csv = jsonToCsvConverter.convertJsonToCsv("[" + json + "]");
-//
-//                return ResponseEntity.ok()
-//                        .header("Content-Disposition", "attachment; filename=toll_station_passes.csv")
-//                        .body(csv);
-//            }
-
         }
         catch(Exception e) {
             throw new Exception("Failed to get toll station passes: " + e.getMessage(), e);
