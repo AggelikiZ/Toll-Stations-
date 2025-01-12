@@ -110,26 +110,26 @@ public class PassService {
 
 
     public Map<String, Object> getPassAnalysis(String stationOpID, String tagOpID, LocalDateTime dateFrom, LocalDateTime dateTo) {
-        // Βρίσκουμε TollStation βάσει του stationOpID
+        // Find the TollStation based on stationOpID
         Optional<TollStation> tollStationOptional = tollStationRepository.findById(stationOpID);
         if (tollStationOptional.isEmpty()) {
             throw new IllegalArgumentException("Invalid stationOpID: " + stationOpID);
         }
         TollStation tollStation = tollStationOptional.get();
 
-        // Βρίσκουμε όλες τις εγγραφές Tags βάσει του tagOpID
+        // Find all Tags for the given tagOpID
         List<Tag> tags = tagRepository.findByOpId(tagOpID);
         if (tags.isEmpty()) {
             throw new IllegalArgumentException("Invalid tagOpID: " + tagOpID);
         }
 
-        // Δημιουργούμε μία λίστα για τα αποτελέσματα διέλευσης
+        // Create a list for pass results
         List<Map<String, Object>> passList = new ArrayList<>();
         int index = 1;
         DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
         for (Tag tag : tags) {
-            // Βρίσκουμε τις διελεύσεις για κάθε Tag
+            // Find passes for each Tag
             List<Pass> passes = passRepository.findPassesByStationAndTagAndDateRange(
                     tollStation.getTollId(), tag.getTagRef(), dateFrom, dateTo);
 
@@ -155,6 +155,8 @@ public class PassService {
                 "passList", passList
         );
     }
+
+
 
     public ResponseEntity<?> getpassesCost(String tollOpID, String tagOpID, LocalDate fromDate,LocalDate toDate,String format) throws Exception{
         try {
