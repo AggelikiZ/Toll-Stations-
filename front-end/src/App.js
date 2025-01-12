@@ -3,7 +3,10 @@ import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import StationMap from './pages/Stations'; // Updated to point to your StationMap component
 import Passes from './pages/Passes'; // Placeholder for your Passes component
+import PassAnalysis from "./pages/PassAnalysisPage";
 import AdminPage from './pages/AdminPage';
+import PassCost from "./pages/PassCostPage";
+import ChargesBy from "./pages/ChargesByPage";
 import './styles/App.css'; // Add a CSS file for styling
 
 
@@ -21,6 +24,9 @@ export default function App() {
                             <li><Link to="/stations">Stations</Link></li>
                             <li><Link to="/passes">Passes</Link></li>
                             <li><Link to="/adminpage">AdminPage</Link></li>
+                            <li><Link to="/passanalysis">PassAnalysis</Link></li>
+                            <li><Link to="/passcost">PassCost</Link></li>
+                            <li><Link to="/chargesby">ChargesBy</Link></li>
                         </ul>
                     </nav>
                 </header>
@@ -40,6 +46,9 @@ export default function App() {
                         <Route path="/stations" element={<StationMap/>}/>
                         <Route path="/passes" element={<Passes/>}/>
                         <Route path="/adminpage" element={<AdminPage/>}/>
+                        <Route path="/passanalysis" element={<PassAnalysis/>}/>
+                        <Route path="/passcost" element={<PassCost/>}/>
+                        <Route path="/chargesby" element={<ChargesBy/>}/>
                     </Routes>
                 </main>
 
