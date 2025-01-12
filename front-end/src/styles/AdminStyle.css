@@ -1,0 +1,95 @@
+.admin-tools-container {
+    background-color: #ffffff;
+    padding: 20px;
+    margin: 20px auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    text-align: center;
+}
+
+.admin-tools-header {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #4caf50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Space between icon and text */
+}
+
+.admin-tools-header .icon {
+    font-size: 1.5rem; /* Adjust icon size */
+    color: #4caf50; /* Match icon color with the header text */
+}
+
+.admin-buttons-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.admin-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    color: #fff;
+}
+
+.reset-stations {
+    background-color: #4CAF50;
+    transition: background-color 0.3s ease;
+}
+
+.reset-stations:hover {
+    background-color: #3e8e41;
+}
+
+.reset-passes {
+    background-color: #f44336;
+    transition: background-color 0.3s ease;
+}
+
+.reset-passes:hover {
+    background-color: #d32f2f;
+}
+
+.add-passes-header {
+    font-size: 1.5em;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.add-passes-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.upload-button {
+    background-color: #2196F3;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 1em;
+}
+
+.upload-button:hover {
+    background-color: #1976D2;
+}
+
+.message {
+    margin-top: 15px;
+    font-size: 1em;
+    color: #333;
+}
