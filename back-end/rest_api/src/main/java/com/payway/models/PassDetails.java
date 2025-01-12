@@ -8,7 +8,7 @@ import java.util.List;
 // Class to represent each pass detail
 public class PassDetails {
     private Long passIndex;
-    private Long passID;
+    private String passID;
     private Timestamp timestamp;
     private String tagID;
     private String tagProvider;
@@ -24,11 +24,11 @@ public class PassDetails {
         this.passIndex = passIndex;
     }
 
-    public Long getPassID() {
+    public String getPassID() {
         return passID;
     }
 
-    public void setPassID(Long passID) {
+    public void setPassID(String passID) {
         this.passID = passID;
     }
 

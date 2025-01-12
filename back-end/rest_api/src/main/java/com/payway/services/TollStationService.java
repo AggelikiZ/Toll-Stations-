@@ -127,7 +127,7 @@ public class TollStationService {
             for (Map<String, Object> result : response) {
                 PassDetails passDetail = new PassDetails();
                 passDetail.setPassIndex((Long) result.get("passIndex"));
-                passDetail.setPassID((Long) result.get("passID"));
+                passDetail.setPassID((String) String.valueOf(result.get("passID")));
                 passDetail.setTimestamp((Timestamp) result.get("timestamp"));
                 passDetail.setTagID((String) result.get("tagID"));
                 passDetail.setTagProvider((String) result.get("tagProvider"));
