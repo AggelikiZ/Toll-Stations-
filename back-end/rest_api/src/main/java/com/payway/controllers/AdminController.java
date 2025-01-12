@@ -69,6 +69,7 @@ public class AdminController{
         }
     }
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping(value = "/resetpasses", produces = "application/json")
     @Operation(
             summary = "Reset passes",
@@ -91,6 +92,7 @@ public class AdminController{
         }
     }
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping(value = "/addpasses", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
     @Operation(
             summary = "Add passes",
