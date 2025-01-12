@@ -6,53 +6,65 @@ body {
 }
 
 .dashboard-container {
-    max-width: 400px; /* Adjusted width for single-column layout */
+    max-width: 1200px;
     margin: 20px auto;
-    padding: 10px;
+    padding: 20px;
     background-color: #ffffff;
     border-radius: 8px;
-    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .dashboard-header {
     text-align: center;
-    padding: 10px 0;
+    padding: 20px 0;
     background-color: #4CAF50;
     color: #ffffff;
     border-radius: 8px 8px 0 0;
 }
 
-.dashboard-header h1 {
+.dashboard-title {
     margin: 0;
-    font-size: 1.8em; /* Adjust header font size */
+    font-size: 2em;
+    font-weight: bold;
 }
 
 .dashboard-content {
     display: grid;
-    grid-template-columns: 1fr; /* Force a single column */
-    gap: 10px; /* Space between cards */
-    padding: 10px 0;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Two-column layout */
+    gap: 20px; /* Adjust the gap between cards */
+    padding: 20px;
 }
 
 .dashboard-card {
-    background-color: #ffffff;
+    background-color: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 8px;
-    padding: 10px;
-    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+    padding: 20px;
     text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+}
+
+.dashboard-card:hover {
+    transform: scale(1.05);
 }
 
 .dashboard-card h2 {
-    font-size: 1.2em; /* Smaller title font size */
+    font-size: 1.5em;
     color: #333;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
 }
 
 .dashboard-card p {
-    font-size: 0.9em; /* Smaller paragraph font size */
+    font-size: 1.2em;
     color: #666;
     margin: 0;
+}
+
+.icon {
+    font-size: 2.5em;
+    color: #4CAF50;
+    margin-bottom: 10px;
 }
 
 .dashboard-loading,
@@ -60,16 +72,16 @@ body {
 .dashboard-no-data {
     text-align: center;
     padding: 10px;
-    font-size: 0.9em; /* Adjust general text size */
+    font-size: 1.2em;
     color: #555;
 }
 
 .dashboard-footer {
     text-align: center;
-    padding: 5px 0;
+    padding: 10px 0;
     color: #666;
     background-color: #f9f9f9;
     border-top: 1px solid #ddd;
-    margin-top: 10px;
+    margin-top: 20px;
 }
 

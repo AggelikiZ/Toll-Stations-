@@ -39,29 +39,16 @@ public class ChargeService {
         List<TollStation> stations = tollStationRepository.findByOpId(tollOpID);
         Set<String> stationIds = stations.stream().map(TollStation::getTollId).collect(Collectors.toSet());
 
-        // Fetch passes from these stations
-        List<Pass> passes = passRepository.findByStationIdInAndPassTimeBetween(stationIds, dateFrom, dateTo);
+        // Fetch passes directly with visiting operators
+        List<Pass> passes = passRepository.findPassesByStationIdsAndDateRangeAndVisitingOperator(stationIds, dateFrom, dateTo, tollOpID);
 
         // Group by visiting operator
         Map<String, List<Pass>> groupedByOperator = passes.stream()
-                .filter(pass -> {
-                    try {
-                        Long tagId = Long.parseLong(pass.getTagRef());
-                        Tag tag = tagRepository.findById(tagId).orElse(null);
-                        return tag != null && !tag.getOpId().equals(tollOpID);
-                    } catch (NumberFormatException e) {
-                        return false; // Αγνοούμε τα tags που δεν είναι έγκυρα Long
-                    }
-                })
                 .collect(Collectors.groupingBy(pass -> {
-                    try {
-                        Long tagId = Long.parseLong(pass.getTagRef());
-                        Tag tag = tagRepository.findById(tagId).orElse(null);
-                        return tag != null ? tag.getOpId() : "unknown";
-                    } catch (NumberFormatException e) {
-                        return "unknown";
-                    }
+                    Tag tag = tagRepository.findById(pass.getTagRef()).orElse(null);
+                    return tag != null ? tag.getOpId() : "unknown";
                 }));
+
         // Build vOpList
         List<Map<String, Object>> vOpList = new ArrayList<>();
 

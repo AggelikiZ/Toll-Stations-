@@ -58,5 +58,22 @@ GROUP BY\s
 
 
 
+    @Query(value = """
+    SELECT p.* 
+    FROM pass p
+    JOIN tag t ON p.tag_ref = t.tag_ref
+    WHERE p.station_id IN :stationIds
+      AND p.pass_time BETWEEN :dateFrom AND :dateTo
+      AND t.op_id != :tollOpID
+""", nativeQuery = true)
+    List<Pass> findPassesByStationIdsAndDateRangeAndVisitingOperator(
+            @Param("stationIds") Set<String> stationIds,
+            @Param("dateFrom") LocalDateTime dateFrom,
+            @Param("dateTo") LocalDateTime dateTo,
+            @Param("tollOpID") String tollOpID
+    );
+
+
+
     List<Pass> findByStationIdInAndPassTimeBetween(Set<String> stationIds, LocalDateTime startDate, LocalDateTime endDate);
 }
