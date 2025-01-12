@@ -53,3 +53,16 @@ export const getPasses = (station, fromDate, toDate) => {
 
 //Get Stations
 export const getStations = () => api.get('/admin/stations');
+
+export const passAnalysis = async (stationOp, tagOp, fromDate, toDate, format = 'json') => {
+    return api.get(`/passAnalysis/${stationOp}/${tagOp}/${fromDate}/${toDate}`);
+
+}
+
+export const getPassesCost = async (tollOp, tagOp, fromDate, toDate, format = 'json') => {
+    return api.get(`/passesCost/${tollOp}/${tagOp}/${fromDate}/${toDate}`);
+}
+
+export const getChargesBy = async (opId, fromDate, toDate, format = 'json') => {
+    return api.get(`/chargesBy/${opId}/${fromDate}/${toDate}`);
+}

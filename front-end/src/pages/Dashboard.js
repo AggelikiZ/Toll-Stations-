@@ -52,7 +52,7 @@ export default function Dashboard() {
                 <div className="dashboard-card">
                     <i className="fas fa-database icon"></i>
                     <h2>Database Connection</h2>
-                    <p>{healthData.dbConnection}</p>
+                    <p>{healthData.dbconnection}</p>
                 </div>
                 <div className="dashboard-card">
                     <i className="fas fa-building icon"></i>
