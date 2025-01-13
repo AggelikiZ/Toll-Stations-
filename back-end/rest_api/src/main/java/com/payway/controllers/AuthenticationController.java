@@ -1,7 +1,9 @@
 package com.payway.controllers;
 
 import com.payway.models.LoginRequest;
+import com.payway.models.Operator;
 import com.payway.repositories.UserRepository;
+import com.payway.repositories.OperatorRepository;
 import com.payway.utils.JwtTokenUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -27,12 +29,14 @@ public class AuthenticationController {
     private String SECRET_KEY;
     private final UserRepository userRepository;
     private final JwtTokenUtil jwtTokenUtil;
+    private final OperatorRepository operatorRepository;
     private final jwtBlackListService jwtBlackListService;
 
-    public AuthenticationController(UserRepository userRepository, JwtTokenUtil jwtTokenUtil, jwtBlackListService jwtBlackListService) {
+    public AuthenticationController(UserRepository userRepository, JwtTokenUtil jwtTokenUtil, jwtBlackListService jwtBlackListService, OperatorRepository operatorRepository) {
         this.userRepository = userRepository;
         this.jwtTokenUtil = jwtTokenUtil;
         this.jwtBlackListService = jwtBlackListService;
+        this.operatorRepository = operatorRepository;
     }
 
     @PostMapping(value = "/login", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -82,6 +86,51 @@ public class AuthenticationController {
         jwtBlackListService.addToBlacklist(token); // Προσθήκη του token στη blacklist
 
         return ResponseEntity.ok().build(); // Επιστροφή 200 OK με κενό σώμα
+    }
+
+
+    @GetMapping("/auth/operatorId")
+    @Operation(
+            summary = "Get Operator ID",
+            description = "Retrieves the operator ID (opId) from the token of the logged-in user."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Operator ID retrieved successfully", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(example = "{\"opId\": \"EG\"}"))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(example = "{\"error\": \"Invalid or expired token\"}")))
+    })
+    public ResponseEntity<?> getOperatorId(HttpServletRequest request) {
+        try {
+            String token = request.getHeader("X-OBSERVATORY-AUTH");
+            if (token == null || token.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Token not provided."));
+            }
+
+            // Verify the token
+            if (jwtBlackListService.isBlacklisted(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Map.of("error", "Token is invalid or blacklisted."));
+            }
+
+            // Extract username from the token
+            String username = jwtTokenUtil.validateToken(token).getSubject();
+
+            // Find the user by username
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new IllegalArgumentException("User not found."));
+
+            // Find the operator corresponding to the user's ID
+            Operator operator = operatorRepository.findByUserId(user.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("Operator not found for the user."));
+
+            // Return the operator ID
+            return ResponseEntity.ok(Map.of("opId", operator.getOpId()));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Failed to retrieve operator ID. " + e.getMessage()));
+        }
     }
 
 //    @PostMapping(value = "/logout", produces = MediaType.APPLICATION_JSON_VALUE)
