@@ -131,15 +131,3 @@ BEGIN
 END//
 
 DELIMITER ;
-
-DELIMITER //
-CREATE TRIGGER delete_tags_before_passes
-    BEFORE DELETE ON tollstation
-    FOR EACH ROW
-BEGIN
-    -- Delete all passes associated with the station being deleted
-    DELETE FROM pass
-    WHERE station_id = OLD.station_id;
-END//
-
-DELIMITER ;
