@@ -1,17 +1,32 @@
 import React, { useState, useEffect } from 'react';
-import { Line } from 'react-chartjs-2'; // Optional for visualizing results
-import { passAnalysis } from '../api/api'; // API function
+import { Line } from 'react-chartjs-2';
+import { passAnalysis, getOperatorId } from '../api/api'; // Import the API functions
 import Chart from 'chart.js/auto';
-import 'chartjs-adapter-date-fns'; // For date handling
+import 'chartjs-adapter-date-fns';
 
 export default function PassAnalysis() {
-    const [stationOp, setStationOp] = useState('');
+    const [stationOp, setStationOp] = useState(''); // Automatically populated
     const [tagOp, setTagOp] = useState('');
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
     const [passes, setPasses] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+
+    // Fetch the operator ID when the component mounts
+    useEffect(() => {
+        const fetchOperatorId = async () => {
+            try {
+                const response = await getOperatorId(); // Call API to get the operator ID
+                setStationOp(response.opId); // Set the stationOp with the retrieved operator ID
+            } catch (error) {
+                console.error('Error fetching operator ID:', error);
+                setError('Failed to fetch your operator ID.');
+            }
+        };
+
+        fetchOperatorId();
+    }, []);
 
     useEffect(() => {
         // Cleanup function for chart instances
@@ -32,20 +47,21 @@ export default function PassAnalysis() {
         const formattedDateTo = toDate.replace(/-/g, '');
 
         passAnalysis(stationOp, tagOp, formattedDateFrom, formattedDateTo)
-            .then((response) =>{
+            .then((response) => {
                 console.log('API Response:', response.data);
 
                 if (response.data && response.data.passList) {
-                    setPasses(response.data.passList); // Use passList from API response
+                    setPasses(response.data.passList);
                 } else {
-                    setPasses([]); // Set to empty array if no data is returned
+                    setPasses([]);
                     setError('No data found for the given criteria.');
                 }
-        })
-        .catch((error) => {
-            setError('Failed to fetch Pass Analysis. Please try again.');
-            setLoading(false);
-        });
+                setLoading(false);
+            })
+            .catch((error) => {
+                setError('Failed to fetch Pass Analysis. Please try again.');
+                setLoading(false);
+            });
     };
 
     const prepareChartData = () => {
@@ -88,9 +104,15 @@ export default function PassAnalysis() {
                     type="text"
                     placeholder="Station Operator ID"
                     value={stationOp}
-                    onChange={(e) => setStationOp(e.target.value)}
-                    required
-                    style={{ padding: '10px', width: '300px', borderRadius: '4px' }}
+                    disabled // Make the field readonly since it's auto-filled
+                    style={{
+                        padding: '10px',
+                        width: '300px',
+                        borderRadius: '4px',
+                        backgroundColor: '#e9e9e9',
+                        color: '#777',
+                        cursor: 'not-allowed',
+                    }}
                 />
                 <input
                     type="text"
@@ -127,7 +149,7 @@ export default function PassAnalysis() {
                         cursor: 'pointer',
                     }}
                 >
-                    Fetch Analysis
+                    {loading ? 'Loading...' : 'Fetch Analysis'}
                 </button>
             </form>
 

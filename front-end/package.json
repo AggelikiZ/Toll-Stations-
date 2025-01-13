@@ -10,6 +10,7 @@
     "chartjs-adapter-date-fns": "^3.0.0",
     "cra-template": "1.2.0",
     "date-fns": "^4.1.0",
+    "jwt-decode": "^4.0.0",
     "leaflet": "^1.9.4",
     "leaflet.markercluster": "^1.5.3",
     "react": "^19.0.0",
