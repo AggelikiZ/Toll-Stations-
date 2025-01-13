@@ -14,6 +14,8 @@ import java.util.Set;
 
 @Repository
 public interface PassRepository extends JpaRepository<Pass, Long> {
+    boolean existsByTagRefAndPassTime(String tagRef, LocalDateTime passTime);
+
 
     @Query("SELECT p FROM Pass p WHERE p.stationId = :stationID AND p.tagRef = :tagID AND p.passTime BETWEEN :dateFrom AND :dateTo")
     List<Pass> findPassesByStationAndTagAndDateRange(

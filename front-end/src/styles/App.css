@@ -110,3 +110,54 @@ body {
   color: #666;
   border-top: 1px solid #ddd;
 }
+
+/* Style for navigation links */
+.nav-item {
+  color: white;
+  text-decoration: none;
+  padding: 5px 10px;
+  transition: color 0.3s ease;
+}
+
+.nav-item:hover {
+  color: #f1f1f1; /* Lighter color on hover */
+}
+
+/* Settings Dropdown Container */
+.settings-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+  display: none; /* Initially hidden */
+  position: absolute;
+  top: 100%; /* Below the settings icon */
+  right: 0;
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  z-index: 1000;
+}
+
+/* Show dropdown on hover */
+.settings-dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+/* Logout option in dropdown */
+.logout-option {
+  margin: 0;
+  padding: 8px 12px;
+  color: #4CAF50;
+  cursor: pointer;
+  text-align: left;
+  border-radius: 3px;
+  transition: background-color 0.3s ease;
+}
+
+.logout-option:hover {
+  background-color: #f4f4f4;
+}
