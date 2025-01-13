@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Line } from 'react-chartjs-2';
-import { passAnalysis, getOperatorId } from '../api/api'; // Import the API functions
+import { passAnalysis, getOperatorId } from '../api/api';
+import { Line } from 'react-chartjs-2'; // Optional for visualizing results
 import Chart from 'chart.js/auto';
-import 'chartjs-adapter-date-fns';
+import 'chartjs-adapter-date-fns'; // For date handling
 
 export default function PassAnalysis() {
-    const [stationOp, setStationOp] = useState(''); // Automatically populated
+    const [stationOp, setStationOp] = useState(''); // Initialize as empty string
     const [tagOp, setTagOp] = useState('');
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
@@ -13,55 +13,56 @@ export default function PassAnalysis() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
-    // Fetch the operator ID when the component mounts
     useEffect(() => {
         const fetchOperatorId = async () => {
             try {
-                const response = await getOperatorId(); // Call API to get the operator ID
-                setStationOp(response.opId); // Set the stationOp with the retrieved operator ID
-            } catch (error) {
-                console.error('Error fetching operator ID:', error);
-                setError('Failed to fetch your operator ID.');
+                const opId = await getOperatorId(); // Fetch operator ID from API
+                setStationOp(opId); // Set the station operator ID
+                console.log("ID", opId);
+            } catch (err) {
+                console.error('Error fetching operator ID:', err);
+                setError('Failed to fetch operator ID.');
             }
         };
 
         fetchOperatorId();
-    }, []);
-
-    useEffect(() => {
-        // Cleanup function for chart instances
-        return () => {
-            const chartInstances = Chart.instances;
-            if (chartInstances?.length) {
-                chartInstances.forEach((instance) => instance.destroy());
-            }
-        };
-    }, []);
+    }, []); // Fetch only once on component mount
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
 
+        // Ensure all required fields are filled
+        if (!stationOp || !tagOp || !fromDate || !toDate) {
+            setError('All fields are required.');
+            setLoading(false);
+            return;
+        }
+
         const formattedDateFrom = fromDate.replace(/-/g, '');
         const formattedDateTo = toDate.replace(/-/g, '');
 
-        passAnalysis(stationOp, tagOp, formattedDateFrom, formattedDateTo)
-            .then((response) => {
-                console.log('API Response:', response.data);
+        try {
+            const response = await passAnalysis(
+                stationOp,
+                tagOp,
+                formattedDateFrom,
+                formattedDateTo
+            );
 
-                if (response.data && response.data.passList) {
-                    setPasses(response.data.passList);
-                } else {
-                    setPasses([]);
-                    setError('No data found for the given criteria.');
-                }
-                setLoading(false);
-            })
-            .catch((error) => {
-                setError('Failed to fetch Pass Analysis. Please try again.');
-                setLoading(false);
-            });
+            if (response.data && response.data.passList) {
+                setPasses(response.data.passList);
+            } else {
+                setPasses([]);
+                setError('No data found for the given criteria.');
+            }
+        } catch (err) {
+            console.error('Error fetching pass analysis:', err);
+            setError('Failed to fetch Pass Analysis. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const prepareChartData = () => {
@@ -104,21 +105,15 @@ export default function PassAnalysis() {
                     type="text"
                     placeholder="Station Operator ID"
                     value={stationOp}
-                    disabled // Make the field readonly since it's auto-filled
-                    style={{
-                        padding: '10px',
-                        width: '300px',
-                        borderRadius: '4px',
-                        backgroundColor: '#e9e9e9',
-                        color: '#777',
-                        cursor: 'not-allowed',
-                    }}
+                    onChange={(e) => setStationOp(e.target.value)} // Controlled input
+                    readOnly // Make it read-only as it is fetched dynamically
+                    style={{ padding: '10px', width: '300px', borderRadius: '4px', backgroundColor: '#e9e9e9' }}
                 />
                 <input
                     type="text"
                     placeholder="Tag Operator ID"
                     value={tagOp}
-                    onChange={(e) => setTagOp(e.target.value)}
+                    onChange={(e) => setTagOp(e.target.value)} // Controlled input
                     required
                     style={{ padding: '10px', width: '300px', borderRadius: '4px' }}
                 />
@@ -126,7 +121,7 @@ export default function PassAnalysis() {
                     type="date"
                     placeholder="From Date"
                     value={fromDate}
-                    onChange={(e) => setFromDate(e.target.value)}
+                    onChange={(e) => setFromDate(e.target.value)} // Controlled input
                     required
                     style={{ padding: '10px', width: '300px', borderRadius: '4px' }}
                 />
@@ -134,7 +129,7 @@ export default function PassAnalysis() {
                     type="date"
                     placeholder="To Date"
                     value={toDate}
-                    onChange={(e) => setToDate(e.target.value)}
+                    onChange={(e) => setToDate(e.target.value)} // Controlled input
                     required
                     style={{ padding: '10px', width: '300px', borderRadius: '4px' }}
                 />
@@ -149,7 +144,7 @@ export default function PassAnalysis() {
                         cursor: 'pointer',
                     }}
                 >
-                    {loading ? 'Loading...' : 'Fetch Analysis'}
+                    {loading ? 'Fetching...' : 'Fetch Analysis'}
                 </button>
             </form>
 

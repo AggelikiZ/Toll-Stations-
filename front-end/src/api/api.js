@@ -161,3 +161,14 @@ export const getPassesCost = async (tollOp, tagOp, fromDate, toDate, format = 'j
 export const getChargesBy = async (opId, fromDate, toDate, format = 'json') => {
     return api.get(`/chargesBy/${opId}/${fromDate}/${toDate}`);
 }
+
+// Get Operator ID
+export const getOperatorId = async () => {
+    try {
+        const response = await api.get('/auth/operatorId'); // Adjusted endpoint based on the curl
+        return response.data.opId; // Assuming the backend returns { opId: "AM" }
+    } catch (error) {
+        console.error('Error fetching operator ID:', error);
+        throw error; // Propagate error to the caller
+    }
+};
