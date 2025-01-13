@@ -22,9 +22,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class PaymentService {
@@ -135,6 +137,22 @@ public class PaymentService {
                 .orElseThrow(() -> new IllegalArgumentException("Operator not found"));
         return operator.getOpId();
     }
+
+    public List<DebtDetails> getDebtsToOperator(String toOpId) {
+        return debtRepository.findDebtsToOperator(toOpId);
+    }
+    public List<DebtDetails> getDebtsFromOperator(String fromOpId) {
+        return debtRepository.findDebtsFromOperator(fromOpId);
+    }
+    public List<Map<String, Object>> paymentsFrom(String fromOpId) {
+        return paymentRepository.findPaymentsByFromOpId(fromOpId);
+    }
+
+    public List<Map<String, Object>> paymentsTo(String toOpId) {
+        return paymentRepository.findPaymentsByToOpId(toOpId);
+    }
+
+
 
     @Transactional
     public void processPayment(String sourceOpID, String toOpID, MultipartFile file, String details) throws Exception {
