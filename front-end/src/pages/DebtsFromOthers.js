@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getChargesBy } from "../api/api"; // Adjust the API call accordingly
+import { getDebtsFromOthers } from "../api/api"; // Updated API call
 
 export default function DebtsFromOthers() {
     const [debts, setDebts] = useState([]);
@@ -12,10 +12,10 @@ export default function DebtsFromOthers() {
             setError(null);
 
             try {
-                const response = await getChargesBy("myOperatorId"); // Replace "myOperatorId" with your logic
-                setDebts(response.data);
+                const response = await getDebtsFromOthers(); // Call the updated API function
+                setDebts(response);
             } catch (err) {
-                setError("Failed to fetch debts.");
+                setError("Failed to fetch debts from others. Please try again.");
                 console.error(err);
             } finally {
                 setLoading(false);
@@ -26,17 +26,30 @@ export default function DebtsFromOthers() {
     }, []);
 
     return (
-        <div>
+        <div style={{ padding: "20px" }}>
+            <h2 style={{ textAlign: "center", color: "#4CAF50" }}>Debts from Others</h2>
+
             {loading ? (
-                <p>Loading...</p>
+                <p style={{ textAlign: "center", color: "#555" }}>Loading debts...</p>
             ) : error ? (
-                <p style={{ color: "red" }}>{error}</p>
+                <p style={{ textAlign: "center", color: "red" }}>{error}</p>
+            ) : debts.length === 0 ? (
+                <p style={{ textAlign: "center", color: "#555" }}>
+                    No debts found from other operators.
+                </p>
             ) : (
-                <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <table
+                    style={{
+                        width: "100%",
+                        borderCollapse: "collapse",
+                        marginTop: "20px",
+                        border: "1px solid #ddd",
+                    }}
+                >
                     <thead>
                     <tr style={{ backgroundColor: "#4CAF50", color: "white" }}>
-                        <th style={{ padding: "10px", border: "1px solid #ddd" }}>Operator</th>
-                        <th style={{ padding: "10px", border: "1px solid #ddd" }}>Debt</th>
+                        <th style={{ padding: "10px", border: "1px solid #ddd" }}>Operator Name</th>
+                        <th style={{ padding: "10px", border: "1px solid #ddd" }}>Debt Amount</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -49,10 +62,10 @@ export default function DebtsFromOthers() {
                             }}
                         >
                             <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                                {debt.visitingOpID}
+                                {debt.fromOpName}
                             </td>
                             <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                                {debt.passesCost.toFixed(2)}
+                                {debt.debtAmount.toFixed(2)}
                             </td>
                         </tr>
                     ))}

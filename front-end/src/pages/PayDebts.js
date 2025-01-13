@@ -1,12 +1,30 @@
-import React, { useState } from "react";
-import {submitProof} from "../api/api";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
+import { submitProof, getOperatorsFromDebts } from "../api/api"; // Fetch operators and submit proof
 
 export default function PayDebts() {
-    const [operatorName, setOperatorName] = useState("");
+    const [operators, setOperators] = useState([]); // Operators fetched from the API
+    const [selectedOperator, setSelectedOperator] = useState(""); // Selected operator from dropdown
     const [selectedFile, setSelectedFile] = useState(null);
     const [uploadMessage, setUploadMessage] = useState("");
     const [loading, setLoading] = useState(false);
+
+    // Fetch operators on mount
+    useEffect(() => {
+        const fetchOperators = async () => {
+            try {
+                const operatorsData = await getOperatorsFromDebts(); // Fetch operator names
+                setOperators(operatorsData);
+                if (operatorsData.length > 0) {
+                    setSelectedOperator(operatorsData[0].id); // Set the first operator as default
+                }
+            } catch (error) {
+                console.error("Error fetching operators:", error);
+                setUploadMessage("Failed to fetch operators. Please try again later.");
+            }
+        };
+
+        fetchOperators();
+    }, []);
 
     const handleFileChange = (event) => {
         setSelectedFile(event.target.files[0]);
@@ -14,8 +32,8 @@ export default function PayDebts() {
     };
 
     const handleUpload = async () => {
-        if (!operatorName.trim()) {
-            setUploadMessage("Please enter the operator name.");
+        if (!selectedOperator) {
+            setUploadMessage("Please select an operator.");
             return;
         }
 
@@ -30,12 +48,9 @@ export default function PayDebts() {
             return;
         }
 
-        const formData = new FormData();
-        formData.append("file", selectedFile);
-
         try {
             setLoading(true);
-            const response = await submitProof(operatorName.trim(), selectedFile);
+            const response = await submitProof(selectedOperator, selectedFile);
             setUploadMessage(response.message || "Payment proof submitted successfully!");
             setLoading(false);
         } catch (error) {
@@ -48,14 +63,14 @@ export default function PayDebts() {
     return (
         <div style={{ padding: "20px" }}>
             <h3 style={{ textAlign: "center", color: "#4CAF50" }}>Pay Debts</h3>
-            <p style={{ textAlign: "center" }}>Enter the operator name and upload your payment confirmation (PDF):</p>
+            <p style={{ textAlign: "center" }}>
+                Select the operator and upload your payment confirmation (PDF):
+            </p>
 
             <div style={{ textAlign: "center", marginBottom: "20px" }}>
-                <input
-                    type="text"
-                    placeholder="Enter Operator Name"
-                    value={operatorName}
-                    onChange={(e) => setOperatorName(e.target.value)}
+                <select
+                    value={selectedOperator}
+                    onChange={(e) => setSelectedOperator(e.target.value)}
                     style={{
                         width: "50%",
                         padding: "10px",
@@ -64,7 +79,17 @@ export default function PayDebts() {
                         fontSize: "16px",
                         marginBottom: "10px",
                     }}
-                />
+                >
+                    {operators.length === 0 ? (
+                        <option value="">Loading operators...</option>
+                    ) : (
+                        operators.map((operator) => (
+                            <option key={operator.id} value={operator.name}>
+                                {operator.name}
+                            </option>
+                        ))
+                    )}
+                </select>
             </div>
 
             <div style={{ textAlign: "center", marginBottom: "20px" }}>
@@ -93,6 +118,7 @@ export default function PayDebts() {
                         cursor: "pointer",
                         fontSize: "16px",
                     }}
+                    disabled={loading}
                 >
                     {loading ? "Uploading..." : "Upload Confirmation"}
                 </button>
