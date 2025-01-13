@@ -1,6 +1,5 @@
 package com.payway.controllers;
 
-
 import com.payway.models.LoginRequest;
 import com.payway.repositories.UserRepository;
 import com.payway.utils.JwtTokenUtil;
