@@ -109,26 +109,26 @@ public class PassService {
 
 
     public Map<String, Object> getPassAnalysis(String operatorOpID, String tagOpID, LocalDateTime dateFrom, LocalDateTime dateTo) {
-        // Find all TollStations for the given operatorOpID
+        // Έλεγχος: Υπάρχουν σταθμοί διοδίων για τον operatorOpID;
         List<TollStation> tollStations = tollStationRepository.findByOpId(operatorOpID);
         if (tollStations.isEmpty()) {
             throw new IllegalArgumentException("Invalid operatorOpID: " + operatorOpID);
         }
 
-        // Find all Tags for the given tagOpID
+        // Έλεγχος: Υπάρχουν tags για τον tagOpID;
         List<Tag> tags = tagRepository.findByOpId(tagOpID);
         if (tags.isEmpty()) {
             throw new IllegalArgumentException("Invalid tagOpID: " + tagOpID);
         }
 
-        // Create a list for pass results
+        // Δημιουργία λίστας για αποτελέσματα των διελεύσεων
         List<Map<String, Object>> passList = new ArrayList<>();
         int index = 1;
         DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
         for (TollStation tollStation : tollStations) {
             for (Tag tag : tags) {
-                // Find passes for each Tag and TollStation
+                // Βρίσκουμε τις διελεύσεις για κάθε tag και σταθμό
                 List<Pass> passes = passRepository.findPassesByStationAndTagAndDateRange(
                         tollStation.getTollId(), tag.getTagRef(), dateFrom, dateTo);
 
@@ -145,8 +145,9 @@ public class PassService {
             }
         }
 
+        // Επιστροφή αποτελέσματος
         return Map.of(
-                "operatorOpID", operatorOpID,
+                "stationOpID", operatorOpID,
                 "tagOpID", tagOpID,
                 "requestTimestamp", LocalDateTime.now().format(outputFormatter),
                 "periodFrom", dateFrom.format(outputFormatter),
@@ -155,6 +156,7 @@ public class PassService {
                 "passList", passList
         );
     }
+
 
 
     public passesCostDetails totalpassesCost(String tollOpID, String tagOpID, LocalDate date_from, LocalDate date_to, String format) throws Exception {
