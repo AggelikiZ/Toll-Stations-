@@ -108,13 +108,12 @@ public class PassService {
     }
 
 
-    public Map<String, Object> getPassAnalysis(String stationOpID, String tagOpID, LocalDateTime dateFrom, LocalDateTime dateTo) {
-        // Find the TollStation based on stationOpID
-        Optional<TollStation> tollStationOptional = tollStationRepository.findById(stationOpID);
-        if (tollStationOptional.isEmpty()) {
-            throw new IllegalArgumentException("Invalid stationOpID: " + stationOpID);
+    public Map<String, Object> getPassAnalysis(String operatorOpID, String tagOpID, LocalDateTime dateFrom, LocalDateTime dateTo) {
+        // Find all TollStations for the given operatorOpID
+        List<TollStation> tollStations = tollStationRepository.findByOpId(operatorOpID);
+        if (tollStations.isEmpty()) {
+            throw new IllegalArgumentException("Invalid operatorOpID: " + operatorOpID);
         }
-        TollStation tollStation = tollStationOptional.get();
 
         // Find all Tags for the given tagOpID
         List<Tag> tags = tagRepository.findByOpId(tagOpID);
@@ -127,25 +126,27 @@ public class PassService {
         int index = 1;
         DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-        for (Tag tag : tags) {
-            // Find passes for each Tag
-            List<Pass> passes = passRepository.findPassesByStationAndTagAndDateRange(
-                    tollStation.getTollId(), tag.getTagRef(), dateFrom, dateTo);
+        for (TollStation tollStation : tollStations) {
+            for (Tag tag : tags) {
+                // Find passes for each Tag and TollStation
+                List<Pass> passes = passRepository.findPassesByStationAndTagAndDateRange(
+                        tollStation.getTollId(), tag.getTagRef(), dateFrom, dateTo);
 
-            for (Pass pass : passes) {
-                passList.add(Map.of(
-                        "passIndex", index++,
-                        "passID", pass.getPassId(),
-                        "stationID", pass.getStationId(),
-                        "timestamp", pass.getPassTime().format(outputFormatter),
-                        "tagID", pass.getTagRef(),
-                        "passCharge", pass.getCharge()
-                ));
+                for (Pass pass : passes) {
+                    passList.add(Map.of(
+                            "passIndex", index++,
+                            "passID", pass.getPassId(),
+                            "stationID", pass.getStationId(),
+                            "timestamp", pass.getPassTime().format(outputFormatter),
+                            "tagID", pass.getTagRef(),
+                            "passCharge", pass.getCharge()
+                    ));
+                }
             }
         }
 
         return Map.of(
-                "stationOpID", stationOpID,
+                "operatorOpID", operatorOpID,
                 "tagOpID", tagOpID,
                 "requestTimestamp", LocalDateTime.now().format(outputFormatter),
                 "periodFrom", dateFrom.format(outputFormatter),
@@ -154,6 +155,7 @@ public class PassService {
                 "passList", passList
         );
     }
+
 
     public passesCostDetails totalpassesCost(String tollOpID, String tagOpID, LocalDate date_from, LocalDate date_to, String format) throws Exception {
 
