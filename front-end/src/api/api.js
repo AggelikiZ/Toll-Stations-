@@ -18,8 +18,6 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-
-
 // Login endpoint
 export const login = (username, password) => {
     const formData = new URLSearchParams();
@@ -137,8 +135,6 @@ export const getOperatorsFromDebts = async () => {
         throw error;
     }
 };
-
-
 
 
 // Get Passes
