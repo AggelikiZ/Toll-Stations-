@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { getChargesBy } from "../api/api"; // Adjust the API call accordingly
 
-export default function DebtsToOthers() {
+export default function DebtsFromOthers() {
     const [debts, setDebts] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -12,7 +12,7 @@ export default function DebtsToOthers() {
             setError(null);
 
             try {
-                const response = await getChargesBy("othersOperatorId"); // Replace with appropriate logic
+                const response = await getChargesBy("myOperatorId"); // Replace "myOperatorId" with your logic
                 setDebts(response.data);
             } catch (err) {
                 setError("Failed to fetch debts.");

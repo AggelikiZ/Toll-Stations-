@@ -79,7 +79,7 @@ export default function App() {
                                     ChargesBy
                                 </Link>
                                 <Link to="/debts" className="nav-item">
-                                    Debts
+                                    Debts and Payments
                                 </Link>
                                 <div className="settings-dropdown">
                                     <button

@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import {submitProof} from "../api/api";
 import axios from "axios";
 
 export default function PayDebts() {
+    const [operatorName, setOperatorName] = useState("");
     const [selectedFile, setSelectedFile] = useState(null);
     const [uploadMessage, setUploadMessage] = useState("");
     const [loading, setLoading] = useState(false);
@@ -12,6 +14,11 @@ export default function PayDebts() {
     };
 
     const handleUpload = async () => {
+        if (!operatorName.trim()) {
+            setUploadMessage("Please enter the operator name.");
+            return;
+        }
+
         if (!selectedFile) {
             setUploadMessage("Please select a PDF file to upload.");
             return;
@@ -28,16 +35,12 @@ export default function PayDebts() {
 
         try {
             setLoading(true);
-            const response = await axios.post("http://localhost:9115/api/payments/submitproof", formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            });
-            setUploadMessage("PDF uploaded successfully!");
+            const response = await submitProof(operatorName.trim(), selectedFile);
+            setUploadMessage(response.message || "Payment proof submitted successfully!");
             setLoading(false);
         } catch (error) {
-            console.error("Error uploading PDF:", error);
-            setUploadMessage("Failed to upload the PDF. Please try again.");
+            console.error("Error submitting payment proof:", error);
+            setUploadMessage("Failed to submit payment proof. Please try again.");
             setLoading(false);
         }
     };
@@ -45,7 +48,24 @@ export default function PayDebts() {
     return (
         <div style={{ padding: "20px" }}>
             <h3 style={{ textAlign: "center", color: "#4CAF50" }}>Pay Debts</h3>
-            <p style={{ textAlign: "center" }}>Upload your payment confirmation (PDF) below:</p>
+            <p style={{ textAlign: "center" }}>Enter the operator name and upload your payment confirmation (PDF):</p>
+
+            <div style={{ textAlign: "center", marginBottom: "20px" }}>
+                <input
+                    type="text"
+                    placeholder="Enter Operator Name"
+                    value={operatorName}
+                    onChange={(e) => setOperatorName(e.target.value)}
+                    style={{
+                        width: "50%",
+                        padding: "10px",
+                        borderRadius: "5px",
+                        border: "1px solid #ccc",
+                        fontSize: "16px",
+                        marginBottom: "10px",
+                    }}
+                />
+            </div>
 
             <div style={{ textAlign: "center", marginBottom: "20px" }}>
                 <input

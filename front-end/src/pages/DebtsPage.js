@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import MyDebts from "./MyDebts"; // Component for "My Debts"
-import DebtsToOthers from "./DebtsToOthers"; // Component for "Debts to Others"
+import DebtsFromOthers from "./DebtsFromOthers"; // Component for "My Debts"
+import MyDebts from "./MyDebts"; // Component for "Debts to Others"
 import PayDebts from "./PayDebts"; // Component for "Pay Debts"
 
 export default function DebtsPage() {
@@ -8,20 +8,20 @@ export default function DebtsPage() {
 
     const renderSelectedComponent = () => {
         switch (selectedOption) {
-            case "myDebts":
+            case "DebtsFromOthers":
+                return <DebtsFromOthers />;
+            case "MyDebts":
                 return <MyDebts />;
-            case "debtsToOthers":
-                return <DebtsToOthers />;
             case "payDebts":
                 return <PayDebts />;
             default:
-                return <MyDebts />;
+                return <DebtsFromOthers />;
         }
     };
 
     return (
         <div style={{ padding: "20px", backgroundColor: "#f4f4f4" }}>
-            <h2 style={{ textAlign: "center", color: "#4CAF50" }}>Debts Management</h2>
+            <h2 style={{ textAlign: "center", color: "#4CAF50" }}>Debts and Payment Management</h2>
             <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
                 <select
                     value={selectedOption}
@@ -34,8 +34,8 @@ export default function DebtsPage() {
                         cursor: "pointer",
                     }}
                 >
-                    <option value="myDebts">My Debts</option>
-                    <option value="debtsToOthers">Debts to Others</option>
+                    <option value="DebtsFromOthers">Debts from others</option>
+                    <option value="MyDebts">My Debts</option>
                     <option value="payDebts">Pay Debts</option>
                 </select>
             </div>

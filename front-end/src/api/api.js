@@ -32,6 +32,7 @@ export const login = (username, password) => {
         },
     });
 };
+
 // Logout endpoint
 export const logout = () => api.post('/logout');
 // Health Check
@@ -68,6 +69,26 @@ export const addPasses = async (file) => {
         throw error; // Propagate error to the caller
     }
 };
+
+export const submitProof = async (operatorName, file) => {
+    const url = `/payments/submitproof?toOpName=${operatorName}`;
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const response = await api.post(url, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        console.log('Payment proof submitted successfully.');
+        return response.data;
+    } catch (error) {
+        console.error('Error submitting payment proof:', error.message);
+        throw error;
+    }
+};
+
 
 // Get Passes
 export const getPasses = (station, fromDate, toDate) => {

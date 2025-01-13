@@ -12,7 +12,7 @@ export default function MyDebts() {
             setError(null);
 
             try {
-                const response = await getChargesBy("myOperatorId"); // Replace "myOperatorId" with your logic
+                const response = await getChargesBy("othersOperatorId"); // Replace with appropriate logic
                 setDebts(response.data);
             } catch (err) {
                 setError("Failed to fetch debts.");
