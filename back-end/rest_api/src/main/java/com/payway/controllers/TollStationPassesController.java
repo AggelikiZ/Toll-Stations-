@@ -2,29 +2,21 @@ package com.payway.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.opencsv.CSVWriter;
-import com.payway.models.Generic500Response;
-import com.payway.models.ResetStations200Response;
-import com.payway.models.ResetStations400Response;
+import com.payway.models.*;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.payway.services.TollStationService;
-import com.payway.models.TollStationPassesDetails;
-import com.payway.models.PassDetails;
 
 import java.io.StringWriter;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.Map;
+
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api")
@@ -138,6 +130,11 @@ public class TollStationPassesController {
         return writer.toString();
     }
 
+    @GetMapping("stations")
+    public ResponseEntity<List<TollStation>> getAllStations() {
+        List<TollStation> stations = tollStationService.getAllStations();
+        return ResponseEntity.ok(stations);
+    }
 
 
 }

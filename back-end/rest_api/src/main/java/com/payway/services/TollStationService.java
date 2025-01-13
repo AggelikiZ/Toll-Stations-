@@ -31,6 +31,9 @@ public class TollStationService {
     public TollStationService(TollStationRepository tollStationRepository) {
         this.tollStationRepository = tollStationRepository;
     }
+    public List<TollStation> getAllStations() {
+        return tollStationRepository.findAll();
+    }
 
     public void resetStations(String resourcePath) throws Exception {
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(resourcePath)) {
