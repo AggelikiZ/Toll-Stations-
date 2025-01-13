@@ -8,9 +8,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@RequestMapping("/passAnalysis")
+@RequestMapping("/api/passAnalysis")
 public class AnalysisController {
 
     private final PassService passService;
@@ -19,6 +21,7 @@ public class AnalysisController {
         this.passService = passService;
     }
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/{stationOpID}/{tagOpID}/{date_from}/{date_to}")
     public ResponseEntity<Map<String, Object>> getPassAnalysis(
             @PathVariable String stationOpID,

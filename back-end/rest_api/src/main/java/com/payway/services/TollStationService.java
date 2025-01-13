@@ -125,7 +125,7 @@ public class TollStationService {
             for (Map<String, Object> result : response) {
                 PassDetails passDetail = new PassDetails();
                 passDetail.setPassIndex((Long) result.get("passIndex"));
-                passDetail.setPassID((Long) result.get("passID"));
+                passDetail.setPassID((String) String.valueOf(result.get("passID")));
                 passDetail.setTimestamp((Timestamp) result.get("timestamp"));
                 passDetail.setTagID((String) result.get("tagID"));
                 passDetail.setTagProvider((String) result.get("tagProvider"));
@@ -137,18 +137,6 @@ public class TollStationService {
             // Set the pass list to the main DTO
             detailsDTO.setPassList(passList);
             return detailsDTO;
-
-
-//            if ("csv".equalsIgnoreCase(format)) {
-//                String json = (String) response.get("passDetails");
-//
-//                // Convert JSON to CSV
-//                String csv = jsonToCsvConverter.convertJsonToCsv("[" + json + "]");
-//
-//                return ResponseEntity.ok()
-//                        .header("Content-Disposition", "attachment; filename=toll_station_passes.csv")
-//                        .body(csv);
-//            }
 
         }
         catch(Exception e) {

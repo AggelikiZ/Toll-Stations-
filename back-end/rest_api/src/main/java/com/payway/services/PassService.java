@@ -1,16 +1,15 @@
 package com.payway.services;
 
-import com.payway.models.Pass;
-import com.payway.models.Tag;
+import com.payway.models.*;
 import com.payway.repositories.TollStationRepository;
 import com.payway.utils.Json2CSV;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import com.payway.models.TollStation;
 import com.payway.repositories.PassRepository;
 import com.payway.repositories.TagRepository;
 import com.payway.repositories.TollStationRepository;
 import org.springframework.stereotype.Service;
+import com.payway.models.passesCostDetails;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -20,6 +19,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.text.DecimalFormat;
+
 
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,13 +31,11 @@ public class PassService {
     private final PassRepository passRepository;
     private final TagRepository tagRepository;
     private final TollStationRepository tollStationRepository;
-    private final Json2CSV jsonToCsvConverter;
 
     public PassService(PassRepository passRepository, TagRepository tagRepository, TollStationRepository tollStationRepository) {
         this.passRepository = passRepository;
         this.tagRepository = tagRepository;
         this.tollStationRepository = tollStationRepository;
-        this.jsonToCsvConverter = new Json2CSV();
     }
 
     public void resetPasses() {
@@ -114,44 +113,45 @@ public class PassService {
     }
 
 
-    public Map<String, Object> getPassAnalysis(String stationOpID, String tagOpID, LocalDateTime dateFrom, LocalDateTime dateTo) {
-        // Βρίσκουμε TollStation βάσει του stationOpID
-        Optional<TollStation> tollStationOptional = tollStationRepository.findById(stationOpID);
-        if (tollStationOptional.isEmpty()) {
-            throw new IllegalArgumentException("Invalid stationOpID: " + stationOpID);
+    public Map<String, Object> getPassAnalysis(String operatorOpID, String tagOpID, LocalDateTime dateFrom, LocalDateTime dateTo) {
+        // Find all TollStations for the given operatorOpID
+        List<TollStation> tollStations = tollStationRepository.findByOpId(operatorOpID);
+        if (tollStations.isEmpty()) {
+            throw new IllegalArgumentException("Invalid operatorOpID: " + operatorOpID);
         }
-        TollStation tollStation = tollStationOptional.get();
 
-        // Βρίσκουμε όλες τις εγγραφές Tags βάσει του tagOpID
+        // Find all Tags for the given tagOpID
         List<Tag> tags = tagRepository.findByOpId(tagOpID);
         if (tags.isEmpty()) {
             throw new IllegalArgumentException("Invalid tagOpID: " + tagOpID);
         }
 
-        // Δημιουργούμε μία λίστα για τα αποτελέσματα διέλευσης
+        // Create a list for pass results
         List<Map<String, Object>> passList = new ArrayList<>();
         int index = 1;
         DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-        for (Tag tag : tags) {
-            // Βρίσκουμε τις διελεύσεις για κάθε Tag
-            List<Pass> passes = passRepository.findPassesByStationAndTagAndDateRange(
-                    tollStation.getTollId(), tag.getTagRef(), dateFrom, dateTo);
+        for (TollStation tollStation : tollStations) {
+            for (Tag tag : tags) {
+                // Find passes for each Tag and TollStation
+                List<Pass> passes = passRepository.findPassesByStationAndTagAndDateRange(
+                        tollStation.getTollId(), tag.getTagRef(), dateFrom, dateTo);
 
-            for (Pass pass : passes) {
-                passList.add(Map.of(
-                        "passIndex", index++,
-                        "passID", pass.getPassId(),
-                        "stationID", pass.getStationId(),
-                        "timestamp", pass.getPassTime().format(outputFormatter),
-                        "tagID", pass.getTagRef(),
-                        "passCharge", pass.getCharge()
-                ));
+                for (Pass pass : passes) {
+                    passList.add(Map.of(
+                            "passIndex", index++,
+                            "passID", pass.getPassId(),
+                            "stationID", pass.getStationId(),
+                            "timestamp", pass.getPassTime().format(outputFormatter),
+                            "tagID", pass.getTagRef(),
+                            "passCharge", pass.getCharge()
+                    ));
+                }
             }
         }
 
         return Map.of(
-                "stationOpID", stationOpID,
+                "operatorOpID", operatorOpID,
                 "tagOpID", tagOpID,
                 "requestTimestamp", LocalDateTime.now().format(outputFormatter),
                 "periodFrom", dateFrom.format(outputFormatter),
@@ -161,28 +161,36 @@ public class PassService {
         );
     }
 
-    public ResponseEntity<?> getpassesCost(String tollOpID, String tagOpID, LocalDate fromDate,LocalDate toDate,String format) throws Exception{
+
+    public passesCostDetails totalpassesCost(String tollOpID, String tagOpID, LocalDate date_from, LocalDate date_to, String format) throws Exception {
+
         try {
 
-//            Map<String, Object> response = PassRepository.getPassesCost(tollOpID, tagOpID, fromDate, toDate);
-            Map<String, Object> response = null;
+            Map<String, Object> response = passRepository.passesCost(tollOpID, tagOpID, date_from, date_to);
+
             if (response.isEmpty()) {
                 return null;
             }
-            if ("csv".equalsIgnoreCase(format)) {
-                String json = (String) response.get("passDetails");
 
-                // Convert JSON to CSV
-                String csv = jsonToCsvConverter.convertJsonToCsv("[" + json + "]");
+            // Create the main DTO object
+            passesCostDetails detailsDTO = new passesCostDetails();
 
-                return ResponseEntity.ok()
-                        .body(csv);
-            }
+            detailsDTO.settollOpID((String) response.get("tollOpID"));
+            detailsDTO.settagOpID((String) response.get("tagOpID"));
+            detailsDTO.setRequestTimestamp((Timestamp) response.get("requestTimestamp"));
+            detailsDTO.setPeriodFrom((String) response.get("periodFrom"));
+            detailsDTO.setPeriodTo((String) response.get("periodTo"));
+            detailsDTO.setnPasses((Long) response.get("nPasses"));
+//            if (detailsDTO.gettagOpID().equals(detailsDTO.gettollOpID())){
+//                return detailsDTO;
+//            }
+            detailsDTO.setTotalCost((BigDecimal) response.get("totalCost"));
+            return detailsDTO;
 
-            return ResponseEntity.ok(response);
         }
         catch(Exception e) {
             throw new Exception("Failed to get toll station passes: " + e.getMessage(), e);
         }
     }
+
 }

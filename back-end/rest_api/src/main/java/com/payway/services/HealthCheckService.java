@@ -28,7 +28,7 @@ public class HealthCheckService {
             // Populate the healthcheck response
             response.put("status", "OK");
             response.put("timestamp", LocalDateTime.now().toString());
-            response.put("dbConnection", "active");
+            response.put("dbconnection", "active");
             response.put("nStations", nStations);
             response.put("nTags", nTags);
             response.put("nPasses", nPasses);

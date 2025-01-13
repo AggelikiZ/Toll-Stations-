@@ -8,9 +8,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@RequestMapping("/chargesBy")
+@RequestMapping("/api/chargesBy")
 public class ChargesByController {
     private final ChargeService chargeService;
 

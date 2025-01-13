@@ -134,6 +134,36 @@ def tollstationpasses(args):
     except requests.exceptions.RequestException as e:
         print(f"Error retrieving toll station passes: {e}")
 
+# Function for pass analysis
+def pass_analysis(args):
+    url = f"http://localhost:9115/api/passAnalysis/{args.stationop}/{args.tagop}/{args.from_date}/{args.to_date}"
+    try:
+        response = requests.get(url, params={"format": args.format}, timeout=5)
+        response.raise_for_status()
+        print("Pass Analysis Data:", response.json())
+    except requests.exceptions.RequestException as e:
+        print(f"Error retrieving pass analysis data: {e}")
+
+# Function for passes cost
+def passes_cost(args):
+    url = f"http://localhost:9115/api/passesCost/{args.tollop}/{args.tagop}/{args.from_date}/{args.to_date}"
+    try:
+        response = requests.get(url, params={"format": args.format}, timeout=5)
+        response.raise_for_status()
+        print("Passes Cost Data:", response.json() if args.format == "json" else "CSV data retrieved.")
+    except requests.exceptions.RequestException as e:
+        print(f"Error retrieving passes cost data: {e}")
+
+# Function for charges by operator
+def charges_by(args):
+    url = f"http://localhost:9115/api/chargesBy/{args.opid}/{args.from_date}/{args.to_date}"
+    try:
+        response = requests.get(url, params={"format": args.format}, timeout=5)
+        response.raise_for_status()
+        print("Charges By Data:", response.json() if args.format == "json" else "CSV data retrieved.")
+    except requests.exceptions.RequestException as e:
+        print(f"Error retrieving charges by operator data: {e}")
+
 
 # Main function to parse arguments and dispatch commands
 def main():
@@ -185,6 +215,32 @@ def main():
     tollstationpasses_parser.add_argument("--to_date", required=True, help="End date (YYYYMMDD)")
     tollstationpasses_parser.add_argument("--format", choices=["json", "csv"], default="json", help="Output format")
     tollstationpasses_parser.set_defaults(func=tollstationpasses)
+
+    # Pass analysis command
+    pass_analysis_parser = subparsers.add_parser("passanalysis", help="Analyze passes between two operators")
+    pass_analysis_parser.add_argument("--stationop", required=True, help="Station operator ID")
+    pass_analysis_parser.add_argument("--tagop", required=True, help="Tag operator ID")
+    pass_analysis_parser.add_argument("--from", dest="from_date", required=True, help="Start date (YYYYMMDD)")
+    pass_analysis_parser.add_argument("--to", dest="to_date", required=True, help="End date (YYYYMMDD)")
+    pass_analysis_parser.add_argument("--format", default="json", choices=["json", "csv"], help="Output format")
+    pass_analysis_parser.set_defaults(func=pass_analysis)
+
+    # Passes cost command
+    passes_cost_parser = subparsers.add_parser("passescost", help="Retrieve passes cost between two operators")
+    passes_cost_parser.add_argument("--tollop", required=True, help="Toll operator ID")
+    passes_cost_parser.add_argument("--tagop", required=True, help="Tag operator ID")
+    passes_cost_parser.add_argument("--from", dest="from_date", required=True, help="Start date (YYYYMMDD)")
+    passes_cost_parser.add_argument("--to", dest="to_date", required=True, help="End date (YYYYMMDD)")
+    passes_cost_parser.add_argument("--format", default="json", choices=["json", "csv"], help="Output format")
+    passes_cost_parser.set_defaults(func=passes_cost)
+
+    # Charges by operator command
+    charges_by_parser = subparsers.add_parser("chargesby", help="Retrieve charges by operator")
+    charges_by_parser.add_argument("--opid", required=True, help="Operator ID")
+    charges_by_parser.add_argument("--from", dest="from_date", required=True, help="Start date (YYYYMMDD)")
+    charges_by_parser.add_argument("--to", dest="to_date", required=True, help="End date (YYYYMMDD)")
+    charges_by_parser.add_argument("--format", default="json", choices=["json", "csv"], help="Output format")
+    charges_by_parser.set_defaults(func=charges_by)
 
     # Parse arguments and dispatch to appropriate function
     args = parser.parse_args()

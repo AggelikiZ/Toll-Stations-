@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Dashboard.css'; // Add a CSS file for styling
+import '@fortawesome/fontawesome-free/css/all.min.css'; // Font Awesome for icons
 
 export default function Dashboard() {
     const [healthData, setHealthData] = useState(null);
@@ -40,26 +41,31 @@ export default function Dashboard() {
     return (
         <div className="dashboard-container">
             <header className="dashboard-header">
-                <h1>System Dashboard</h1>
+                <h1 className="dashboard-title">System Dashboard</h1>
             </header>
             <div className="dashboard-content">
                 <div className="dashboard-card">
+                    <i className="fas fa-heartbeat icon"></i>
                     <h2>Status</h2>
                     <p>{healthData.status}</p>
                 </div>
                 <div className="dashboard-card">
+                    <i className="fas fa-database icon"></i>
                     <h2>Database Connection</h2>
-                    <p>{healthData.dbConnection}</p>
+                    <p>{healthData.dbconnection}</p>
                 </div>
                 <div className="dashboard-card">
+                    <i className="fas fa-building icon"></i>
                     <h2>Number of Stations</h2>
                     <p>{healthData.nStations}</p>
                 </div>
                 <div className="dashboard-card">
+                    <i className="fas fa-tags icon"></i>
                     <h2>Number of Tags</h2>
                     <p>{healthData.nTags}</p>
                 </div>
                 <div className="dashboard-card">
+                    <i className="fas fa-road icon"></i>
                     <h2>Number of Passes</h2>
                     <p>{healthData.nPasses}</p>
                 </div>
