@@ -9,7 +9,10 @@ import AdminPage from './pages/AdminPage';
 import PassCost from './pages/PassCostPage';
 import ChargesBy from './pages/ChargesByPage';
 import Login from './pages/Login';
+import MyDebts from "./pages/DebtsPage";
 import './styles/App.css';
+import DebtsPage from "./pages/DebtsPage";
+
 export default function App() {
     const [authToken, setAuthToken] = useState(localStorage.getItem('authToken') || null);
 
@@ -75,6 +78,9 @@ export default function App() {
                                 <Link to="/chargesby" className="nav-item">
                                     ChargesBy
                                 </Link>
+                                <Link to="/debts" className="nav-item">
+                                    Debts
+                                </Link>
                                 <div className="settings-dropdown">
                                     <button
                                         style={{
@@ -106,6 +112,7 @@ export default function App() {
                                 <Route path="/passanalysis" element={<PassAnalysis />} />
                                 <Route path="/passcost" element={<PassCost />} />
                                 <Route path="/chargesby" element={<ChargesBy />} />
+                                <Route path="/debts" element={<DebtsPage />} />
                             </Routes>
                         </main>
 
