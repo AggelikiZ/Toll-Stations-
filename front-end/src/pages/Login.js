@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import background from './background.jpg';
+import { login } from '../api/api.js';
 
 export default function Login({ onLogin }) {
     const [username, setUsername] = useState('');
@@ -12,46 +12,23 @@ export default function Login({ onLogin }) {
         e.preventDefault();
         setLoading(true);
         setError(null);
+        try {
+            const response = await login(username, password); // Call API login
+            const token = response.data.token;
 
-        // Dummy credentials
-        const dummyUsername = 'admin';
-        const dummyPassword = '1234';
-
-        // Simulate login
-        setTimeout(() => {
-            if (username === dummyUsername && password === dummyPassword) {
-                const dummyToken = 'dummy_token_1234567890'; // Simulated token
-                onLogin(dummyToken); // Simulate successful login
-                setLoading(false);
+            if (token) {
+                localStorage.setItem('authToken', token); // Save token
+                onLogin(token); // Notify parent
             } else {
-                setError('Invalid username or password. Please try again.');
-                setLoading(false);
+                throw new Error('Token missing in response');
             }
-        }, 1000); // Simulate a network delay
-    };
-
-
-    /*
-
-    try {
-        const response = await axios.post('http://localhost:9115/api/login', {
-            username,
-            password,
-        });
-        const token = response.data.token;
-        if (token) {
-            onLogin(token); // Call onLogin with the token
-        } else {
-            throw new Error('Login failed. No token received.');
+        } catch (err) {
+            console.error('Login error:', err);
+            setError('Invalid username or password. Please try again.');
+        } finally {
+            setLoading(false);
         }
-    } catch (err) {
-        console.error('Login error:', err);
-        setError('Invalid username or password. Please try again.');
-        setLoading(false);
-    }
-};
-
-*/
+    };
 
 
     return (

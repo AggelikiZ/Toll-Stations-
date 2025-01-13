@@ -22,6 +22,15 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws UnauthorizedException {
         String token = request.getHeader("X-OBSERVATORY-AUTH");
+        String method = request.getMethod();
+
+        // Allow CORS preflight requests
+        if ("OPTIONS".equalsIgnoreCase(method)) {
+            return true;
+        }
+
+        System.out.println("Token received: " + token);
+        System.out.println("Request URI: " + request.getRequestURI());
 
         if (token == null || jwtBlacklistService.isBlacklisted(token)) {
             throw new UnauthorizedException("Invalid or expired token");
@@ -34,7 +43,6 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             if (request.getRequestURI().startsWith("/api/payments") && !"operator".equals(role)) {
                 throw new UnauthorizedException("Forbidden: Insufficient permissions");
             }
-
             return true;
 
         } catch (UnauthorizedException e) {

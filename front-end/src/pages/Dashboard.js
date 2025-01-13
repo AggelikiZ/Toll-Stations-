@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Dashboard.css'; // Add a CSS file for styling
-import '@fortawesome/fontawesome-free/css/all.min.css'; // Font Awesome for icons
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import {getHealthCheck} from "../api/api"; // Font Awesome for icons
 
 export default function Dashboard() {
     const [healthData, setHealthData] = useState(null);
@@ -8,22 +9,19 @@ export default function Dashboard() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetch('/api/admin/healthcheck')
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then((data) => {
-                setHealthData(data);
-                setLoading(false);
-            })
-            .catch((error) => {
+        const fetchHealthCheck = async () => {
+            try {
+                const response = await getHealthCheck();
+                setHealthData(response.data);
+            } catch (error) {
                 console.error('Error fetching health data:', error);
                 setError(error.message);
+            } finally {
                 setLoading(false);
-            });
+            }
+        };
+
+        fetchHealthCheck();
     }, []);
 
     if (loading) {

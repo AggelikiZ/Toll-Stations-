@@ -10,11 +10,11 @@ import PassCost from './pages/PassCostPage';
 import ChargesBy from './pages/ChargesByPage';
 import Login from './pages/Login';
 import './styles/App.css';
-
 export default function App() {
     const [authToken, setAuthToken] = useState(localStorage.getItem('authToken') || null);
 
     useEffect(() => {
+        // Sync token in localStorage when authToken changes
         if (authToken) {
             localStorage.setItem('authToken', authToken);
         } else {
@@ -23,11 +23,11 @@ export default function App() {
     }, [authToken]);
 
     const handleLogout = () => {
-        setAuthToken(null);
+        setAuthToken(null); // Clear token state
     };
 
     const handleLogin = (token) => {
-        setAuthToken(token);
+        setAuthToken(token); // Save token to state
     };
 
     return (

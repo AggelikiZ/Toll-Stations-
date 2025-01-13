@@ -2,6 +2,7 @@ package com.payway.config;
 
 import com.payway.utils.AuthenticationInterceptor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -12,6 +13,15 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     public WebMvcConfig(AuthenticationInterceptor authenticationInterceptor) {
         this.authenticationInterceptor = authenticationInterceptor;
+    }
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOrigins("http://localhost:3000") // Frontend origin
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("X-OBSERVATORY-AUTH", "Content-Type", "Authorization")
+                .exposedHeaders("X-OBSERVATORY-AUTH")
+                .allowCredentials(true);
     }
 
     @Override

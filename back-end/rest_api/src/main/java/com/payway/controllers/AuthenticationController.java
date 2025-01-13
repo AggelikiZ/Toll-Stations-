@@ -20,6 +20,7 @@ import com.payway.models.User;
 import com.payway.services.jwtBlackListService;
 import java.util.Map;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api")
 public class AuthenticationController {

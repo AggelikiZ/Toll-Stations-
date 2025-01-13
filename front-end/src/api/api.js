@@ -1,16 +1,39 @@
 import axios from 'axios';
 
+// Axios instance
 const api = axios.create({
-    baseURL: 'http://localhost:9115/api',
-    headers: {
-        'Content-Type': 'application/json',
-    },
+    baseURL: 'http://localhost:9115/api'
 });
 
-// Authentication
-export const login = (username, password) => api.post('/login', { username, password });
-export const logout = () => api.post('/logout');
+// Add a request interceptor to attach the token
+api.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('authToken'); // Retrieve the token
+        if (token) {
+            config.headers['X-OBSERVATORY-AUTH'] = token; // Attach the token to the custom header
+        }
+        console.log('Request headers:', config.headers); // Debug log
+        return config;
+    },
+    (error) => Promise.reject(error)
+);
 
+
+
+// Login endpoint
+export const login = (username, password) => {
+    const formData = new URLSearchParams();
+    formData.append('username', username);
+    formData.append('password', password);
+
+    return api.post('/login', formData, {
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+    });
+};
+// Logout endpoint
+export const logout = () => api.post('/logout');
 // Health Check
 export const getHealthCheck = () => api.get('/admin/healthcheck');
 
