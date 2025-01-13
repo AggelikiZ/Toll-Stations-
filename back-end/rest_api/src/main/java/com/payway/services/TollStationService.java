@@ -27,11 +27,9 @@ import java.util.Map;
 @Service
 public class TollStationService {
     private final TollStationRepository tollStationRepository;
-    private final Json2CSV jsonToCsvConverter;
 
     public TollStationService(TollStationRepository tollStationRepository) {
         this.tollStationRepository = tollStationRepository;
-        this.jsonToCsvConverter = new Json2CSV();
     }
 
     public void resetStations(String resourcePath) throws Exception {

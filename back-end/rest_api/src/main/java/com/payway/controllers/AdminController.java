@@ -1,9 +1,6 @@
 package com.payway.controllers;
 
-import com.payway.models.Generic500Response;
-import com.payway.models.ResetStations200Response;
-import com.payway.models.ResetStations400Response;
-import com.payway.models.TollStation;
+import com.payway.models.*;
 import com.payway.services.PassService;
 import com.payway.services.TollStationService;
 import com.payway.services.HealthCheckService;
@@ -54,7 +51,8 @@ public class AdminController{
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Reset successful", content = @Content(schema = @Schema(implementation = ResetStations200Response.class))),
             @ApiResponse(responseCode = "400", description = "Reset failed due to illegal argument", content = @Content(schema = @Schema(implementation = ResetStations400Response.class))),
-            @ApiResponse(responseCode = "500", description = "Reset failed", content = @Content(schema = @Schema(implementation = Generic500Response.class)))
+            @ApiResponse(responseCode = "500", description = "Reset failed", content = @Content(schema = @Schema(implementation = Generic500Response.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = Unauthorized401Response.class)))
     })
     public ResponseEntity<?> resetStations() {
         try {
@@ -77,7 +75,8 @@ public class AdminController{
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Reset successful", content = @Content(schema = @Schema(implementation = ResetStations200Response.class))),
             @ApiResponse(responseCode = "400", description = "Reset failed due to illegal argument", content = @Content(schema = @Schema(implementation = ResetStations400Response.class))),
-            @ApiResponse(responseCode = "500", description = "Reset failed", content = @Content(schema = @Schema(implementation = Generic500Response.class)))
+            @ApiResponse(responseCode = "500", description = "Reset failed", content = @Content(schema = @Schema(implementation = Generic500Response.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = Unauthorized401Response.class)))
     })
     public ResponseEntity<?> resetPasses() {
         try {
@@ -99,7 +98,8 @@ public class AdminController{
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Update successful",content = @Content(schema = @Schema(implementation = ResetStations200Response.class))),
             @ApiResponse(responseCode = "400", description = "Update failed due to illegal argument", content = @Content(schema = @Schema(implementation = ResetStations400Response.class))),
-            @ApiResponse(responseCode = "500", description = "Update failed due to interval server error", content = @Content(schema = @Schema(implementation = Generic500Response.class)))
+            @ApiResponse(responseCode = "500", description = "Update failed due to interval server error", content = @Content(schema = @Schema(implementation = Generic500Response.class))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = Unauthorized401Response.class)))
     })
     public ResponseEntity<?> addPasses(@RequestParam("file") MultipartFile file) {
         try {

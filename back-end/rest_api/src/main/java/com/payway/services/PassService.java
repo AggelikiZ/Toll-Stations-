@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -47,6 +48,7 @@ public class PassService {
         }
     }
 
+    @Transactional
     public void addPasses(MultipartFile file) throws Exception {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             String line;
@@ -83,7 +85,9 @@ public class PassService {
                     pass.setStationId(stationId);
                     pass.setTagRef(values[2].trim());
                     pass.setCharge(new BigDecimal(values[4].trim()));
-                    passes.add(pass);
+                    if (!passRepository.existsByTagRefAndPassTime(pass.getTagRef(), pass.getPassTime())) {
+                        passes.add(pass);
+                    }
 
                     String tagRef = values[2].trim();
                     if (!existingTags.contains(tagRef)) {
@@ -93,6 +97,7 @@ public class PassService {
                         newTags.add(tag);
                         existingTags.add(tagRef);
                     }
+
 
                 } catch (Exception e) {
                     throw new IllegalArgumentException("Error processing line " + lineNumber + ": " + e.getMessage(), e);
