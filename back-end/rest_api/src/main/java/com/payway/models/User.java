@@ -21,7 +21,7 @@ public class User {
     private UserRole userRole;
 
     public enum UserRole {
-        operator, ministry;
+        operator, ministry, admin;
     }
     // Getters and Setters
     public Integer getId() {

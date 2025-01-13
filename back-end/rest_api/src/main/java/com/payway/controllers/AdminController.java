@@ -4,7 +4,6 @@ import com.payway.models.*;
 import com.payway.services.PassService;
 import com.payway.services.TollStationService;
 import com.payway.services.HealthCheckService;
-import com.payway.services.StationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -18,9 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -35,13 +32,11 @@ public class AdminController{
     private final TollStationService tollStationService;
     private final HealthCheckService healthcheckService;
     private final PassService passService;
-    private final StationService stationService;
 
-    public AdminController(TollStationService tollStationService, HealthCheckService healthcheckService, PassService passService, StationService stationService) {
+    public AdminController(TollStationService tollStationService, HealthCheckService healthcheckService, PassService passService) {
         this.tollStationService = tollStationService;
         this.healthcheckService = healthcheckService;
         this.passService = passService;
-        this.stationService = stationService;
     }
     @PostMapping(value = "/resetstations", produces = "application/json")
     @Operation(
@@ -134,12 +129,6 @@ public class AdminController{
             return ResponseEntity.status(401).body(errorResponse);
 
         }
-    }
-
-    @GetMapping("/stations")
-    public ResponseEntity<List<TollStation>> getAllStations() {
-        List<TollStation> stations = stationService.getAllStations();
-        return ResponseEntity.ok(stations);
     }
 
 }

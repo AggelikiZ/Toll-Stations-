@@ -40,7 +40,8 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
             Claims claims = jwtTokenUtil.validateToken(token);
             String role = claims.get("role", String.class);
 
-            if (request.getRequestURI().startsWith("/api/payments") && !"operator".equals(role)) {
+            if ((request.getRequestURI().startsWith("/api/payments") && !"operator".equals(role))
+                    || (request.getRequestURI().startsWith("/api/admin") && !"admin".equals(role))) {
                 throw new UnauthorizedException("Forbidden: Insufficient permissions");
             }
             return true;

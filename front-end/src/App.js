@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';
-import { FaCog } from 'react-icons/fa'; // Settings icon
+import { FaSignOutAlt } from 'react-icons/fa'; // Settings icon
+import { jwtDecode } from 'jwt-decode';
 import Dashboard from './pages/Dashboard';
 import StationMap from './pages/Stations';
 import Passes from './pages/Passes';
@@ -9,19 +10,22 @@ import AdminPage from './pages/AdminPage';
 import PassCost from './pages/PassCostPage';
 import ChargesBy from './pages/ChargesByPage';
 import Login from './pages/Login';
-import MyDebts from "./pages/DebtsPage";
-import './styles/App.css';
 import DebtsPage from "./pages/DebtsPage";
+import './styles/App.css';
 
 export default function App() {
     const [authToken, setAuthToken] = useState(localStorage.getItem('authToken') || null);
+    const [userRole, setUserRole] = useState(null);
 
     useEffect(() => {
-        // Sync token in localStorage when authToken changes
+        // Sync token and role in localStorage when authToken changes
         if (authToken) {
             localStorage.setItem('authToken', authToken);
+            const decodedToken = jwtDecode(authToken);
+            setUserRole(decodedToken.role); // Extract role from token
         } else {
             localStorage.removeItem('authToken');
+            setUserRole(null);
         }
     }, [authToken]);
 
@@ -31,6 +35,37 @@ export default function App() {
 
     const handleLogin = (token) => {
         setAuthToken(token); // Save token to state
+    };
+
+    // Conditional rendering of navigation links based on user role
+    const renderNavLinks = () => {
+        const links = [];
+
+        if (userRole === 'admin') {
+            links.push(<Link key="admin" to="/adminpage" className="nav-item">Admin Page</Link>);
+            links.push(<Link key="dashboard" to="/dashboard" className="nav-item">Dashboard</Link>);
+        }
+        links.push(<Link key="stations" to="/stations" className="nav-item">Stations</Link>);
+        links.push(<Link key="passes" to="/passes" className="nav-item">Passes</Link>);
+        links.push(<Link key="passanalysis" to="/passanalysis" className="nav-item">Pass Analysis</Link>);
+        links.push(<Link key="passcost" to="/passcost" className="nav-item">Pass Cost</Link>);
+        links.push(<Link key="chargesby" to="/chargesby" className="nav-item">Charges By</Link>);
+
+        if (userRole === 'operator') {
+            links.push(<Link key="debts" to="/debts" className="nav-item">Debts and Payments</Link>);
+        }
+
+        return links;
+    };
+
+    const getDefaultRoute = () => {
+        if (userRole === 'admin') {
+            return <Navigate to="/dashboard" />;
+        }
+        if (userRole === 'operator' || userRole === 'ministry') {
+            return <Navigate to="/stations" />;
+        }
+        return <Navigate to="/" />;
     };
 
     return (
@@ -57,30 +92,7 @@ export default function App() {
                                     position: 'relative',
                                 }}
                             >
-                                <Link to="/adminpage" className="nav-item">
-                                    AdminPage
-                                </Link>
-                                <Link to="/dashboard" className="nav-item">
-                                    Dashboard
-                                </Link>
-                                <Link to="/stations" className="nav-item">
-                                    Stations
-                                </Link>
-                                <Link to="/passes" className="nav-item">
-                                    Passes
-                                </Link>
-                                <Link to="/passanalysis" className="nav-item">
-                                    PassAnalysis
-                                </Link>
-                                <Link to="/passcost" className="nav-item">
-                                    PassCost
-                                </Link>
-                                <Link to="/chargesby" className="nav-item">
-                                    ChargesBy
-                                </Link>
-                                <Link to="/debts" className="nav-item">
-                                    Debts and Payments
-                                </Link>
+                                {renderNavLinks()}
                                 <div className="settings-dropdown">
                                     <button
                                         style={{
@@ -91,7 +103,7 @@ export default function App() {
                                             cursor: 'pointer',
                                         }}
                                     >
-                                        <FaCog />
+                                        <FaSignOutAlt />
                                     </button>
                                     <div className="dropdown-menu">
                                         <p onClick={handleLogout} className="logout-option">
@@ -104,15 +116,15 @@ export default function App() {
 
                         <main className="app-main">
                             <Routes>
-                                <Route path="/adminpage" element={<AdminPage />} />
-                                <Route path="/" element={<Navigate to="/dashboard" />} />
-                                <Route path="/dashboard" element={<Dashboard />} />
+                                <Route path="/" element={getDefaultRoute()} />
+                                <Route path="/adminpage" element={userRole === 'admin' ? <AdminPage /> : <Navigate to="/" />} />
+                                <Route path="/dashboard" element={userRole === 'admin' ? <Dashboard /> : <Navigate to="/" />} />
                                 <Route path="/stations" element={<StationMap />} />
                                 <Route path="/passes" element={<Passes />} />
                                 <Route path="/passanalysis" element={<PassAnalysis />} />
                                 <Route path="/passcost" element={<PassCost />} />
                                 <Route path="/chargesby" element={<ChargesBy />} />
-                                <Route path="/debts" element={<DebtsPage />} />
+                                <Route path="/debts" element={userRole === 'operator' ? <DebtsPage /> : <Navigate to="/" />} />
                             </Routes>
                         </main>
 
@@ -130,4 +142,3 @@ export default function App() {
         </Router>
     );
 }
-

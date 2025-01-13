@@ -96,7 +96,7 @@ export const getPasses = (station, fromDate, toDate) => {
 };
 
 //Get Stations
-export const getStations = () => api.get('/admin/stations');
+export const getStations = () => api.get('/stations');
 
 export const passAnalysis = async (stationOp, tagOp, fromDate, toDate, format = 'json') => {
     return api.get(`/passAnalysis/${stationOp}/${tagOp}/${fromDate}/${toDate}`);

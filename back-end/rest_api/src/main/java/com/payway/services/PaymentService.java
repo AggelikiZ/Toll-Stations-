@@ -152,8 +152,6 @@ public class PaymentService {
         return paymentRepository.findPaymentsByToOpId(toOpId);
     }
 
-
-
     @Transactional
     public void processPayment(String sourceOpID, String toOpID, MultipartFile file, String details) throws Exception {
         //Validate file

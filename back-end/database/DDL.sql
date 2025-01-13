@@ -1,17 +1,11 @@
 CREATE DATABASE IF NOT EXISTS paywaydb;
 USE paywaydb;
 
-CREATE TABLE IF NOT EXISTS Admin (
-    admin_username VARCHAR(50) NOT NULL,
-    admin_password VARCHAR(50) NOT NULL,
-    PRIMARY KEY (admin_username)
-)ENGINE = InnoDB;
-
 CREATE TABLE IF NOT EXISTS User (
     user_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
     username VARCHAR(50) NOT NULL UNIQUE ,
     password VARCHAR(50) NOT NULL,
-    user_role ENUM('operator', 'ministry') NOT NULL,
+    user_role ENUM('operator', 'ministry', 'admin') NOT NULL,
     PRIMARY KEY (user_id)
 )ENGINE = InnoDB;
 

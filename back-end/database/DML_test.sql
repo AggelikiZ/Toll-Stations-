@@ -7,7 +7,8 @@ INSERT INTO User (user_id, username, password, user_role) VALUES
     (5, 'moreas5', 'default_password', 'operator'),
     (6, 'naodos6', 'default_password', 'operator'),
     (7, 'neaodos7', 'default_password', 'operator'),
-    (8, 'olympiaodos8', 'default_password', 'operator');
+    (8, 'olympiaodos8', 'default_password', 'operator'),
+    (9, 'admin', '1234', 'admin');
 
 INSERT INTO Operator (op_id, user_id, op_name, email) VALUES
     ('AM', 1, 'aegeanmotorway', 'customercare@aegeanmotorway.gr'),
