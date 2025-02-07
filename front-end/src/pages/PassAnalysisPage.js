@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { passAnalysis, getOperatorId } from '../api/api';
-import { Line } from 'react-chartjs-2'; // Optional for visualizing results
+import { Line } from 'react-chartjs-2'; // Chart for visualization
 import Chart from 'chart.js/auto';
 import 'chartjs-adapter-date-fns'; // For date handling
 
 export default function PassAnalysis() {
-    const [stationOp, setStationOp] = useState(''); // Initialize as empty string
+    const [stationOp, setStationOp] = useState('');
+    const [role, setRole] = useState('');
     const [tagOp, setTagOp] = useState('');
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
@@ -14,26 +15,25 @@ export default function PassAnalysis() {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchOperatorId = async () => {
+        const fetchUserData = async () => {
             try {
-                const opId = await getOperatorId(); // Fetch operator ID from API
-                setStationOp(opId); // Set the station operator ID
-                console.log("ID", opId);
+                const { opId, role } = await getOperatorId();
+                setStationOp(opId || '');
+                setRole(role);
             } catch (err) {
-                console.error('Error fetching operator ID:', err);
-                setError('Failed to fetch operator ID.');
+                console.error('Error fetching operator ID and role:', err);
+                setError('Failed to fetch user data.');
             }
         };
 
-        fetchOperatorId();
-    }, []); // Fetch only once on component mount
+        fetchUserData();
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
 
-        // Ensure all required fields are filled
         if (!stationOp || !tagOp || !fromDate || !toDate) {
             setError('All fields are required.');
             setLoading(false);
@@ -105,15 +105,21 @@ export default function PassAnalysis() {
                     type="text"
                     placeholder="Station Operator ID"
                     value={stationOp}
-                    onChange={(e) => setStationOp(e.target.value)} // Controlled input
-                    readOnly // Make it read-only as it is fetched dynamically
-                    style={{ padding: '10px', width: '300px', borderRadius: '4px', backgroundColor: '#e9e9e9' }}
+                    onChange={(e) => setStationOp(e.target.value)}
+                    readOnly={!(role === 'admin' || role === 'ministry')} // Editable only for admins
+                    style={{
+                        padding: '10px',
+                        width: '300px',
+                        borderRadius: '4px',
+                        backgroundColor: role === 'admin' || role === 'ministry' ? 'white' : '#e9e9e9',
+                        cursor: role === 'admin' || role === 'ministry' ? 'text' : 'not-allowed',
+                    }}
                 />
                 <input
                     type="text"
                     placeholder="Tag Operator ID"
                     value={tagOp}
-                    onChange={(e) => setTagOp(e.target.value)} // Controlled input
+                    onChange={(e) => setTagOp(e.target.value)}
                     required
                     style={{ padding: '10px', width: '300px', borderRadius: '4px' }}
                 />
@@ -121,7 +127,7 @@ export default function PassAnalysis() {
                     type="date"
                     placeholder="From Date"
                     value={fromDate}
-                    onChange={(e) => setFromDate(e.target.value)} // Controlled input
+                    onChange={(e) => setFromDate(e.target.value)}
                     required
                     style={{ padding: '10px', width: '300px', borderRadius: '4px' }}
                 />
@@ -129,7 +135,7 @@ export default function PassAnalysis() {
                     type="date"
                     placeholder="To Date"
                     value={toDate}
-                    onChange={(e) => setToDate(e.target.value)} // Controlled input
+                    onChange={(e) => setToDate(e.target.value)}
                     required
                     style={{ padding: '10px', width: '300px', borderRadius: '4px' }}
                 />
@@ -172,29 +178,23 @@ export default function PassAnalysis() {
                         >
                             <thead>
                             <tr style={{ backgroundColor: '#4CAF50', color: 'white' }}>
-                                <th style={{ padding: '10px', border: '1px solid #ddd' }}>Pass Index</th>
-                                <th style={{ padding: '10px', border: '1px solid #ddd' }}>Pass ID</th>
-                                <th style={{ padding: '10px', border: '1px solid #ddd' }}>Timestamp</th>
-                                <th style={{ padding: '10px', border: '1px solid #ddd' }}>Station ID</th>
-                                <th style={{ padding: '10px', border: '1px solid #ddd' }}>Tag ID</th>
-                                <th style={{ padding: '10px', border: '1px solid #ddd' }}>Pass Charge</th>
+                                <th>Pass Index</th>
+                                <th>Pass ID</th>
+                                <th>Timestamp</th>
+                                <th>Station ID</th>
+                                <th>Tag ID</th>
+                                <th>Pass Charge</th>
                             </tr>
                             </thead>
                             <tbody>
                             {passes.map((pass, index) => (
-                                <tr
-                                    key={index}
-                                    style={{
-                                        textAlign: 'center',
-                                        backgroundColor: index % 2 === 0 ? '#f9f9f9' : '#ffffff',
-                                    }}
-                                >
-                                    <td style={{ padding: '10px', border: '1px solid #ddd' }}>{pass.passIndex}</td>
-                                    <td style={{ padding: '10px', border: '1px solid #ddd' }}>{pass.passID}</td>
-                                    <td style={{ padding: '10px', border: '1px solid #ddd' }}>{pass.timestamp}</td>
-                                    <td style={{ padding: '10px', border: '1px solid #ddd' }}>{pass.stationID}</td>
-                                    <td style={{ padding: '10px', border: '1px solid #ddd' }}>{pass.tagID}</td>
-                                    <td style={{ padding: '10px', border: '1px solid #ddd' }}>{pass.passCharge}</td>
+                                <tr key={index} style={{ textAlign: 'center', backgroundColor: index % 2 === 0 ? '#f9f9f9' : '#ffffff' }}>
+                                    <td>{pass.passIndex}</td>
+                                    <td>{pass.passID}</td>
+                                    <td>{pass.timestamp}</td>
+                                    <td>{pass.stationID}</td>
+                                    <td>{pass.tagID}</td>
+                                    <td>{pass.passCharge}</td>
                                 </tr>
                             ))}
                             </tbody>
@@ -209,7 +209,7 @@ export default function PassAnalysis() {
                         }}
                     >
                         <Line
-                            key={JSON.stringify(passes)} // Ensure the chart re-renders with new data
+                            key={JSON.stringify(passes)}
                             data={prepareChartData()}
                             options={{
                                 responsive: true,
