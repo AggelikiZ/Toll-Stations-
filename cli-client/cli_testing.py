@@ -27,7 +27,7 @@ def test_cli():
     users = [
         {"username": "admin", "password": "1234"},
         {"username": "aegeanmotorway1", "password": "default_password"},
-        {"username": "ypoyrgeio", "password": "default_password"},
+        {"username": "ypourgeio", "password": "default_password"},
         {"username": "invalid", "password": "invalid"}
     ]
     
@@ -39,10 +39,8 @@ def test_cli():
         run_command("python cli.py healthcheck")
 
         # Test adding passes (ensure passes-sample.csv exists)
-        with open("passes-sample.csv", "w") as f:
-            f.write("Sample,Data,For,Testing\n")
-        run_command("python cli.py admin --addpasses --source passes-sample.csv")
-        os.remove("passes-sample.csv")
+        run_command("python cli.py admin --addpasses --source passes25.csv")
+        
         
         # Test listing users
         run_command("python cli.py admin --users")
@@ -61,9 +59,32 @@ def test_cli():
 
         run_command(f"python cli.py login --username {user['username']} --passw {user['password']}")
 
+        # Test toll station passes retrieval
+        run_command("python cli.py tollstationpasses --station AM08 --from 20220127 --to 20220210 --format json")
+
+        # Test toll station passes retrieval
+        run_command("python cli.py tollstationpasses --station NAO01 --from 20220101 --to 20221212 --format json")
+        
+        # Test pass analysis
+        run_command("python cli.py passanalysis --stationop AM --tagop NAO --from 20220127 --to 20220210 --format json")
+
+        # Test pass analysis
+        run_command("python cli.py passanalysis --stationop NAO --tagop NO --from 20220101 --to 20221212 --format csv")
+        
+        # Test passes cost
+        run_command("python cli.py passescost --stationop AM --tagop NAO --from 20220101 --to 20221212 --format json")
+
+        # Test passes cost
+        run_command("python cli.py passescost --stationop AM --tagop NO --from 20220101 --to 20221212 --format csv")
+        
+        # Test charges by operator
+        run_command("python cli.py chargesby --opid NAO --from 20220127 --to 20220210 --format json")
         
         # Charges by operator
-        run_command("python cli.py chargesby --opid OP1 --from 20230101 --to 20231231 --format json")
+        run_command("python cli.py chargesby --opid OP1 --from 20220101 --to 20221231 --format json")
+
+        # Charges by operator
+        run_command("python cli.py chargesby --opid AM --from 20220101 --to 20221212 --format csv")
 
         # Logout
         run_command("python cli.py logout")
