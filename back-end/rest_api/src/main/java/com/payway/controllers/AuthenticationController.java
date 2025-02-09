@@ -19,7 +19,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.payway.models.User;
 import com.payway.services.jwtBlackListService;
+
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -91,12 +94,16 @@ public class AuthenticationController {
 
     @GetMapping("/auth/operatorId")
     @Operation(
-            summary = "Get Operator ID",
-            description = "Retrieves the operator ID (opId) from the token of the logged-in user."
+            summary = "Get Operator ID and Role",
+            description = "Retrieves the operator ID (opId) and role of the logged-in user."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Operator ID retrieved successfully", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(example = "{\"opId\": \"EG\"}"))),
-            @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE, schema = @Schema(example = "{\"error\": \"Invalid or expired token\"}")))
+            @ApiResponse(responseCode = "200", description = "Operator ID and role retrieved successfully",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(example = "{\"opId\": \"EG\", \"role\": \"admin\"}"))),
+            @ApiResponse(responseCode = "401", description = "Unauthorized",
+                    content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            schema = @Schema(example = "{\"error\": \"Invalid or expired token\"}")))
     })
     public ResponseEntity<?> getOperatorId(HttpServletRequest request) {
         try {
@@ -106,7 +113,7 @@ public class AuthenticationController {
                         .body(Map.of("error", "Token not provided."));
             }
 
-            // Verify the token
+            // Verify token
             if (jwtBlackListService.isBlacklisted(token)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(Map.of("error", "Token is invalid or blacklisted."));
@@ -119,19 +126,26 @@ public class AuthenticationController {
             User user = userRepository.findByUsername(username)
                     .orElseThrow(() -> new IllegalArgumentException("User not found."));
 
-            // Find the operator corresponding to the user's ID
-            Operator operator = operatorRepository.findByUserId(user.getId())
-                    .orElseThrow(() -> new IllegalArgumentException("Operator not found for the user."));
+            // Get the user role
+            String role = user.getUserRoleAsString(); // Convert enum to String
 
-            // Return the operator ID
-            return ResponseEntity.ok(Map.of("opId", operator.getOpId()));
+            // Try to find an operator for this user
+            Optional<Operator> operatorOptional = operatorRepository.findByUserId(user.getId());
+
+            // Prepare response
+            Map<String, Object> response = new HashMap<>();
+            response.put("role", role); // Always return role
+            response.put("opId", operatorOptional.map(Operator::getOpId).orElse(null)); // Operator ID if available
+
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Failed to retrieve operator ID. " + e.getMessage()));
+                    .body(Map.of("error", "Failed to retrieve user data. " + e.getMessage()));
         }
     }
+
 
 //    @PostMapping(value = "/logout", produces = MediaType.APPLICATION_JSON_VALUE)
 //    @Operation(

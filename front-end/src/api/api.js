@@ -170,12 +170,16 @@ export const getChargesBy = async (opId, fromDate, toDate, format = 'json') => {
 }
 
 // Get Operator ID
+// Get Operator ID and Role
 export const getOperatorId = async () => {
     try {
-        const response = await api.get('/auth/operatorId'); // Adjusted endpoint based on the curl
-        return response.data.opId; // Assuming the backend returns { opId: "AM" }
+        const response = await api.get('/auth/operatorId'); // Fetch from backend
+        return {
+            opId: response.data.opId || null, // Handle null cases
+            role: response.data.role || 'operator' // Default to 'operator' if not specified
+        };
     } catch (error) {
-        console.error('Error fetching operator ID:', error);
-        throw error; // Propagate error to the caller
+        console.error('Error fetching operator ID and role:', error);
+        throw error; // Propagate error to caller
     }
 };

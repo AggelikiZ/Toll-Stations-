@@ -1,14 +1,30 @@
-import React, { useState } from 'react';
-import {getPassesCost } from '../api/api'; // API function for fetching pass cost
+import React, { useState, useEffect } from 'react';
+import { getPassesCost, getOperatorId } from '../api/api'; // Import API functions
 
 export default function PassCost() {
     const [tollOpId, setTollOpId] = useState('');
+    const [role, setRole] = useState('');
     const [tagOpId, setTagOpId] = useState('');
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
     const [costData, setCostData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const { opId, role } = await getOperatorId(); // Fetch both ID and role
+                setTollOpId(opId || ''); // Default to empty if null
+                setRole(role); // Store role in state
+            } catch (err) {
+                console.error('Error fetching operator ID and role:', err);
+                setError('Failed to fetch user data.');
+            }
+        };
+
+        fetchUserData();
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -18,22 +34,21 @@ export default function PassCost() {
         const formattedDateFrom = fromDate.replace(/-/g, '');
         const formattedDateTo = toDate.replace(/-/g, '');
 
-        getPassesCost(tollOpId, tagOpId, formattedDateFrom, formattedDateTo)
-            .then((response) => {
-                if (response.data) {
-                    setCostData(response.data); // Set the received data
-                } else {
-                    setCostData(null); // Clear if no data is returned
-                }
-                setLoading(false);
-            })
-            .catch((error) => {
-                console.error('Error fetching pass cost data:', error);
-                setError('Failed to fetch pass cost data. Please try again.');
-                setLoading(false);
-            });
+        try {
+            const response = await getPassesCost(tollOpId, tagOpId, formattedDateFrom, formattedDateTo);
+            if (response.data) {
+                setCostData(response.data);
+            } else {
+                setCostData(null);
+                setError('No data found for the given criteria.');
+            }
+        } catch (err) {
+            console.error('Error fetching pass cost data:', err);
+            setError('Failed to fetch pass cost data. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
-
 
     return (
         <div style={{ padding: '20px', backgroundColor: '#f4f4f4' }}>
@@ -53,8 +68,14 @@ export default function PassCost() {
                     placeholder="Toll Operator ID"
                     value={tollOpId}
                     onChange={(e) => setTollOpId(e.target.value)}
-                    required
-                    style={{ padding: '10px', width: '300px', borderRadius: '4px' }}
+                    readOnly={!(role === 'admin' || role === 'ministry')} // Editable only for admins
+                    style={{
+                        padding: '10px',
+                        width: '300px',
+                        borderRadius: '4px',
+                        backgroundColor: role === 'admin' || role === 'ministry' ? 'white' : '#e9e9e9',
+                        cursor: role === 'admin' || role === 'ministry' ? 'text' : 'not-allowed',
+                    }}
                 />
                 <input
                     type="text"
@@ -91,7 +112,7 @@ export default function PassCost() {
                         cursor: 'pointer',
                     }}
                 >
-                    Fetch Cost
+                    {loading ? 'Fetching...' : 'Fetch Cost'}
                 </button>
             </form>
 
