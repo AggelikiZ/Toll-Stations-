@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';
-import { FaSignOutAlt } from 'react-icons/fa'; // Settings icon
+import { FaSignOutAlt } from 'react-icons/fa'; // Logout icon
 import { jwtDecode } from 'jwt-decode';
 import Dashboard from './pages/Dashboard';
 import StationMap from './pages/Stations';
@@ -12,6 +12,7 @@ import ChargesBy from './pages/ChargesByPage';
 import Login from './pages/Login';
 import DebtsPage from "./pages/DebtsPage";
 import './styles/App.css';
+import PayDebts from "./pages/PayDebts";
 
 export default function App() {
     const [authToken, setAuthToken] = useState(localStorage.getItem('authToken') || null);
@@ -125,6 +126,7 @@ export default function App() {
                                 <Route path="/passcost" element={<PassCost />} />
                                 <Route path="/chargesby" element={<ChargesBy />} />
                                 <Route path="/debts" element={userRole === 'operator' ? <DebtsPage /> : <Navigate to="/" />} />
+                                <Route path="/pay-debts" element={<PayDebts />} />
                             </Routes>
                         </main>
 
