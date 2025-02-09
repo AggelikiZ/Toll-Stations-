@@ -18,7 +18,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
             "WHERE p.fromOpId = :fromOpId")
     List<Map<String, Object>> findPaymentsByFromOpId(String fromOpId);
 
-    @Query("SELECT new map(p.fromOpId as fromOpId, o.opName as toOpName, p.amount as amount, p.date as date, p.details as details) " +
+    @Query("SELECT new map(p.fromOpId as fromOpId, o.opName as fromOpName, p.amount as amount, p.date as date, p.details as details) " +
             "FROM Payment p JOIN Operator o ON p.fromOpId = o.opId " +
             "WHERE p.toOpId = :toOpId")
     List<Map<String, Object>> findPaymentsByToOpId(String toOpId);

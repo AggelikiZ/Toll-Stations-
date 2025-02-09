@@ -1,26 +1,29 @@
 import React, { useState } from "react";
-import DebtsFromOthers from "./DebtsFromOthers"; // Component for "My Debts"
-import MyDebts from "./MyDebts"; // Component for "Debts to Others"
-import PayDebts from "./PayDebts"; // Component for "Pay Debts"
+import DebtsFromOthers from "./DebtsFromOthers";
+import MyDebts from "./MyDebts";
+import MyPayments from "./MyPayments";
+import PaymentsFromOthers from "./PaymentsFromOthers";
 
 export default function DebtsPage() {
     const [selectedOption, setSelectedOption] = useState("myDebts");
 
     const renderSelectedComponent = () => {
         switch (selectedOption) {
-            case "DebtsFromOthers":
-                return <DebtsFromOthers />;
             case "MyDebts":
                 return <MyDebts />;
-            case "payDebts":
-                return <PayDebts />;
-            default:
+            case "DebtsFromOthers":
                 return <DebtsFromOthers />;
+            case "PaymentsFromOthers":
+                return <PaymentsFromOthers />;
+            case "MyPayments":
+                return <MyPayments />;
+            default:
+                return <MyDebts />;
         }
     };
 
     return (
-        <div style={{ padding: "20px", backgroundColor: "#f4f4f4" }}>
+        <div style={{ padding: "20px", backgroundColor: "#f4f4f4", height: "auto" }}>
             <h2 style={{ textAlign: "center", color: "#4CAF50" }}>Debts and Payment Management</h2>
             <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
                 <select
@@ -34,12 +37,13 @@ export default function DebtsPage() {
                         cursor: "pointer",
                     }}
                 >
-                    <option value="DebtsFromOthers">Debts from others</option>
                     <option value="MyDebts">My Debts</option>
-                    <option value="payDebts">Pay Debts</option>
+                    <option value="DebtsFromOthers">Debts From Others</option>
+                    <option value="MyPayments">My Payments</option>
+                    <option value="PaymentsFromOthers">Payments From Others</option>
                 </select>
             </div>
-            <div>{renderSelectedComponent()}</div>
+            <div style={{minHeight: 220}}>{renderSelectedComponent()}</div>
         </div>
     );
 }

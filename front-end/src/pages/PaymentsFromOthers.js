@@ -1,44 +1,44 @@
 import React, { useState, useEffect } from "react";
-import { getDebtsFromOthers } from "../api/api"; // Updated API call
+import { getPaymentsFromOthers } from "../api/api";
 
-export default function DebtsFromOthers() {
-    const [debts, setDebts] = useState([]);
+export default function PaymentsFromOthers() {
+    const [payments, setPayments] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchDebts = async () => {
+        const fetchPayments = async () => {
             setLoading(true);
             setError(null);
 
             try {
-                const response = await getDebtsFromOthers(); // Call the updated API function
-                setDebts(response);
+                const response = await getPaymentsFromOthers();
+                setPayments(response);
             } catch (err) {
-                setError("Failed to fetch debts from others. Please try again.");
+                setError("Failed to fetch uploaded payments from others. Please try again.");
                 console.error(err);
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchDebts();
+        fetchPayments();
     }, []);
 
     return (
         <div style={{ padding: "10px" }}>
             {loading ? (
-                <p style={{ textAlign: "center", color: "#555" }}>Loading debts...</p>
+                <p style={{ textAlign: "center", color: "#555" }}>Loading payments...</p>
             ) : error ? (
                 <p style={{ textAlign: "center", color: "red" }}>{error}</p>
-            ) : debts.length === 0 ? (
-                <p style={{ textAlign: "center", color: "#555", fontSize: "16px"  }}>
-                    No debts found from other operators.
+            ) : payments.length === 0 ? (
+                <p style={{ textAlign: "center", color: "#555",fontSize: "16px" }}>
+                    No uploaded payments from other operators found.
                 </p>
             ) : (
                 <div>
                 <p style={{ textAlign: "left", color: "#555", fontSize: "16px" }}>
-                    Current debts from other operators.
+                    Previously uploaded payments from other operators.
                 </p>
                 <table
                     style={{
@@ -51,11 +51,13 @@ export default function DebtsFromOthers() {
                     <thead>
                     <tr style={{ backgroundColor: "#4CAF50", color: "white" }}>
                         <th style={{ padding: "10px", border: "1px solid #ddd" }}>Operator Name</th>
-                        <th style={{ padding: "10px", border: "1px solid #ddd" }}>Debt Amount</th>
+                        <th style={{ padding: "10px", border: "1px solid #ddd" }}>Payment Amount</th>
+                        <th style={{ padding: "10px", border: "1px solid #ddd" }}>Upload Date</th>
+                        <th style={{ padding: "10px", border: "1px solid #ddd" }}>Details</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {debts.map((debt, index) => (
+                    {payments.map((payment, index) => (
                         <tr
                             key={index}
                             style={{
@@ -64,10 +66,16 @@ export default function DebtsFromOthers() {
                             }}
                         >
                             <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                                {debt.fromOpName}
+                                {payment.fromOpName}
                             </td>
                             <td style={{ padding: "10px", border: "1px solid #ddd" }}>
-                                {debt.debtAmount.toFixed(2)} €
+                                {payment.amount.toFixed(2)} €
+                            </td>
+                            <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+                                {payment.date || "No timestamp available"}  {/* ✅ Fix: Use directly */}
+                            </td>
+                            <td style={{ padding: "10px", border: "1px solid #ddd" }}>
+                                {payment.details || "No details provided"}
                             </td>
                         </tr>
                     ))}
