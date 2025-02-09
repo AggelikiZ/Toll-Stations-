@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { passAnalysis, getOperatorId } from '../api/api';
-import { Line } from 'react-chartjs-2'; // Chart for visualization
+import { Bar } from 'react-chartjs-2'; // ✅ Use Bar Chart Instead of Line Chart
 import Chart from 'chart.js/auto';
-import 'chartjs-adapter-date-fns'; // For date handling
 
 export default function PassAnalysis() {
     const [stationOp, setStationOp] = useState('');
@@ -44,13 +43,7 @@ export default function PassAnalysis() {
         const formattedDateTo = toDate.replace(/-/g, '');
 
         try {
-            const response = await passAnalysis(
-                stationOp,
-                tagOp,
-                formattedDateFrom,
-                formattedDateTo
-            );
-
+            const response = await passAnalysis(stationOp, tagOp, formattedDateFrom, formattedDateTo);
             if (response.data && response.data.passList) {
                 setPasses(response.data.passList);
             } else {
@@ -65,24 +58,26 @@ export default function PassAnalysis() {
         }
     };
 
+    // ✅ New: Aggregate Passes by Station ID for Bar Chart
     const prepareChartData = () => {
-        const passesByDate = {};
+        const passesByStation = {};
+
         passes.forEach((pass) => {
-            const date = pass.timestamp.split('T')[0]; // Extract date (YYYY-MM-DD)
-            passesByDate[date] = (passesByDate[date] || 0) + 1; // Increment count
+            const station = pass.stationID;
+            passesByStation[station] = (passesByStation[station] || 0) + 1;
         });
 
-        const sortedDates = Object.keys(passesByDate).sort();
+        const sortedStations = Object.keys(passesByStation).sort();
 
         return {
-            labels: sortedDates,
+            labels: sortedStations, // X-axis: Station IDs
             datasets: [
                 {
-                    label: 'Number of Passes Over Time',
-                    data: sortedDates.map((date) => passesByDate[date]),
-                    borderColor: '#4CAF50',
-                    backgroundColor: 'rgba(76, 175, 80, 0.2)',
-                    fill: true,
+                    label: 'Number of Passes per Station',
+                    data: sortedStations.map((station) => passesByStation[station]), // Y-axis: Number of Passes
+                    backgroundColor: '#4CAF50', // ✅ Same green color for all bars
+                    borderColor: '#388E3C', // Slightly darker green border
+                    borderWidth: 1,
                 },
             ],
         };
@@ -106,7 +101,7 @@ export default function PassAnalysis() {
                     placeholder="Station Operator ID"
                     value={stationOp}
                     onChange={(e) => setStationOp(e.target.value)}
-                    readOnly={!(role === 'admin' || role === 'ministry')} // Editable only for admins
+                    readOnly={!(role === 'admin' || role === 'ministry')}
                     style={{
                         padding: '10px',
                         width: '300px',
@@ -200,6 +195,8 @@ export default function PassAnalysis() {
                             </tbody>
                         </table>
                     </div>
+
+                    {/* ✅ New: Bar Chart for Passes Per Station */}
                     <div
                         style={{
                             backgroundColor: '#fff',
@@ -208,17 +205,18 @@ export default function PassAnalysis() {
                             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
                         }}
                     >
-                        <Line
+                        <h3 style={{ textAlign: 'center', color: '#4CAF50' }}>Passes Per Toll Station</h3>
+                        <Bar
                             key={JSON.stringify(passes)}
                             data={prepareChartData()}
                             options={{
                                 responsive: true,
                                 plugins: {
                                     legend: { position: 'top' },
-                                    title: { display: true, text: 'Pass Analysis Over Time' },
+                                    title: { display: true, text: 'Passes Per Toll Station' },
                                 },
                                 scales: {
-                                    x: { title: { display: true, text: 'Date (Month/Year)' } },
+                                    x: { title: { display: true, text: 'Station ID' } },
                                     y: {
                                         title: { display: true, text: 'Number of Passes' },
                                         beginAtZero: true,
