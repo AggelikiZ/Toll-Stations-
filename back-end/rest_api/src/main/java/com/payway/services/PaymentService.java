@@ -18,6 +18,8 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -145,7 +147,15 @@ public class PaymentService {
         return debtRepository.findDebtsFromOperator(fromOpId);
     }
     public List<Map<String, Object>> paymentsFrom(String fromOpId) {
-        return paymentRepository.findPaymentsByFromOpId(fromOpId);
+        List<Map<String, Object>> rawPayments = paymentRepository.findPaymentsByFromOpId(fromOpId);
+
+        for (Map<String, Object> payment : rawPayments) {
+            if (payment.get("updateTime") != null) {
+                Timestamp ts = (Timestamp) payment.get("updateTime");
+                payment.put("updateTime", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(ts));
+            }
+        }
+        return rawPayments;
     }
 
     public List<Map<String, Object>> paymentsTo(String toOpId) {

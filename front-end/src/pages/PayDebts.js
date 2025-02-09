@@ -1,30 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { submitProof, getOperatorsFromDebts } from "../api/api"; // Fetch operators and submit proof
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { submitProof } from "../api/api"; // Importing API function
+import { FaArrowLeft } from "react-icons/fa";
 
 export default function PayDebts() {
-    const [operators, setOperators] = useState([]); // Operators fetched from the API
-    const [selectedOperator, setSelectedOperator] = useState(""); // Selected operator from dropdown
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    const params = new URLSearchParams(location.search);
+    const operator = params.get("operator") || "Unknown Operator";
+    const amount = params.get("amount") || "0.00";
+
     const [selectedFile, setSelectedFile] = useState(null);
     const [uploadMessage, setUploadMessage] = useState("");
     const [loading, setLoading] = useState(false);
-
-    // Fetch operators on mount
-    useEffect(() => {
-        const fetchOperators = async () => {
-            try {
-                const operatorsData = await getOperatorsFromDebts(); // Fetch operator names
-                setOperators(operatorsData);
-                if (operatorsData.length > 0) {
-                    setSelectedOperator(operatorsData[0].id); // Set the first operator as default
-                }
-            } catch (error) {
-                console.error("Error fetching operators:", error);
-                setUploadMessage("Failed to fetch operators. Please try again later.");
-            }
-        };
-
-        fetchOperators();
-    }, []);
 
     const handleFileChange = (event) => {
         setSelectedFile(event.target.files[0]);
@@ -32,8 +21,8 @@ export default function PayDebts() {
     };
 
     const handleUpload = async () => {
-        if (!selectedOperator) {
-            setUploadMessage("Please select an operator.");
+        if (!operator) {
+            setUploadMessage("Invalid operator. Please go back and select a debt.");
             return;
         }
 
@@ -42,7 +31,7 @@ export default function PayDebts() {
             return;
         }
 
-        // Check file type
+        // ✅ Check if the uploaded file is a PDF
         if (selectedFile.type !== "application/pdf") {
             setUploadMessage("Only PDF files are allowed.");
             return;
@@ -50,49 +39,66 @@ export default function PayDebts() {
 
         try {
             setLoading(true);
-            const response = await submitProof(selectedOperator, selectedFile);
+            const response = await submitProof(operator, selectedFile);
             setUploadMessage(response.message || "Payment proof submitted successfully!");
-            setLoading(false);
         } catch (error) {
             console.error("Error submitting payment proof:", error);
             setUploadMessage("Failed to submit payment proof. Please try again.");
+        } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div style={{ padding: "20px" }}>
-            <h3 style={{ textAlign: "center", color: "#4CAF50" }}>Pay Debts</h3>
-            <p style={{ textAlign: "center" }}>
-                Select the operator and upload your payment confirmation (PDF):
+        <div style={{ padding: "20px", backgroundColor: "#f4f4f4", minHeight: 400 }}>
+
+            <button
+                onClick={() => navigate("/debts")}
+                style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    background: "none",
+                    border: "none",
+                    color: "#4CAF50",
+                    fontSize: "16px",
+                    cursor: "pointer",
+                    marginBottom: "10px"
+                }}
+            >
+                <FaArrowLeft /> Go Back
+            </button>
+
+            <h3 style={{ textAlign: "center", color: "#4CAF50", fontSize: 26 }}>Pay Selected Debt</h3>
+
+            <table
+                style={{
+                    width: "100%",
+                    borderCollapse: "collapse",
+                    marginTop: "30px",
+                    marginBottom: "50px",
+                    border: "1px solid #ddd",
+                }}
+            >
+                <thead>
+                <tr style={{ backgroundColor: "#4CAF50", color: "white" }}>
+                    <th style={{ padding: "10px", border: "1px solid #ddd" }}>Recipient Operator Name</th>
+                    <th style={{ padding: "10px", border: "1px solid #ddd" }}>Total Debt Amount</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr style={{ backgroundColor: "#f9f9f9", textAlign: "center" }}>
+                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>{operator}</td>
+                    <td style={{ padding: "10px", border: "1px solid #ddd" }}>{amount} €</td>
+                </tr>
+                </tbody>
+            </table>
+
+            <p style={{ textAlign: "left", fontSize: 16 }}>
+                Upload your payment confirmation (PDF):
             </p>
 
-            <div style={{ textAlign: "center", marginBottom: "20px" }}>
-                <select
-                    value={selectedOperator}
-                    onChange={(e) => setSelectedOperator(e.target.value)}
-                    style={{
-                        width: "50%",
-                        padding: "10px",
-                        borderRadius: "5px",
-                        border: "1px solid #ccc",
-                        fontSize: "16px",
-                        marginBottom: "10px",
-                    }}
-                >
-                    {operators.length === 0 ? (
-                        <option value="">Loading operators...</option>
-                    ) : (
-                        operators.map((operator) => (
-                            <option key={operator.id} value={operator.name}>
-                                {operator.name}
-                            </option>
-                        ))
-                    )}
-                </select>
-            </div>
-
-            <div style={{ textAlign: "center", marginBottom: "20px" }}>
+            <div style={{ textAlign: "left", marginBottom: "30px" }}>
                 <input
                     type="file"
                     accept=".pdf"
@@ -105,6 +111,7 @@ export default function PayDebts() {
                     }}
                 />
             </div>
+
 
             <div style={{ textAlign: "center" }}>
                 <button
@@ -120,10 +127,11 @@ export default function PayDebts() {
                     }}
                     disabled={loading}
                 >
-                    {loading ? "Uploading..." : "Upload Confirmation"}
+                    {loading ? "Uploading..." : "Confirm"}
                 </button>
             </div>
 
+            {/* ✅ Upload Status Message */}
             {uploadMessage && (
                 <p
                     style={{

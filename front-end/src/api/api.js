@@ -72,7 +72,6 @@ export const submitProof = async (operatorName, file) => {
     const url = `/payments/submitproof?toOpName=${operatorName}`;
     const formData = new FormData();
     formData.append('file', file);
-
     try {
         const response = await api.post(url, formData, {
             headers: {
@@ -87,21 +86,10 @@ export const submitProof = async (operatorName, file) => {
     }
 };
 
-// Function to fetch debts from others
-export const getPaymentsFromOthers = async () => {
-    try {
-        const response = await api.get('/payments/fromOp');
-        return response.data; // Return the response data
-    } catch (error) {
-        console.error('Error fetching debts from others:', error.response ? error.response.data : error.message);
-        throw error; // Propagate error to the caller
-    }
-};
-
 // Fetch debts from other operators
 export const getDebtsFromOthers = async () => {
     try {
-        const response = await api.get('/payments/debtsfrom');
+        const response = await api.get('/payments/debtsto');
         return response.data;
     } catch (error) {
         console.error('Error fetching debts from others:', error);
@@ -112,7 +100,7 @@ export const getDebtsFromOthers = async () => {
 // Fetch debts to other operators
 export const getMyDebts = async () => {
     try {
-        const response = await api.get('/payments/debtsto');
+        const response = await api.get('/payments/debtsfrom');
         return response.data;
     } catch (error) {
         console.error('Error fetching my debts:', error);
@@ -120,10 +108,33 @@ export const getMyDebts = async () => {
     }
 };
 
-// Fetch operator names from debts
-export const getOperatorsFromDebts = async () => {
+export const getMyPayments = async () => {
     try {
-        const response = await api.get('/payments/debtsto');
+        const response = await api.get('/payments/fromOp');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching my payments:', error);
+        throw error;
+    }
+};
+
+// Function to fetch debts from others
+export const getPaymentsFromOthers = async () => {
+    try {
+        const response = await api.get('/payments/toOp');
+        return response.data; // Return the response data
+    } catch (error) {
+        console.error('Error fetching debts from others:', error.response ? error.response.data : error.message);
+        throw error; // Propagate error to the caller
+    }
+};
+
+
+
+// Fetch operator names from debts
+export const getOperatorsFromMyDebts = async () => {
+    try {
+        const response = await api.get('/payments/debtsfrom');
         // Map only the operator names
         const operators = response.data.map((debt) => ({
             name: debt.fromOpName,
