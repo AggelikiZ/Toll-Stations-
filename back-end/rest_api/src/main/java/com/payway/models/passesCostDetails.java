@@ -61,8 +61,8 @@ public class passesCostDetails {
         this.nPasses = nPasses;
     }
 
-    public BigDecimal getTotalCost() {return totalCost;}
+    public BigDecimal getPassesCost() {return totalCost;}
 
-    public void setTotalCost(BigDecimal totalCost) {this.totalCost = totalCost;}
+    public void setPassesCost(BigDecimal totalCost) {this.totalCost = totalCost;}
 
 }

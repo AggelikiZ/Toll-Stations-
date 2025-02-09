@@ -7,7 +7,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import com.payway.models.TollStation;
 
-
 import java.time.LocalDate;
 ;import java.time.LocalDateTime;
 import java.util.List;
@@ -60,6 +59,21 @@ public interface TollStationRepository extends JpaRepository<TollStation, String
             LocalDate endTime,
             LocalDateTime currentTimestamp
     );
+
+    @Query(value = "SELECT EXISTS ( " +
+            "    SELECT 1 " +
+            "    FROM TollStation ts " +
+            "    WHERE ts.station_id = :stationId " +
+            ") ", nativeQuery = true)
+    Integer tollStationExists(@Param("stationId") String stationId);
+
+    @Query(value = "SELECT EXISTS ( " +
+            "    SELECT 1 " +
+            "    FROM Operator op " +
+            "    WHERE op.op_id = :operatorId " +
+            ") ", nativeQuery = true)
+    Integer tollOpExists(@Param("operatorId") String operatorId);
+
 
     List<TollStation> findByOpId(String opId);
 }

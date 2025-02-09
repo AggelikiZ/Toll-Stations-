@@ -168,7 +168,7 @@ public class PassService {
 
         try {
 
-            Map<String, Object> response = passRepository.passesCost(tollOpID, tagOpID, date_from, date_to);
+            Map<String, Object> response = passRepository.getpassesCost(tollOpID, tagOpID, date_from, date_to);
 
             if (response.isEmpty()) {
                 return null;
@@ -186,7 +186,7 @@ public class PassService {
 //            if (detailsDTO.gettagOpID().equals(detailsDTO.gettollOpID())){
 //                return detailsDTO;
 //            }
-            detailsDTO.setTotalCost((BigDecimal) response.get("totalCost"));
+            detailsDTO.setPassesCost((BigDecimal) response.get("passesCost"));
             return detailsDTO;
 
         }
