@@ -35,12 +35,12 @@ public class ChargesByController {
 
             // Call service
             Map<String, Object> response = chargeService.getChargesBy(tollOpID, startDate, endDate);
-
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of("error", "Invalid request: " + e.getMessage()));
         }
     }
+
 }
 

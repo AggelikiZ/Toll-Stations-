@@ -31,9 +31,16 @@ public class ChargeService {
         this.tollStationRepository = tollStationRepository;
     }
 
+
     public Map<String, Object> getChargesBy(String tollOpID, LocalDateTime dateFrom, LocalDateTime dateTo) {
         // Format timestamp
         String requestTimestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+
+        // 🔹 Έλεγχος αν υπάρχει το tollOpID πριν γίνει οποιαδήποτε αναζήτηση
+        boolean operatorExists = tollStationRepository.existsByOpId(tollOpID);
+        if (!operatorExists) {
+            throw new IllegalArgumentException("Invalid tollOpID: " + tollOpID);
+        }
 
         // Fetch toll stations belonging to the operator
         List<TollStation> stations = tollStationRepository.findByOpId(tollOpID);
@@ -76,5 +83,6 @@ public class ChargeService {
 
         return response;
     }
+
 }
 
