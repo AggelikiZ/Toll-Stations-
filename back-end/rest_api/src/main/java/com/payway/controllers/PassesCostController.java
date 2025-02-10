@@ -48,7 +48,7 @@ public class PassesCostController {
 
     @Operation(
             summary = "Passes Cost",
-            description = "Get information on the number of passes with a tag of an operator from stations of an operator and total cost for a period of time"
+            description = "Get information on the number of passes with a tag of an operator from stations of an operator and total cost for a period of time."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Successful Response",

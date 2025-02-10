@@ -5,20 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="d840d8db-721c-4168-af2d-95ba3c4d5ec2" name="Changes" comment="tollStationPasses">
-      <change afterPath="$PROJECT_DIR$/back-end/rest_api/src/main/java/com/payway/models/Generic400Response.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/rest_api/src/main/java/com/payway/controllers/AnalysisController.java" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/rest_api/src/main/java/com/payway/controllers/AnalysisController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/rest_api/src/main/java/com/payway/controllers/ChargesByController.java" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/rest_api/src/main/java/com/payway/controllers/ChargesByController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/rest_api/src/main/java/com/payway/controllers/PassesCostController.java" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/rest_api/src/main/java/com/payway/controllers/PassesCostController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/rest_api/src/main/java/com/payway/controllers/TollStationPassesController.java" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/rest_api/src/main/java/com/payway/controllers/TollStationPassesController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/rest_api/src/main/resources/static/openapi.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/rest_api/src/main/resources/static/openapi.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/rest_api/target/classes/com/payway/controllers/AnalysisController.class" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/rest_api/target/classes/com/payway/controllers/AnalysisController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/rest_api/target/classes/com/payway/controllers/ChargesByController.class" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/rest_api/target/classes/com/payway/controllers/ChargesByController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/rest_api/target/classes/com/payway/controllers/PassesCostController.class" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/rest_api/target/classes/com/payway/controllers/PassesCostController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/rest_api/target/classes/com/payway/controllers/TollStationPassesController.class" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/rest_api/target/classes/com/payway/controllers/TollStationPassesController.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/rest_api/target/classes/com/payway/services/ChargeService.class" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/rest_api/target/classes/com/payway/services/ChargeService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/rest_api/target/classes/com/payway/services/PassService.class" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/rest_api/target/classes/com/payway/services/PassService.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/back-end/rest_api/target/classes/static/openapi.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/back-end/rest_api/target/classes/static/openapi.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -175,7 +162,7 @@
       <workItem from="1739109308149" duration="180000" />
       <workItem from="1739109504697" duration="3971000" />
       <workItem from="1739113864865" duration="8496000" />
-      <workItem from="1739200249644" duration="13399000" />
+      <workItem from="1739200249644" duration="14055000" />
     </task>
     <task id="LOCAL-00001" summary="tollStationPasses">
       <option name="closed" value="true" />

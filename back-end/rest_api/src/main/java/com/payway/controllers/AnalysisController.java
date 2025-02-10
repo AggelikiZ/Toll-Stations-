@@ -52,7 +52,7 @@ public class AnalysisController {
 
     @Operation(
             summary = "Passes Analysis",
-            description = "Get information for the passes of a vehicle with tag from an operator from stations of an operator for a period of time"
+            description = "Get information for the passes of a vehicle with tag from an operator from stations of an operator for a period of time."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Successful Response",

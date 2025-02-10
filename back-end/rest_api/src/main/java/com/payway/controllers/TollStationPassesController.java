@@ -46,7 +46,7 @@ public class TollStationPassesController {
 
     @Operation(
             summary = "Toll Station Passes",
-            description = "Get information for the passes from a toll station for a period of time"
+            description = "Get information for the passes from a toll station for a period of time."
     )
  @ApiResponses({
          @ApiResponse(responseCode = "200", description = "Successful Response",

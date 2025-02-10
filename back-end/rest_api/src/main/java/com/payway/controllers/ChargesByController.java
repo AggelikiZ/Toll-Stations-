@@ -37,7 +37,7 @@ public class ChargesByController {
 
     @Operation(
             summary = "Charges By",
-            description = "Get information on passes from stations of an operator with tags of any other operator and total value owed to the operator"
+            description = "Get information on passes from stations of an operator with tags of any other operator and total value owed to the operator."
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Successful Response",

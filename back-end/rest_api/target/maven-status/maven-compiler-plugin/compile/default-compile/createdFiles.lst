@@ -1,4 +1,5 @@
 com\payway\models\Debt$DebtId.class
+com\payway\models\Generic400Response.class
 com\payway\services\jwtBlackListService.class
 com\payway\models\TollStationPassesDetails.class
 com\payway\models\PassDetails.class
