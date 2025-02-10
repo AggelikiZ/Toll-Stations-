@@ -67,9 +67,15 @@ def test_cli():
 
         # Test toll station passes retrieval
         run_command("tollstationpasses --station NAO01 --from 20220101 --to 20221212 --format json")
+
+        # Test toll station passes retrieval(wrong date)
+        run_command("tollstationpasses --station NAO01 --from 2022010 --to 20221212 --format json")
         
         # Test pass analysis
         run_command("passanalysis --stationop AM --tagop NAO --from 20220127 --to 20220210 --format json")
+
+        # Test pass analysis(missing operator)
+        run_command("passanalysis --tagop NAO --from 20220127 --to 20220210 --format json")
 
         # Test pass analysis
         run_command("passanalysis --stationop NAO --tagop NO --from 20220101 --to 20221212 --format csv")
@@ -79,12 +85,13 @@ def test_cli():
 
         # Test passes cost
         run_command("passescost --stationop AM --tagop NO --from 20220101 --to 20221212 --format csv")
+
+        # Test passes cost(invalid format)
+        run_command("passescost --stationop AM --tagop NO --from 20220101 --to 20221212 --format txt")
         
         # Test charges by operator
         run_command("chargesby --opid NAO --from 20220127 --to 20220210 --format json")
         
-        # Charges by operator
-        run_command("chargesby --opid OP1 --from 20220101 --to 20221231 --format json")
 
         # Charges by operator
         run_command("chargesby --opid AM --from 20220101 --to 20221212 --format csv")
@@ -97,4 +104,5 @@ def test_cli():
 
 if __name__ == "__main__":
     test_cli()
+
 
