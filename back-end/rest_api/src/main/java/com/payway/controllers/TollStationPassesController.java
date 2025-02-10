@@ -10,12 +10,17 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import com.payway.services.TollStationService;
+import com.payway.models.TollStationPassesDetails;
+import com.payway.models.PassDetails;
+import com.payway.repositories.TollStationRepository;
 
 import java.io.StringWriter;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -23,10 +28,12 @@ import java.util.List;
 public class TollStationPassesController {
 
     private final TollStationService tollStationService;
+    private final TollStationRepository tollStationRepository;
 
     @Autowired
-    public TollStationPassesController(TollStationService tollStationService) {
+    public TollStationPassesController(TollStationService tollStationService, TollStationRepository tollStationRepository) {
         this.tollStationService = tollStationService;
+        this.tollStationRepository = tollStationRepository;
     }
 
     @GetMapping(value = "/tollStationPasses/{tollStationID}/{date_from}/{date_to}", produces = "application/json")
@@ -43,10 +50,25 @@ public class TollStationPassesController {
             @RequestParam(required = false, defaultValue = "json") String format) {
         try {
             if (tollStationID == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing tollStationID.");
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Missing tollStationID.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+            if (dateFrom == null || dateFrom.isEmpty()) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Missing date from.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
             if (dateTo == null || dateTo.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing or empty date_to parameter.");
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Missing date to.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            if (tollStationRepository.tollStationExists(tollStationID) == 0){
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Bad request: Invalid stationID.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
 
             // Validate and parse dates
@@ -56,7 +78,9 @@ public class TollStationPassesController {
 
             // Validate date range
             if (fromDate.isAfter(toDate)) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid date range: 'date_from' must be before or equal to 'date_to'.");
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Bad request: Invalid date range: 'date_from' must be before or equal to 'date_to'.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
 
             // Fetch data from the service
@@ -76,9 +100,13 @@ public class TollStationPassesController {
             return ResponseEntity.ok(tollStationPasses);
 
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request: " + e.getMessage());
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Bad request: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: " + e.getMessage());
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "An unexpected error occurred: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 

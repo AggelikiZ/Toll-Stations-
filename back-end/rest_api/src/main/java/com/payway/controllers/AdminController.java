@@ -43,6 +43,8 @@ public class AdminController{
             summary = "Reset toll stations",
             description = "Resets the toll stations table with the data from the `tollstations2024.csv` file."
     )
+
+
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Reset successful", content = @Content(schema = @Schema(implementation = ResetStations200Response.class))),
             @ApiResponse(responseCode = "400", description = "Reset failed due to illegal argument", content = @Content(schema = @Schema(implementation = ResetStations400Response.class))),

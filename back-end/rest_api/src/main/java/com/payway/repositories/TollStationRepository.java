@@ -61,6 +61,21 @@ public interface TollStationRepository extends JpaRepository<TollStation, String
             LocalDateTime currentTimestamp
     );
 
+    @Query(value = "SELECT EXISTS ( " +
+            "    SELECT 1 " +
+            "    FROM TollStation ts " +
+            "    WHERE ts.station_id = :stationId " +
+            ") ", nativeQuery = true)
+    Integer tollStationExists(@Param("stationId") String stationId);
+
+    @Query(value = "SELECT EXISTS ( " +
+            "    SELECT 1 " +
+            "    FROM Operator op " +
+            "    WHERE op.op_id = :operatorId " +
+            ") ", nativeQuery = true)
+    Integer tollOpExists(@Param("operatorId") String operatorId);
+
+
     // Επιστρέφει true αν υπάρχει το συγκεκριμένο opId
     boolean existsByOpId(String opId);
 

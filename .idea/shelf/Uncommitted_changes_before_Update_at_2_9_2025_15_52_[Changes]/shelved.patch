@@ -1,0 +1,171 @@
+Index: back-end/rest_api/src/main/java/com/payway/controllers/TollStationPassesController.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.payway.controllers;\r\n\r\nimport com.fasterxml.jackson.core.JsonProcessingException;\r\nimport com.opencsv.CSVWriter;\r\nimport com.payway.models.Generic500Response;\r\nimport com.payway.models.ResetStations200Response;\r\nimport com.payway.models.ResetStations400Response;\r\nimport io.swagger.v3.oas.annotations.Operation;\r\nimport io.swagger.v3.oas.annotations.media.Content;\r\nimport io.swagger.v3.oas.annotations.media.Schema;\r\nimport io.swagger.v3.oas.annotations.responses.ApiResponse;\r\nimport io.swagger.v3.oas.annotations.responses.ApiResponses;\r\nimport org.springframework.beans.factory.annotation.Autowired;\r\nimport org.springframework.http.HttpStatus;\r\nimport org.springframework.http.MediaType;\r\nimport org.springframework.http.ResponseEntity;\r\nimport org.springframework.web.bind.annotation.*;\r\nimport com.payway.services.TollStationService;\r\nimport com.payway.models.TollStationPassesDetails;\r\nimport com.payway.models.PassDetails;\r\n\r\nimport java.io.StringWriter;\r\nimport java.time.LocalDate;\r\nimport java.time.format.DateTimeFormatter;\r\nimport java.time.format.DateTimeParseException;\r\nimport java.util.List;\r\nimport java.util.Map;\r\n@CrossOrigin(origins = \"http://localhost:3000\")\r\n@RestController\r\n@RequestMapping(\"/api\")\r\npublic class TollStationPassesController {\r\n\r\n    private final TollStationService tollStationService;\r\n\r\n    @Autowired\r\n    public TollStationPassesController(TollStationService tollStationService) {\r\n        this.tollStationService = tollStationService;\r\n    }\r\n\r\n    @GetMapping(value = \"/tollStationPasses/{tollStationID}/{date_from}/{date_to}\", produces = \"application/json\")\r\n\r\n    @Operation(\r\n            summary = \"Toll Station Passes\",\r\n            description = \"Get information for the Passes from a toll station for a period of time\"\r\n    )\r\n\r\n    public ResponseEntity<?> getTollStationPasses(\r\n            @PathVariable(\"tollStationID\") String tollStationID,\r\n            @PathVariable(\"date_from\") String dateFrom,\r\n            @PathVariable(\"date_to\") String dateTo,\r\n            @RequestParam(required = false, defaultValue = \"json\") String format) {\r\n        try {\r\n            if (tollStationID == null) {\r\n                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(\"Missing tollStationID.\");\r\n            }\r\n            if (dateFrom == null || dateFrom.isEmpty()) {\r\n                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(\"Missing or empty date_from parameter.\");\r\n            }\r\n            if (dateTo == null || dateTo.isEmpty()) {\r\n                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(\"Missing or empty date_to parameter.\");\r\n            }\r\n\r\n            // Validate and parse dates\r\n            DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(\"yyyyMMdd\");\r\n            LocalDate fromDate = parseDate(dateFrom, dateFormatter);\r\n            LocalDate toDate = parseDate(dateTo, dateFormatter);\r\n\r\n            // Validate date range\r\n            if (fromDate.isAfter(toDate)) {\r\n                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(\"Invalid date range: 'date_from' must be before or equal to 'date_to'.\");\r\n            }\r\n\r\n            // Fetch data from the service\r\n            TollStationPassesDetails tollStationPasses = tollStationService.getTollStationPasses(tollStationID, fromDate, toDate, format);\r\n\r\n            if (tollStationPasses == null) {\r\n                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();\r\n            }\r\n\r\n            if (\"csv\".equalsIgnoreCase(format)) {\r\n                String csv = convertJsonToCsv(tollStationPasses);\r\n                return ResponseEntity.ok()\r\n                        .header(\"Content-Disposition\", \"inline; filename=toll_station_passes.csv\")\r\n                        .contentType(MediaType.TEXT_PLAIN)\r\n                        .body(csv); // CSV data as plain text\r\n            }\r\n            return ResponseEntity.ok(tollStationPasses);\r\n\r\n        } catch (IllegalArgumentException e) {\r\n            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(\"Invalid request: \" + e.getMessage());\r\n        } catch (Exception e) {\r\n            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(\"An unexpected error occurred: \" + e.getMessage());\r\n        }\r\n    }\r\n\r\n    private LocalDate parseDate(String date, DateTimeFormatter formatter) {\r\n        try {\r\n            return LocalDate.parse(date, formatter);\r\n        } catch (DateTimeParseException e) {\r\n            throw new IllegalArgumentException(\"Invalid date format for '\" + date + \"'. Expected format: yyyyMMdd.\");\r\n        }\r\n    }\r\n    private String convertJsonToCsv(TollStationPassesDetails tollStationPasses) {\r\n        StringWriter writer = new StringWriter();\r\n        try (CSVWriter csvWriter = new CSVWriter(writer)) {\r\n            // Write main toll station details\r\n            csvWriter.writeNext(new String[]{\"StationID\", \"StationOperator\", \"RequestTimestamp\", \"PeriodFrom\", \"PeriodTo\", \"nPasses\"});\r\n            csvWriter.writeNext(new String[]{\r\n                    tollStationPasses.getStationID(),\r\n                    tollStationPasses.getStationOperator(),\r\n                    tollStationPasses.getRequestTimestamp(),\r\n                    tollStationPasses.getPeriodFrom(),\r\n                    tollStationPasses.getPeriodTo(),\r\n                    String.valueOf(tollStationPasses.getnPasses())\r\n            });\r\n\r\n            // Optional blank line to separate sections\r\n            csvWriter.writeNext(new String[]{});\r\n\r\n            // Write pass list header\r\n            csvWriter.writeNext(new String[]{\"PassIndex\", \"PassID\", \"Timestamp\", \"TagID\", \"TagProvider\", \"PassType\", \"PassCharge\"});\r\n\r\n            // Write pass list details\r\n            for (PassDetails pass : tollStationPasses.getPassList()) {\r\n                csvWriter.writeNext(new String[]{\r\n                        String.valueOf(pass.getPassIndex()),\r\n                        String.valueOf(pass.getPassID()),\r\n                        pass.getTimestamp().toString(), // Assuming timestamp is a `java.sql.Timestamp`\r\n                        pass.getTagID(),\r\n                        pass.getTagProvider(),\r\n                        pass.getPassType(),\r\n                        String.valueOf(pass.getPassCharge())\r\n                });\r\n            }\r\n        } catch (Exception e) {\r\n            throw new RuntimeException(\"Error generating CSV: \" + e.getMessage(), e);\r\n        }\r\n        return writer.toString();\r\n    }\r\n\r\n\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/back-end/rest_api/src/main/java/com/payway/controllers/TollStationPassesController.java b/back-end/rest_api/src/main/java/com/payway/controllers/TollStationPassesController.java
+--- a/back-end/rest_api/src/main/java/com/payway/controllers/TollStationPassesController.java	(revision 1ccceea7c1c0b5888b31b5404fbd5cceee54d19d)
++++ b/back-end/rest_api/src/main/java/com/payway/controllers/TollStationPassesController.java	(date 1736780609580)
+@@ -18,11 +18,13 @@
+ import com.payway.services.TollStationService;
+ import com.payway.models.TollStationPassesDetails;
+ import com.payway.models.PassDetails;
++import com.payway.repositories.TollStationRepository;
+ 
+ import java.io.StringWriter;
+ import java.time.LocalDate;
+ import java.time.format.DateTimeFormatter;
+ import java.time.format.DateTimeParseException;
++import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
+ @CrossOrigin(origins = "http://localhost:3000")
+@@ -31,10 +33,12 @@
+ public class TollStationPassesController {
+ 
+     private final TollStationService tollStationService;
++    private final TollStationRepository tollStationRepository;
+ 
+     @Autowired
+-    public TollStationPassesController(TollStationService tollStationService) {
++    public TollStationPassesController(TollStationService tollStationService, TollStationRepository tollStationRepository) {
+         this.tollStationService = tollStationService;
++        this.tollStationRepository = tollStationRepository;
+     }
+ 
+     @GetMapping(value = "/tollStationPasses/{tollStationID}/{date_from}/{date_to}", produces = "application/json")
+@@ -51,13 +55,25 @@
+             @RequestParam(required = false, defaultValue = "json") String format) {
+         try {
+             if (tollStationID == null) {
+-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing tollStationID.");
++                Map<String, String> response = new HashMap<>();
++                response.put("message", "Missing tollStationID.");
++                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+             }
+             if (dateFrom == null || dateFrom.isEmpty()) {
+-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing or empty date_from parameter.");
++                Map<String, String> response = new HashMap<>();
++                response.put("message", "Missing date from.");
++                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+             }
+             if (dateTo == null || dateTo.isEmpty()) {
+-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing or empty date_to parameter.");
++                Map<String, String> response = new HashMap<>();
++                response.put("message", "Missing date to.");
++                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
++            }
++
++            if (tollStationRepository.tollStationExists(tollStationID) == 0){
++                Map<String, String> response = new HashMap<>();
++                response.put("message", "Bad request: Invalid stationID.");
++                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+             }
+ 
+             // Validate and parse dates
+@@ -67,7 +83,9 @@
+ 
+             // Validate date range
+             if (fromDate.isAfter(toDate)) {
+-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid date range: 'date_from' must be before or equal to 'date_to'.");
++                Map<String, String> response = new HashMap<>();
++                response.put("message", "Bad request: Invalid date range: 'date_from' must be before or equal to 'date_to'.");
++                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+             }
+ 
+             // Fetch data from the service
+@@ -87,9 +105,13 @@
+             return ResponseEntity.ok(tollStationPasses);
+ 
+         } catch (IllegalArgumentException e) {
+-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request: " + e.getMessage());
++            Map<String, String> response = new HashMap<>();
++            response.put("message", "Bad request: " + e.getMessage());
++            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+         } catch (Exception e) {
+-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: " + e.getMessage());
++            Map<String, String> response = new HashMap<>();
++            response.put("message", "An unexpected error occurred: " + e.getMessage());
++            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+         }
+     }
+ 
+Index: back-end/rest_api/src/main/java/com/payway/models/passesCostDetails.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.payway.models;\r\n\r\nimport java.math.BigDecimal;\r\nimport java.sql.Timestamp;\r\nimport java.util.List;\r\n\r\npublic class passesCostDetails {\r\n    private String tollOpID;\r\n    private String tagOpID;\r\n    private Timestamp requestTimestamp;\r\n    private String periodFrom;\r\n    private String periodTo;\r\n    private Long nPasses;\r\n    private BigDecimal totalCost;\r\n\r\n    public String gettollOpID() {\r\n        return tollOpID;\r\n    }\r\n\r\n    public void settollOpID(String tollOpID) {\r\n        this.tollOpID = tollOpID;\r\n    }\r\n\r\n    public String gettagOpID() {\r\n        return tagOpID;\r\n    }\r\n\r\n    public void settagOpID(String tagOpID) {\r\n        this.tagOpID = tagOpID;\r\n    }\r\n\r\n    public Timestamp getRequestTimestamp() {\r\n        return requestTimestamp;\r\n    }\r\n\r\n    public void setRequestTimestamp(Timestamp requestTimestamp) {\r\n        this.requestTimestamp = requestTimestamp;\r\n    }\r\n\r\n    public String getPeriodFrom() {\r\n        return periodFrom;\r\n    }\r\n\r\n    public void setPeriodFrom(String periodFrom) {\r\n        this.periodFrom = periodFrom;\r\n    }\r\n\r\n    public String getPeriodTo() {\r\n        return periodTo;\r\n    }\r\n\r\n    public void setPeriodTo(String periodTo) {\r\n        this.periodTo = periodTo;\r\n    }\r\n\r\n    public Long getnPasses() {\r\n        return nPasses;\r\n    }\r\n\r\n    public void setnPasses(Long nPasses) {\r\n        this.nPasses = nPasses;\r\n    }\r\n\r\n    public BigDecimal getTotalCost() {return totalCost;}\r\n\r\n    public void setTotalCost(BigDecimal totalCost) {this.totalCost = totalCost;}\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/back-end/rest_api/src/main/java/com/payway/models/passesCostDetails.java b/back-end/rest_api/src/main/java/com/payway/models/passesCostDetails.java
+--- a/back-end/rest_api/src/main/java/com/payway/models/passesCostDetails.java	(revision 1ccceea7c1c0b5888b31b5404fbd5cceee54d19d)
++++ b/back-end/rest_api/src/main/java/com/payway/models/passesCostDetails.java	(date 1736865195566)
+@@ -11,7 +11,7 @@
+     private String periodFrom;
+     private String periodTo;
+     private Long nPasses;
+-    private BigDecimal totalCost;
++    private BigDecimal passesCost;
+ 
+     public String gettollOpID() {
+         return tollOpID;
+@@ -61,8 +61,8 @@
+         this.nPasses = nPasses;
+     }
+ 
+-    public BigDecimal getTotalCost() {return totalCost;}
++    public BigDecimal getPassesCost() {return passesCost;}
+ 
+-    public void setTotalCost(BigDecimal totalCost) {this.totalCost = totalCost;}
++    public void setPassesCost(BigDecimal passesCost) {this.passesCost = passesCost;}
+ 
+ }
+Index: back-end/rest_api/src/main/java/com/payway/repositories/TollStationRepository.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.payway.repositories;\r\n\r\nimport com.payway.models.TollStation;\r\nimport org.springframework.data.jpa.repository.JpaRepository;\r\nimport org.springframework.data.jpa.repository.Query;\r\nimport org.springframework.data.repository.query.Param;\r\nimport org.springframework.stereotype.Repository;\r\nimport com.payway.models.TollStation;\r\n\r\n\r\nimport java.time.LocalDate;\r\n;import java.time.LocalDateTime;\r\nimport java.util.List;\r\nimport java.util.Map;\r\n\r\n@Repository\r\npublic interface TollStationRepository extends JpaRepository<TollStation, String> {\r\n\r\n    @Query(\"SELECT ts.id AS stationId, COUNT(p.passId) AS numberOfPasses \" +\r\n            \"FROM TollStation ts LEFT JOIN Pass p ON ts.id = p.stationId \" +\r\n            \"WHERE ts.id = :stationId AND p.passTime BETWEEN :startTime AND :endTime \" +\r\n            \"GROUP BY ts.id\")\r\n    Map<String, Object> TollStationPassesByIdAndTimeRange(\r\n            @Param(\"stationId\") String stationId,\r\n            @Param(\"startTime\") LocalDate startTime,\r\n            @Param(\"endTime\") LocalDate endTime);\r\n\r\n    @Query(value = \"\"\"\r\n            SELECT\r\n                ts.station_id AS stationID,\r\n                op.op_name AS stationOperator,\r\n                ?2 AS periodFrom,\r\n                ?3 AS periodTo,\r\n                ?4 AS requestTimestamp,\r\n                COUNT(p.pass_id) OVER (PARTITION BY ts.station_id) AS nPasses,\r\n                ROW_NUMBER() OVER (PARTITION BY ts.station_id ORDER BY p.pass_time) AS passIndex,\r\n                p.pass_id AS passID,\r\n                p.pass_time AS timestamp,\r\n                p.tag_ref AS tagID,\r\n                t.op_id AS tagProvider,\r\n                p.charge AS passCharge,\r\n                CASE\r\n                    WHEN t.op_id = ts.op_id THEN 'home'\r\n                    ELSE 'visitor'\r\n                END AS passType\r\n            FROM\r\n                TollStation ts\r\n            LEFT JOIN Operator op ON ts.op_id = op.op_id\r\n            LEFT JOIN Pass p ON ts.station_id = p.station_id\r\n            LEFT JOIN Tag t ON p.tag_ref = t.tag_ref\r\n            WHERE\r\n                ts.station_id = ?1\r\n                AND p.pass_time BETWEEN ?2 AND ?3\r\n            ORDER BY\r\n                p.pass_time;\r\n            \"\"\", nativeQuery = true)\r\n    List<Map<String, Object>> findTollStationPassesByIdAndTimeRange(\r\n            String stationId,\r\n            LocalDate startTime,\r\n            LocalDate endTime,\r\n            LocalDateTime currentTimestamp\r\n    );\r\n\r\n    List<TollStation> findByOpId(String opId);\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/back-end/rest_api/src/main/java/com/payway/repositories/TollStationRepository.java b/back-end/rest_api/src/main/java/com/payway/repositories/TollStationRepository.java
+--- a/back-end/rest_api/src/main/java/com/payway/repositories/TollStationRepository.java	(revision 1ccceea7c1c0b5888b31b5404fbd5cceee54d19d)
++++ b/back-end/rest_api/src/main/java/com/payway/repositories/TollStationRepository.java	(date 1736863570700)
+@@ -61,5 +61,20 @@
+             LocalDateTime currentTimestamp
+     );
+ 
++    @Query(value = "SELECT EXISTS ( " +
++            "    SELECT 1 " +
++            "    FROM TollStation ts " +
++            "    WHERE ts.station_id = :stationId " +
++            ") ", nativeQuery = true)
++    Integer tollStationExists(@Param("stationId") String stationId);
++
++    @Query(value = "SELECT EXISTS ( " +
++            "    SELECT 1 " +
++            "    FROM Operator op " +
++            "    WHERE op.op_id = :operatorId " +
++            ") ", nativeQuery = true)
++    Integer tollOpExists(@Param("operatorId") String operatorId);
++
++
+     List<TollStation> findByOpId(String opId);
+ }
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ExternalStorageConfigurationManager\" enabled=\"true\" />\r\n  <component name=\"MavenProjectsManager\">\r\n    <option name=\"originalFiles\">\r\n      <list>\r\n        <option value=\"$PROJECT_DIR$/back-end/rest_api/pom.xml\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"ProjectRootManager\" version=\"2\" languageLevel=\"JDK_17\" default=\"true\" project-jdk-name=\"17\" project-jdk-type=\"JavaSDK\" />\r\n</project>
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	(revision 1ccceea7c1c0b5888b31b5404fbd5cceee54d19d)
++++ b/.idea/misc.xml	(date 1736620492630)
+@@ -5,6 +5,7 @@
+     <option name="originalFiles">
+       <list>
+         <option value="$PROJECT_DIR$/back-end/rest_api/pom.xml" />
++        <option value="$PROJECT_DIR$/pom.xml" />
+       </list>
+     </option>
+   </component>
