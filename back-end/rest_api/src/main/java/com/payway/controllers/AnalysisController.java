@@ -76,7 +76,6 @@ public class AnalysisController {
                     .body(Map.of("error", "Internal server error"));
         }
     }
-}
 
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/operators")
