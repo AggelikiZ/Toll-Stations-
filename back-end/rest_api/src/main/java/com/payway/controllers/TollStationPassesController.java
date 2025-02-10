@@ -45,9 +45,6 @@ public class TollStationPassesController {
             if (tollStationID == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing tollStationID.");
             }
-            if (dateFrom == null || dateFrom.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing or empty date_from parameter.");
-            }
             if (dateTo == null || dateTo.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing or empty date_to parameter.");
             }

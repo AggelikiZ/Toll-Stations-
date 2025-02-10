@@ -4,10 +4,7 @@ import com.payway.models.Debt;
 import com.payway.models.Pass;
 import com.payway.models.Tag;
 import com.payway.models.TollStation;
-import com.payway.repositories.DebtRepository;
-import com.payway.repositories.PassRepository;
-import com.payway.repositories.TagRepository;
-import com.payway.repositories.TollStationRepository;
+import com.payway.repositories.*;
 import org.springframework.stereotype.Service;
 import com.payway.utils.Json2CSV;
 
@@ -32,14 +29,14 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class ChargeService {
 
-    private final DebtRepository debtRepository;
+    private final OperatorRepository operatorRepository;
     private final PassRepository passRepository;
     private final TagRepository tagRepository;
     private final TollStationRepository tollStationRepository;
     private final ObjectMapper objectMapper;
 
-    public ChargeService(DebtRepository debtRepository, PassRepository passRepository, TagRepository tagRepository, TollStationRepository tollStationRepository) {
-        this.debtRepository = debtRepository;
+    public ChargeService(OperatorRepository operatorRepository, PassRepository passRepository, TagRepository tagRepository, TollStationRepository tollStationRepository) {
+        this.operatorRepository = operatorRepository;
         this.passRepository = passRepository;
         this.tagRepository = tagRepository;
         this.tollStationRepository = tollStationRepository;
@@ -47,23 +44,23 @@ public class ChargeService {
     }
 
 
-    public Object getChargesBy(String tollOpID, String dateFromStr, String dateToStr, String format) {
+    public Object getChargesBy(String tollOpID, String dateFromStr, String dateToStr, String format) throws Exception{
         String requestTimestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
 
+        if (!operatorRepository.existsByOpId(tollOpID)) {
+            throw new IllegalArgumentException("Invalid tollOpID: " + tollOpID);
+        }
         // 1. Έλεγχος αν η ημερομηνία είναι σε σωστό format
         LocalDateTime dateFrom, dateTo;
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
             dateFrom = LocalDate.parse(dateFromStr, formatter).atStartOfDay();
             dateTo = LocalDate.parse(dateToStr, formatter).atStartOfDay();
+            if (dateFrom.isAfter(dateTo)) {
+                throw new IllegalArgumentException("dateFrom cannot be after dateTo.");
+            }
         } catch (DateTimeParseException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request: Invalid date format");
-        }
-
-        // 2. Έλεγχος αν υπάρχει το Toll Operator
-        boolean operatorExists = tollStationRepository.existsByOpId(tollOpID);
-        if (!operatorExists) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request: Invalid tollOpID: " + tollOpID);
+            throw new IllegalArgumentException("Invalid date format");
         }
 
         List<TollStation> stations = tollStationRepository.findByOpId(tollOpID);

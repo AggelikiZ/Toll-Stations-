@@ -121,15 +121,15 @@ public class PassService {
 
 
     public Object getPassAnalysis(String operatorOpID, String tagOpID, LocalDateTime dateFrom, LocalDateTime dateTo, String format) throws Exception {
-        List<TollStation> tollStations = tollStationRepository.findByOpId(operatorOpID);
-        if (tollStations.isEmpty()) {
-            throw new IllegalArgumentException("Invalid operatorOpID: " + operatorOpID);
+        boolean operatorExists = operatorRepository.existsByOpId(operatorOpID);
+        boolean tagOperatorExists = operatorRepository.existsByOpId(tagOpID);
+
+        if (!operatorExists || !tagOperatorExists) {
+            throw new IllegalArgumentException("Invalid stationOpID or tagOpID: " + operatorOpID + ", " + tagOpID);
         }
 
+        List<TollStation> tollStations = tollStationRepository.findByOpId(operatorOpID);
         List<Tag> tags = tagRepository.findByOpId(tagOpID);
-        if (tags.isEmpty()) {
-            throw new IllegalArgumentException("Invalid tagOpID: " + tagOpID);
-        }
 
         List<Map<String, Object>> passList = new ArrayList<>();
         int index = 1;
