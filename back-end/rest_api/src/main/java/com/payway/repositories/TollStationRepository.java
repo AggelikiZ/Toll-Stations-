@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import com.payway.models.TollStation;
 
+
 import java.time.LocalDate;
 ;import java.time.LocalDateTime;
 import java.util.List;
@@ -74,6 +75,9 @@ public interface TollStationRepository extends JpaRepository<TollStation, String
             ") ", nativeQuery = true)
     Integer tollOpExists(@Param("operatorId") String operatorId);
 
+
+    // Επιστρέφει true αν υπάρχει το συγκεκριμένο opId
+    boolean existsByOpId(String opId);
 
     List<TollStation> findByOpId(String opId);
 }
