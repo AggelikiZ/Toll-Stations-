@@ -2,9 +2,15 @@ package com.payway.services;
 
 import com.payway.models.*;
 import com.payway.repositories.*;
+import com.payway.utils.Json2CSV;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import com.payway.repositories.PassRepository;
+import com.payway.repositories.TagRepository;
 import com.payway.repositories.TollStationRepository;
+import org.springframework.stereotype.Service;
 import com.payway.models.passesCostDetails;
+import com.payway.utils.Json2CSV;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -14,6 +20,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.text.DecimalFormat;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +33,7 @@ public class PassService {
     private final PassRepository passRepository;
     private final TagRepository tagRepository;
     private final TollStationRepository tollStationRepository;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     private final OperatorRepository operatorRepository;
 
@@ -110,27 +119,23 @@ public class PassService {
     }
 
 
-    public Map<String, Object> getPassAnalysis(String operatorOpID, String tagOpID, LocalDateTime dateFrom, LocalDateTime dateTo) {
-        // Έλεγχος: Υπάρχουν σταθμοί διοδίων για τον operatorOpID;
+    public Object getPassAnalysis(String operatorOpID, String tagOpID, LocalDateTime dateFrom, LocalDateTime dateTo, String format) throws Exception {
         List<TollStation> tollStations = tollStationRepository.findByOpId(operatorOpID);
         if (tollStations.isEmpty()) {
             throw new IllegalArgumentException("Invalid operatorOpID: " + operatorOpID);
         }
 
-        // Έλεγχος: Υπάρχουν tags για τον tagOpID;
         List<Tag> tags = tagRepository.findByOpId(tagOpID);
         if (tags.isEmpty()) {
             throw new IllegalArgumentException("Invalid tagOpID: " + tagOpID);
         }
 
-        // Δημιουργία λίστας για αποτελέσματα των διελεύσεων
         List<Map<String, Object>> passList = new ArrayList<>();
         int index = 1;
         DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
         for (TollStation tollStation : tollStations) {
             for (Tag tag : tags) {
-                // Βρίσκουμε τις διελεύσεις για κάθε tag και σταθμό
                 List<Pass> passes = passRepository.findPassesByStationAndTagAndDateRange(
                         tollStation.getTollId(), tag.getTagRef(), dateFrom, dateTo);
 
@@ -147,8 +152,7 @@ public class PassService {
             }
         }
 
-        // Επιστροφή αποτελέσματος
-        return Map.of(
+        Map<String, Object> response = Map.of(
                 "stationOpID", operatorOpID,
                 "tagOpID", tagOpID,
                 "requestTimestamp", LocalDateTime.now().format(outputFormatter),
@@ -157,6 +161,14 @@ public class PassService {
                 "nPasses", passList.size(),
                 "passList", passList
         );
+
+        if ("csv".equalsIgnoreCase(format)) {
+            String jsonResponse = objectMapper.writeValueAsString(passList);
+            Json2CSV json2CSV = new Json2CSV(); // Δημιουργούμε ένα instance
+            return json2CSV.convertJsonToCsv(jsonResponse); // Καλούμε τη μέθοδο
+        }
+
+        return response;
     }
 
 

@@ -61,5 +61,8 @@ public interface TollStationRepository extends JpaRepository<TollStation, String
             LocalDateTime currentTimestamp
     );
 
+    // Επιστρέφει true αν υπάρχει το συγκεκριμένο opId
+    boolean existsByOpId(String opId);
+
     List<TollStation> findByOpId(String opId);
 }

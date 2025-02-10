@@ -1,11 +1,14 @@
 package com.payway.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.payway.models.Operator;
 import com.payway.models.TollStation;
 import com.payway.models.User;
 import com.payway.repositories.UserRepository;
 import com.payway.services.PassService;
+import com.payway.utils.Json2CSV;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,18 +25,23 @@ import java.util.Map;
 public class AnalysisController {
 
     private final PassService passService;
+    private final ObjectMapper objectMapper;
+    private final Json2CSV json2CSV;
 
     public AnalysisController(PassService passService) {
         this.passService = passService;
+        this.objectMapper = new ObjectMapper();
+        this.json2CSV = new Json2CSV();
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
-    @GetMapping("/{stationOpID}/{tagOpID}/{date_from}/{date_to}")
-    public ResponseEntity<Map<String, Object>> getPassAnalysis(
+    @GetMapping(value = "/{stationOpID}/{tagOpID}/{date_from}/{date_to}", produces = "application/json")
+    public ResponseEntity<?> getPassAnalysis(
             @PathVariable String stationOpID,
             @PathVariable String tagOpID,
             @PathVariable String date_from,
-            @PathVariable String date_to
+            @PathVariable String date_to,
+            @RequestParam(required = false, defaultValue = "json") String format
     ) {
         try {
             // Format dates from "YYYYMMDD"
@@ -42,7 +50,14 @@ public class AnalysisController {
             LocalDateTime endDate = LocalDate.parse(date_to, formatter).atTime(23, 59, 59);
 
             // Call service
-            Map<String, Object> response = passService.getPassAnalysis(stationOpID, tagOpID, startDate, endDate);
+            Object response = passService.getPassAnalysis(stationOpID, tagOpID, startDate, endDate, format);
+
+            if ("csv".equalsIgnoreCase(format)) {
+                return ResponseEntity.ok()
+                        .header("Content-Disposition", "inline; filename=pass_analysis.csv")
+                        .contentType(MediaType.TEXT_PLAIN)
+                        .body(response);
+            }
 
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
