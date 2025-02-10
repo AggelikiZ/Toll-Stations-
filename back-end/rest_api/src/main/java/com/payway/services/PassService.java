@@ -1,7 +1,7 @@
 package com.payway.services;
 
 import com.payway.models.*;
-import com.payway.repositories.TollStationRepository;
+import com.payway.repositories.*;
 import com.payway.utils.Json2CSV;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -35,10 +35,13 @@ public class PassService {
     private final TollStationRepository tollStationRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public PassService(PassRepository passRepository, TagRepository tagRepository, TollStationRepository tollStationRepository) {
+    private final OperatorRepository operatorRepository;
+
+    public PassService(PassRepository passRepository, TagRepository tagRepository, TollStationRepository tollStationRepository, OperatorRepository operatorRepository) {
         this.passRepository = passRepository;
         this.tagRepository = tagRepository;
         this.tollStationRepository = tollStationRepository;
+        this.operatorRepository = operatorRepository;
     }
 
     public void resetPasses() {
@@ -211,4 +214,7 @@ public class PassService {
         }
     }
 
+    public List<Operator> getAllOperators() {
+        return operatorRepository.findAll();
+    }
 }

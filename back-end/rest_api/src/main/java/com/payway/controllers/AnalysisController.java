@@ -1,6 +1,10 @@
 package com.payway.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.payway.models.Operator;
+import com.payway.models.TollStation;
+import com.payway.models.User;
+import com.payway.repositories.UserRepository;
 import com.payway.services.PassService;
 import com.payway.utils.Json2CSV;
 import org.springframework.http.HttpStatus;
@@ -48,7 +52,7 @@ public class AnalysisController {
             // Call service
             Object response = passService.getPassAnalysis(stationOpID, tagOpID, startDate, endDate, format);
 
-            // ✅ Προσθήκη ελέγχου για `204 No Content`
+            // Προσθήκη ελέγχου για `204 No Content`
             if (response == null || (response instanceof List && ((List<?>) response).isEmpty())) {
                 return ResponseEntity.noContent().build();
             }
@@ -74,4 +78,9 @@ public class AnalysisController {
     }
 }
 
-
+    @CrossOrigin(origins = "http://localhost:3000")
+    @GetMapping("/operators")
+    public ResponseEntity<List<Operator>> getAllOperators() {
+        return ResponseEntity.ok(passService.getAllOperators());
+    }
+}

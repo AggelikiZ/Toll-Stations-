@@ -1,39 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { passAnalysis, getPassesCost, getOperatorId, getAllOperators } from '../api/api';
-import {Bar, Line} from 'react-chartjs-2';
+import { passAnalysis, getPassesCost, getAllOperators } from '../api/api';
+import { Bar, Line } from 'react-chartjs-2';
 import Chart from 'chart.js/auto';
 import 'chartjs-adapter-date-fns';
 
-export default function PassAnalysis() {
-    const [stationOp, setStationOp] = useState('');
-    const [role, setRole] = useState('');
-    const [tagOp, setTagOp] = useState('');
+export default function PassAnalysisAdmin() {
+    const [homeOperator, setHomeOperator] = useState('');
+    const [visitingOperator, setVisitingOperator] = useState('');
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
+    const [operators, setOperators] = useState([]);
     const [passes, setPasses] = useState([]);
     const [totalCost, setTotalCost] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [mode, setMode] = useState(null);
-    const [operators, setOperators] = useState([]);
 
     useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                const { opId, role } = await getOperatorId();
-                setStationOp(opId || '');
-                setRole(role);
-            } catch (err) {
-                console.error('Error fetching operator ID and role:', err);
-                setError('Failed to fetch user data.');
-            }
-        };
-
         const fetchOperators = async () => {
             try {
                 const response = await getAllOperators();
-                console.log("Operators received:", response.data);
-
                 if (Array.isArray(response.data)) {
                     setOperators(response.data);
                 } else {
@@ -46,23 +31,15 @@ export default function PassAnalysis() {
             }
         };
 
-        fetchUserData();
         fetchOperators();
     }, []);
-
-    const handleModeChange = (selectedMode) => {
-        setMode(selectedMode);
-        setError(null);
-        setPasses([]);
-        setTotalCost(null);
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
 
-        if (!tagOp || !fromDate || !toDate) {
+        if (!homeOperator || !visitingOperator || !fromDate || !toDate) {
             setError('All fields are required.');
             setLoading(false);
             return;
@@ -70,9 +47,6 @@ export default function PassAnalysis() {
 
         const formattedDateFrom = fromDate.replace(/-/g, '');
         const formattedDateTo = toDate.replace(/-/g, '');
-
-        const homeOperator = mode === "myStations" ? stationOp : tagOp;
-        const visitingOperator = mode === "myStations" ? tagOp : stationOp;
 
         try {
             const passResponse = await passAnalysis(homeOperator, visitingOperator, formattedDateFrom, formattedDateTo);
@@ -105,16 +79,13 @@ export default function PassAnalysis() {
             passesByStation[pass.stationID] = (passesByStation[pass.stationID] || 0) + 1;
         });
 
-        const sortedMonths = Object.keys(passesByMonth).sort();
-        const sortedStations = Object.keys(passesByStation);
-
         return {
             monthlyData: {
-                labels: sortedMonths,
+                labels: Object.keys(passesByMonth).sort(),
                 datasets: [
                     {
                         label: 'Passes Per Month',
-                        data: sortedMonths.map((month) => passesByMonth[month]),
+                        data: Object.values(passesByMonth),
                         borderColor: '#4CAF50',
                         backgroundColor: 'rgba(76, 175, 80, 0.2)',
                         fill: true,
@@ -122,14 +93,13 @@ export default function PassAnalysis() {
                 ],
             },
             stationData: {
-                labels: sortedStations,
+                labels: Object.keys(passesByStation),
                 datasets: [
                     {
-                        data: sortedStations.map((station) => passesByStation[station]),
+                        data: Object.values(passesByStation),
                         backgroundColor: 'rgba(76, 175, 80, 0.7)',
                         borderColor: '#388E3C',
                         borderWidth: 2,
-                        barThickness: 50, // Adjust bar width
                     },
                 ],
             },
@@ -140,40 +110,35 @@ export default function PassAnalysis() {
         <div style={{ padding: '20px', backgroundColor: '#f4f4f4', textAlign: 'center', width: 500, minHeight: 400}}>
             <h2 style={{ color: '#4CAF50' }}>Passes and Costs Analysis</h2>
 
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '20px' }}>
-                <button onClick={() => handleModeChange("myStations")} style={{ padding: '15px 20px', backgroundColor: mode === "myStations" ? '#4CAF50' : 'lightgray', color: 'white', border: 'none', borderRadius: '5px', fontSize: '16px', cursor: 'pointer', width: '200px', transition: '0.3s' }}>
-                    For My Stations
+            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+                <select value={homeOperator} onChange={(e) => setHomeOperator(e.target.value)} required style={{ padding: '10px', width: '320px', borderRadius: '4px' }}>
+                    <option value="">Select Home Operator</option>
+                    {operators.map((op) => (
+                        <option key={op.opId} value={op.opId}>{op.opName}</option>
+                    ))}
+                </select>
+
+                <select value={visitingOperator} onChange={(e) => setVisitingOperator(e.target.value)} required style={{ padding: '10px', width: '320px', borderRadius: '4px' }}>
+                    <option value="">Select Visiting Operator</option>
+                    {operators.map((op) => (
+                        <option key={op.opId} value={op.opId}>{op.opName}</option>
+                    ))}
+                </select>
+
+                <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} required style={{ padding: '10px', width: '300px', borderRadius: '4px' }} />
+                <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} required style={{ padding: '10px', width: '300px', borderRadius: '4px' }} />
+
+                <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                    {loading ? 'Fetching...' : 'Fetch Analysis'}
                 </button>
-
-                <button onClick={() => handleModeChange("otherStations")} style={{ padding: '15px 20px', backgroundColor: mode === "otherStations" ? '#4CAF50' : 'lightgray', color: 'white', border: 'none', borderRadius: '5px', fontSize: '16px', cursor: 'pointer', width: '200px', transition: '0.3s' }}>
-                    For My Tags
-                </button>
-            </div>
-
-            {mode && (
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-                    <select value={tagOp} onChange={(e) => setTagOp(e.target.value)} style={{ padding: '10px', width: '320px', borderRadius: '4px' }}>
-                        <option value="">{mode === "myStations" ? "Select Visiting Operator" : "Select Home Operator"}</option>
-                        {operators.map((op) => (
-                            <option key={op.opId} value={op.opId}>{op.opName}</option>
-                            ))}
-                    </select>
-
-                    <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} required style={{ padding: '10px', width: '300px', borderRadius: '4px' }} />
-                    <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} required style={{ padding: '10px', width: '300px', borderRadius: '4px' }} />
-
-                    <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-                        {loading ? 'Fetching...' : 'Fetch Analysis'}
-                    </button>
-                </form>
-            )}
+            </form>
 
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
             {passes.length > 0 && (
                 <>
-                    <p style={{textAlign: "left"}}><strong>Total Passes:</strong> {passes.length}</p>
-                    <p style={{textAlign: "left"}}><strong>Total Cost:</strong> {totalCost?.toFixed(2)} €</p>
+                    <p style={{ textAlign: "left" }}><strong>Total Passes:</strong> {passes.length}</p>
+                    <p style={{ textAlign: "left" }}><strong>Total Cost:</strong> {totalCost?.toFixed(2)} €</p>
 
                     <div style={{ marginBottom: '20px', padding: '20px', backgroundColor: 'white', borderRadius: '8px' }}>
                         <h3 style={{ color: '#4CAF50', marginBottom: '10px' }}>Passes Over Time (Monthly)</h3>
@@ -189,34 +154,14 @@ export default function PassAnalysis() {
                                 responsive: true,
                                 maintainAspectRatio: false,
                                 indexAxis: "y",
-                                plugins: {
-                                    legend: { display: false },},
+                                plugins: { legend: { display: false } },
                                 scales: {
-                                    x: {
-                                        beginAtZero: true,
-                                        ticks: {
-                                            font: { size: 14 },
-                                            stepSize: Math.ceil(passes.length / 20), // More stations → more spacing
-                                        },
-                                        grid: { drawBorder: false, color: "rgba(200, 200, 200, 0.3)" },
-                                    },
-                                    y: {
-                                        ticks: {
-                                            font: { size: 14 },
-                                            autoSkip: false,
-                                        },
-                                        grid: { display: false },
-                                    },
+                                    x: { beginAtZero: true },
+                                    y: { ticks: { autoSkip: false } },
                                 },
-                                barThickness: passes.length > 10 ? 10 : 30,
-                                maxBarThickness: 30, // Prevent too-thick bars
+                                barThickness: 30,
                             }}
-
-                            style={{
-                                height: Math.min(700, passes.length * 30),
-                                minHeight: 200,
-                                maxHeight: 700,
-                            }}
+                            style={{ height: Math.min(700, passes.length * 30), minHeight: 200, maxHeight: 700 }}
                         />
                     </div>
 

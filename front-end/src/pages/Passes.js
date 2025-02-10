@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Line, Bar } from 'react-chartjs-2';
 import { getPasses, getStations, getOperatorId } from '../api/api';
-import Chart from 'chart.js/auto';
 import 'chartjs-adapter-date-fns';
 
 export default function TollStationPasses() {
@@ -73,13 +72,11 @@ export default function TollStationPasses() {
         }
     };
 
-    // ✅ Format Timestamp
     const formatTimestamp = (timestamp) => {
         const dateObj = new Date(timestamp);
         return isNaN(dateObj.getTime()) ? "Invalid Date" : dateObj.toISOString().slice(0, 16).replace("T", " ");
     };
 
-    // ✅ Prepare Monthly Passes Data
     const prepareTimeChartData = () => {
         const passesByMonth = {};
 
@@ -108,7 +105,6 @@ export default function TollStationPasses() {
         };
     };
 
-    // ✅ Prepare Tag Provider Data
     const prepareTagChartData = () => {
         const passesByTagProvider = {};
 
@@ -134,7 +130,7 @@ export default function TollStationPasses() {
     };
 
     return (
-        <div style={{ padding: '20px', backgroundColor: '#f4f4f4' }}>
+        <div style={{ padding: '20px', backgroundColor: '#f4f4f4', minHeight: 400 }}>
             <h2 style={{ textAlign: 'center', color: '#4CAF50' }}>Toll Station Passes</h2>
             <form
                 onSubmit={handleSubmit}
@@ -163,9 +159,9 @@ export default function TollStationPasses() {
                     )}
                 </select>
 
-                <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} required />
-                <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} required />
-                <button type="submit" style={{ backgroundColor: '#4CAF50', color: 'white' }}>
+                <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)} required style={{ padding: '10px', width: '300px', borderRadius: '4px' }} />
+                <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} required style={{ padding: '10px', width: '300px', borderRadius: '4px' }} />
+                <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
                     {loading ? 'Fetching...' : 'Fetch Passes'}
                 </button>
             </form>
@@ -192,7 +188,6 @@ export default function TollStationPasses() {
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '16px', textAlign: 'center' }}>
                             <thead>
                             <tr style={{ backgroundColor: '#4CAF50', color: 'white' }}>
-                                <th>Pass ID</th>
                                 <th>Timestamp</th>
                                 <th>Tag Provider</th>
                                 <th>Pass Charge</th>
@@ -201,7 +196,6 @@ export default function TollStationPasses() {
                             <tbody>
                             {passes.map((pass, index) => (
                                 <tr key={pass.passID} style={{ backgroundColor: index % 2 === 0 ? '#f9f9f9' : '#ffffff' }}>
-                                    <td>{pass.passID}</td>
                                     <td>{formatTimestamp(pass.timestamp)}</td>
                                     <td>{pass.tagProvider}</td>
                                     <td>{pass.passCharge}</td>
