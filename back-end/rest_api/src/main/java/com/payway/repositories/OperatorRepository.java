@@ -14,4 +14,6 @@ public interface OperatorRepository extends JpaRepository<Operator, String> {
 
     Optional<Operator> findByOpName(String opName);
     Optional<Operator> findByUserId(int userID);
+
+    boolean existsByOpId(String operatorOpID);
 }

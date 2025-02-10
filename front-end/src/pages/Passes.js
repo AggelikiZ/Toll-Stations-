@@ -130,7 +130,7 @@ export default function TollStationPasses() {
     };
 
     return (
-        <div style={{ padding: '20px', backgroundColor: '#f4f4f4', minHeight: 400 }}>
+        <div style={{ padding: '20px', backgroundColor: '#f4f4f4', width: 700, minHeight: 400 }}>
             <h2 style={{ textAlign: 'center', color: '#4CAF50' }}>Toll Station Passes</h2>
             <form
                 onSubmit={handleSubmit}

@@ -28,13 +28,9 @@ import java.util.Map;
 @RequestMapping("/api/chargesBy")
 public class ChargesByController {
     private final ChargeService chargeService;
-    private final ObjectMapper objectMapper;
-    private final Json2CSV json2CSV;
 
     public ChargesByController(ChargeService chargeService) {
         this.chargeService = chargeService;
-        this.objectMapper = new ObjectMapper();
-        this.json2CSV = new Json2CSV();
     }
 
     @GetMapping(value = "/{tollOpID}/{date_from}/{date_to}", produces = "application/json")
@@ -69,11 +65,16 @@ public class ChargesByController {
             @PathVariable String date_to,
             @RequestParam(required = false, defaultValue = "json") String format
     ) {
+        if (tollOpID == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing tollOpID.");
+        }
+        if (date_from == null || date_from.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing or empty date_from parameter.");
+        }
+        if (date_to == null || date_to.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing or empty date_to parameter.");
+        }
         try {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-            LocalDateTime startDate = LocalDate.parse(date_from, formatter).atStartOfDay();
-            LocalDateTime endDate = LocalDate.parse(date_to, formatter).atTime(23, 59, 59);
-
             Object response = chargeService.getChargesBy(tollOpID, date_from, date_to, format);
 
             if ("csv".equalsIgnoreCase(format) && response instanceof String) { // Ελέγχουμε αν είναι ήδη CSV
@@ -91,6 +92,8 @@ public class ChargesByController {
 
         } catch (DateTimeParseException e) {
             return ResponseEntity.badRequest().body(Map.of("error", "Invalid date format"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error"));

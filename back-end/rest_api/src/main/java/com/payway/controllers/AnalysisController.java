@@ -2,6 +2,10 @@ package com.payway.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.payway.models.*;
+import com.payway.models.LoginRequest;
+import com.payway.models.Operator;
+import com.payway.models.TollStation;
+import com.payway.models.User;
 import com.payway.repositories.UserRepository;
 import com.payway.services.PassService;
 import com.payway.utils.Json2CSV;
@@ -11,6 +15,11 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -72,11 +81,27 @@ public class AnalysisController {
             @PathVariable String date_to,
             @RequestParam(required = false, defaultValue = "json") String format
     ) {
+        if (stationOpID == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing stationOpID.");
+        }
+        if (tagOpID == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing tagOpID.");
+        }
+        if (date_from == null || date_from.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing or empty date_from parameter.");
+        }
+        if (date_to == null || date_to.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing or empty date_to parameter.");
+        }
         try {
             // Format dates from "YYYYMMDD"
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
             LocalDateTime startDate = LocalDate.parse(date_from, formatter).atStartOfDay();
             LocalDateTime endDate = LocalDate.parse(date_to, formatter).atTime(23, 59, 59);
+
+            if (startDate.isAfter(endDate)) {
+                throw new IllegalArgumentException("startDate cannot be after endDate.");
+            }
 
             // Call service
             Object response = passService.getPassAnalysis(stationOpID, tagOpID, startDate, endDate, format);
