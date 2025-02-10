@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -47,6 +48,12 @@ public class AnalysisController {
             // Call service
             Object response = passService.getPassAnalysis(stationOpID, tagOpID, startDate, endDate, format);
 
+            // ✅ Προσθήκη ελέγχου για `204 No Content`
+            if (response == null || (response instanceof List && ((List<?>) response).isEmpty())) {
+                return ResponseEntity.noContent().build();
+            }
+
+            // Αν ζητηθεί CSV, επιστρέφουμε CSV αρχείο
             if ("csv".equalsIgnoreCase(format)) {
                 return ResponseEntity.ok()
                         .header("Content-Disposition", "inline; filename=pass_analysis.csv")
@@ -66,4 +73,5 @@ public class AnalysisController {
         }
     }
 }
+
 

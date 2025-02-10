@@ -17,6 +17,16 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+import java.time.format.DateTimeParseException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
 
 
 @Service
@@ -37,18 +47,34 @@ public class ChargeService {
     }
 
 
-    public Object getChargesBy(String tollOpID, LocalDateTime dateFrom, LocalDateTime dateTo, String format) throws Exception {
+    public Object getChargesBy(String tollOpID, String dateFromStr, String dateToStr, String format) {
         String requestTimestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
 
+        // 1. Έλεγχος αν η ημερομηνία είναι σε σωστό format
+        LocalDateTime dateFrom, dateTo;
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+            dateFrom = LocalDate.parse(dateFromStr, formatter).atStartOfDay();
+            dateTo = LocalDate.parse(dateToStr, formatter).atStartOfDay();
+        } catch (DateTimeParseException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request: Invalid date format");
+        }
+
+        // 2. Έλεγχος αν υπάρχει το Toll Operator
         boolean operatorExists = tollStationRepository.existsByOpId(tollOpID);
         if (!operatorExists) {
-            throw new IllegalArgumentException("Invalid tollOpID: " + tollOpID);
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid request: Invalid tollOpID: " + tollOpID);
         }
 
         List<TollStation> stations = tollStationRepository.findByOpId(tollOpID);
         Set<String> stationIds = stations.stream().map(TollStation::getTollId).collect(Collectors.toSet());
 
         List<Pass> passes = passRepository.findPassesByStationIdsAndDateRangeAndVisitingOperator(stationIds, dateFrom, dateTo, tollOpID);
+
+        // Αν δεν υπάρχουν διελεύσεις (passes), επιστρέφουμε κενή λίστα, ώστε ο Controller να επιστρέψει 204 No Content
+        if (passes.isEmpty()) {
+            return Collections.emptyList();
+        }
 
         Map<String, List<Pass>> groupedByOperator = passes.stream()
                 .collect(Collectors.groupingBy(pass -> {
@@ -79,14 +105,21 @@ public class ChargeService {
         response.put("periodTo", dateTo.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         response.put("vOpList", vOpList);
 
+        // Αν ζητηθεί CSV format, επιστρέφουμε CSV
         if ("csv".equalsIgnoreCase(format)) {
-            String jsonResponse = objectMapper.writeValueAsString(vOpList);
-            Json2CSV json2CSV = new Json2CSV();
-            return json2CSV.convertJsonToCsv(jsonResponse); // Επιστρέφουμε CSV ως String
+            try {
+                String jsonResponse = objectMapper.writeValueAsString(vOpList);
+                Json2CSV json2CSV = new Json2CSV();
+                return json2CSV.convertJsonToCsv(jsonResponse);
+            } catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error generating CSV");
+            }
         }
 
         return response;
     }
+
+
 
 }
 
