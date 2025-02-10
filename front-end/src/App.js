@@ -13,6 +13,7 @@ import Login from './pages/Login';
 import DebtsPage from "./pages/DebtsPage";
 import './styles/App.css';
 import PayDebts from "./pages/PayDebts";
+import PassAnalysisAdmin from "./pages/PassAnalysisAdmin";
 
 export default function App() {
     const [authToken, setAuthToken] = useState(localStorage.getItem('authToken') || null);
@@ -48,8 +49,13 @@ export default function App() {
         }
         links.push(<Link key="stations" to="/stations" className="nav-item">Stations</Link>);
         links.push(<Link key="passes" to="/passes" className="nav-item">Passes</Link>);
-        links.push(<Link key="passanalysis" to="/passanalysis" className="nav-item">Pass Analysis</Link>);
-        links.push(<Link key="passcost" to="/passcost" className="nav-item">Pass Cost</Link>);
+        if (userRole === 'operator') {
+            links.push(<Link key="passanalysis" to="/passanalysis" className="nav-item">Passes and Cost Analysis</Link>);
+        } else {
+            links.push(<Link key="passanalysisadmin" to="/passanalysisadmin" className="nav-item">Passes and Cost Analysis</Link>);
+
+        }
+        //links.push(<Link key="passcost" to="/passcost" className="nav-item">Pass Cost</Link>);
         links.push(<Link key="chargesby" to="/chargesby" className="nav-item">Charges By</Link>);
 
         if (userRole === 'operator') {
@@ -123,7 +129,7 @@ export default function App() {
                                 <Route path="/stations" element={<StationMap />} />
                                 <Route path="/passes" element={<Passes />} />
                                 <Route path="/passanalysis" element={<PassAnalysis />} />
-                                <Route path="/passcost" element={<PassCost />} />
+                                <Route path="/passanalysisadmin" element={<PassAnalysisAdmin />} />
                                 <Route path="/chargesby" element={<ChargesBy />} />
                                 <Route path="/debts" element={userRole === 'operator' ? <DebtsPage /> : <Navigate to="/" />} />
                                 <Route path="/pay-debts" element={<PayDebts />} />

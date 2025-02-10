@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { getChargesBy, getOperatorId } from '../api/api'; // Import the required API functions
+import { getChargesBy, getOperatorId, getAllOperators } from '../api/api'; // Import the API functions
 import { Bar } from 'react-chartjs-2'; // For visualizing results
-import Chart from 'chart.js/auto';
 
 export default function ChargesBy() {
     const [operatorId, setOperatorId] = useState('');
@@ -9,28 +8,47 @@ export default function ChargesBy() {
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
     const [chargesData, setChargesData] = useState([]);
+    const [operators, setOperators] = useState([]); // Stores all operators
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [searched, setSearched] = useState(false); // ✅ Tracks if search was made
 
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const { opId, role } = await getOperatorId(); // Fetch both ID and role
-                setOperatorId(opId || ''); // Default to empty if null
-                setRole(role); // Store role in state
+                const { opId, role } = await getOperatorId();
+                setOperatorId(opId || '');
+                setRole(role);
             } catch (err) {
                 console.error('Error fetching user data:', err);
                 setError('Failed to fetch user data.');
             }
         };
 
+        const fetchOperators = async () => {
+            try {
+                const response = await getAllOperators();
+                if (Array.isArray(response.data)) {
+                    setOperators(response.data);
+                } else {
+                    console.error("Unexpected response format:", response.data);
+                    setOperators([]);
+                }
+            } catch (err) {
+                console.error('Error fetching operators:', err);
+                setOperators([]);
+            }
+        };
+
         fetchUserData();
+        fetchOperators();
     }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
+        setSearched(true); // ✅ Marks that a search has been made
 
         const formattedDateFrom = fromDate.replace(/-/g, '');
         const formattedDateTo = toDate.replace(/-/g, '');
@@ -41,7 +59,6 @@ export default function ChargesBy() {
                 setChargesData(response.data.vOpList);
             } else {
                 setChargesData([]);
-                setError('No data found for the given criteria.');
             }
         } catch (err) {
             console.error('Error fetching charges by operator data:', err);
@@ -51,8 +68,13 @@ export default function ChargesBy() {
         }
     };
 
+    const getOperatorName = (opId) => {
+        const operator = operators.find(op => op.opId === opId);
+        return operator ? operator.opName : `Unknown (${opId})`;
+    };
+
     const prepareChartData = () => {
-        const labels = chargesData.map((item) => item.visitingOpID);
+        const labels = chargesData.map((item) => item.visitingOpID); // 🔥 Only use ID in chart
         const data = chargesData.map((item) => item.passesCost);
 
         return {
@@ -61,25 +83,19 @@ export default function ChargesBy() {
                 {
                     label: 'Passes Cost by Visiting Operator',
                     data,
-                    backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1,
+                    backgroundColor: 'rgba(76, 175, 80, 0.7)',
+                    borderColor: '#4CAF50',
+                    borderWidth: 2,
+                    barThickness: 35,
+                    maxBarThickness: 50,
                 },
             ],
         };
     };
 
     return (
-        <div
-            style={{
-                padding: '20px',
-                backgroundColor: '#f4f4f4',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-            }}
-        >
-            <h2 style={{ textAlign: 'center', color: '#4CAF50' }}>Charges By Operator</h2>
+        <div style={{ padding: '20px', backgroundColor: '#f4f4f4', textAlign: 'center', minHeight: 400 }}>
+            <h2 style={{ color: '#4CAF50' }}>Charges By All Operators</h2>
             <form
                 onSubmit={handleSubmit}
                 style={{
@@ -90,23 +106,29 @@ export default function ChargesBy() {
                     marginBottom: '20px',
                 }}
             >
-                <input
-                    type="text"
-                    placeholder="Operator ID"
-                    value={operatorId}
-                    onChange={(e) => setOperatorId(e.target.value)}
-                    readOnly={!(role === 'admin' || role === 'ministry')} // Editable only for admin users
-                    style={{
-                        padding: '10px',
-                        width: '300px',
-                        borderRadius: '4px',
-                        backgroundColor: role === 'admin' || role === 'ministry' ? 'white' : '#e9e9e9',
-                        cursor: role === 'admin' || role === 'ministry' ? 'text' : 'not-allowed',
-                    }}
-                />
+                {role === 'admin' || role === 'ministry' ? (
+                    <select
+                        value={operatorId}
+                        onChange={(e) => setOperatorId(e.target.value)}
+                        required
+                        style={{
+                            padding: '10px',
+                            width: '320px',
+                            borderRadius: '4px',
+                            fontSize: '16px',
+                        }}
+                    >
+                        <option value="">To Operator</option>
+                        {operators.map((op) => (
+                            <option key={op.opId} value={op.opId}>
+                                {op.opName} ({op.opId})
+                            </option>
+                        ))}
+                    </select>
+                ) : null}
+
                 <input
                     type="date"
-                    placeholder="From Date"
                     value={fromDate}
                     onChange={(e) => setFromDate(e.target.value)}
                     required
@@ -114,7 +136,6 @@ export default function ChargesBy() {
                 />
                 <input
                     type="date"
-                    placeholder="To Date"
                     value={toDate}
                     onChange={(e) => setToDate(e.target.value)}
                     required
@@ -140,53 +161,28 @@ export default function ChargesBy() {
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
             {chargesData.length > 0 ? (
-                <div style={{ width: '80%', maxWidth: '900px' }}>
-                    <div>
-                        <table
-                            style={{
-                                width: '100%',
-                                borderCollapse: 'collapse',
-                                marginTop: '20px',
-                                fontSize: '16px',
-                                margin: '0 auto',
-                            }}
-                        >
-                            <thead>
-                            <tr style={{ backgroundColor: '#4CAF50', color: 'white' }}>
-                                <th style={{ padding: '15px', border: '1px solid #ddd' }}>
-                                    Visiting Operator ID
-                                </th>
-                                <th style={{ padding: '15px', border: '1px solid #ddd' }}>
-                                    Number of Passes
-                                </th>
-                                <th style={{ padding: '15px', border: '1px solid #ddd' }}>
-                                    Total Cost
-                                </th>
+                <div style={{ width: '100%', maxWidth: '900px', margin: '0 auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px', fontSize: '16px' }}>
+                        <thead>
+                        <tr style={{ backgroundColor: '#4CAF50', color: 'white' }}>
+                            <th style={{ padding: '15px', border: '1px solid #ddd' }}>Visiting Operator</th>
+                            <th style={{ padding: '15px', border: '1px solid #ddd' }}>Number of Passes</th>
+                            <th style={{ padding: '15px', border: '1px solid #ddd' }}>Total Cost (€)</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {chargesData.map((item, index) => (
+                            <tr key={index} style={{ textAlign: 'center', backgroundColor: index % 2 === 0 ? '#f9f9f9' : '#ffffff' }}>
+                                <td style={{ padding: '15px', border: '1px solid #ddd' }}>
+                                    {getOperatorName(item.visitingOpID)} ({item.visitingOpID})
+                                </td>
+                                <td style={{ padding: '15px', border: '1px solid #ddd' }}>{item.nPasses}</td>
+                                <td style={{ padding: '15px', border: '1px solid #ddd' }}>{item.passesCost.toFixed(2)}</td>
                             </tr>
-                            </thead>
-                            <tbody>
-                            {chargesData.map((item, index) => (
-                                <tr
-                                    key={index}
-                                    style={{
-                                        textAlign: 'center',
-                                        backgroundColor: index % 2 === 0 ? '#f9f9f9' : '#ffffff',
-                                    }}
-                                >
-                                    <td style={{ padding: '15px', border: '1px solid #ddd' }}>
-                                        {item.visitingOpID}
-                                    </td>
-                                    <td style={{ padding: '15px', border: '1px solid #ddd' }}>
-                                        {item.nPasses}
-                                    </td>
-                                    <td style={{ padding: '15px', border: '1px solid #ddd' }}>
-                                        {item.passesCost.toFixed(2)}
-                                    </td>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
-                    </div>
+                        ))}
+                        </tbody>
+                    </table>
+
                     <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center' }}>
                         <Bar
                             data={prepareChartData()}
@@ -194,19 +190,18 @@ export default function ChargesBy() {
                                 responsive: true,
                                 plugins: {
                                     legend: { position: 'top' },
-                                    title: { display: true, text: 'Charges by Visiting Operator' },
                                 },
                                 scales: {
-                                    y: {
-                                        beginAtZero: true,
-                                    },
+                                    y: { beginAtZero: true },
                                 },
                             }}
                         />
                     </div>
                 </div>
             ) : (
-                !loading && <p style={{ textAlign: 'center' }}>No data found for the given criteria.</p>
+                searched && !loading && !error && (
+                    <p style={{ textAlign: 'center' }}>No data found for the given criteria.</p>
+                )
             )}
         </div>
     );

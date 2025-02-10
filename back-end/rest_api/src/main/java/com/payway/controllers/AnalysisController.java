@@ -1,5 +1,9 @@
 package com.payway.controllers;
 
+import com.payway.models.Operator;
+import com.payway.models.TollStation;
+import com.payway.models.User;
+import com.payway.repositories.UserRepository;
 import com.payway.services.PassService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -9,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -49,5 +54,11 @@ public class AnalysisController {
                     .body(Map.of("error", "Internal server error"));
         }
 
+    }
+
+    @CrossOrigin(origins = "http://localhost:3000")
+    @GetMapping("/operators")
+    public ResponseEntity<List<Operator>> getAllOperators() {
+        return ResponseEntity.ok(passService.getAllOperators());
     }
 }

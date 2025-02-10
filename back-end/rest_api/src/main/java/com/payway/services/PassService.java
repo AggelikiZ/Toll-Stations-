@@ -1,14 +1,9 @@
 package com.payway.services;
 
 import com.payway.models.*;
-import com.payway.repositories.TollStationRepository;
-import com.payway.utils.Json2CSV;
-import org.springframework.http.ResponseEntity;
+import com.payway.repositories.*;
 import org.springframework.stereotype.Service;
-import com.payway.repositories.PassRepository;
-import com.payway.repositories.TagRepository;
 import com.payway.repositories.TollStationRepository;
-import org.springframework.stereotype.Service;
 import com.payway.models.passesCostDetails;
 
 import java.io.BufferedReader;
@@ -19,7 +14,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.text.DecimalFormat;
 
 
 import org.springframework.transaction.annotation.Transactional;
@@ -32,10 +26,13 @@ public class PassService {
     private final TagRepository tagRepository;
     private final TollStationRepository tollStationRepository;
 
-    public PassService(PassRepository passRepository, TagRepository tagRepository, TollStationRepository tollStationRepository) {
+    private final OperatorRepository operatorRepository;
+
+    public PassService(PassRepository passRepository, TagRepository tagRepository, TollStationRepository tollStationRepository, OperatorRepository operatorRepository) {
         this.passRepository = passRepository;
         this.tagRepository = tagRepository;
         this.tollStationRepository = tollStationRepository;
+        this.operatorRepository = operatorRepository;
     }
 
     public void resetPasses() {
@@ -195,4 +192,7 @@ public class PassService {
         }
     }
 
+    public List<Operator> getAllOperators() {
+        return operatorRepository.findAll();
+    }
 }
