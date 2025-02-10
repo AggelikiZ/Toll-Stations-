@@ -119,6 +119,7 @@ public class PassService {
     }
 
 
+
     public Object getPassAnalysis(String operatorOpID, String tagOpID, LocalDateTime dateFrom, LocalDateTime dateTo, String format) throws Exception {
         List<TollStation> tollStations = tollStationRepository.findByOpId(operatorOpID);
         if (tollStations.isEmpty()) {
@@ -152,6 +153,11 @@ public class PassService {
             }
         }
 
+        // Αν δεν υπάρχουν διελεύσεις (passes), επιστρέφουμε `Collections.emptyList()` για να μπορεί ο Controller να επιστρέψει `204 No Content`
+        if (passList.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         Map<String, Object> response = Map.of(
                 "stationOpID", operatorOpID,
                 "tagOpID", tagOpID,
@@ -162,10 +168,14 @@ public class PassService {
                 "passList", passList
         );
 
+        // Αν ζητηθεί CSV format, ελέγχουμε αν υπάρχουν δεδομένα
         if ("csv".equalsIgnoreCase(format)) {
+            if (passList.isEmpty()) {
+                return ""; // Επιστροφή κενού CSV αν δεν υπάρχουν δεδομένα
+            }
             String jsonResponse = objectMapper.writeValueAsString(passList);
-            Json2CSV json2CSV = new Json2CSV(); // Δημιουργούμε ένα instance
-            return json2CSV.convertJsonToCsv(jsonResponse); // Καλούμε τη μέθοδο
+            Json2CSV json2CSV = new Json2CSV();
+            return json2CSV.convertJsonToCsv(jsonResponse);
         }
 
         return response;

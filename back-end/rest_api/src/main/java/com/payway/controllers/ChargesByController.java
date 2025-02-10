@@ -12,7 +12,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,13 +41,17 @@ public class ChargesByController {
             LocalDateTime startDate = LocalDate.parse(date_from, formatter).atStartOfDay();
             LocalDateTime endDate = LocalDate.parse(date_to, formatter).atTime(23, 59, 59);
 
-            Object response = chargeService.getChargesBy(tollOpID, startDate, endDate, format);
+            Object response = chargeService.getChargesBy(tollOpID, date_from, date_to, format);
 
             if ("csv".equalsIgnoreCase(format) && response instanceof String) { // Ελέγχουμε αν είναι ήδη CSV
                 return ResponseEntity.ok()
                         .header("Content-Disposition", "inline; filename=charges_by.csv")
                         .contentType(MediaType.TEXT_PLAIN)
                         .body(response); // Σωστό content-type
+            }
+
+            if (response == null || (response instanceof List && ((List<?>) response).isEmpty())) {
+                return ResponseEntity.noContent().build();
             }
 
             return ResponseEntity.ok(response);

@@ -52,6 +52,12 @@ public class AnalysisController {
             // Call service
             Object response = passService.getPassAnalysis(stationOpID, tagOpID, startDate, endDate, format);
 
+            // Προσθήκη ελέγχου για `204 No Content`
+            if (response == null || (response instanceof List && ((List<?>) response).isEmpty())) {
+                return ResponseEntity.noContent().build();
+            }
+
+            // Αν ζητηθεί CSV, επιστρέφουμε CSV αρχείο
             if ("csv".equalsIgnoreCase(format)) {
                 return ResponseEntity.ok()
                         .header("Content-Disposition", "inline; filename=pass_analysis.csv")
@@ -60,6 +66,7 @@ public class AnalysisController {
             }
 
             return ResponseEntity.ok(response);
+
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (DateTimeParseException e) {
@@ -68,7 +75,6 @@ public class AnalysisController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal server error"));
         }
-
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
