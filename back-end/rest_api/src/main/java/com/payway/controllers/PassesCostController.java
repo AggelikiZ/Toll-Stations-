@@ -2,6 +2,7 @@ package com.payway.controllers;
 
 import com.opencsv.CSVWriter;
 import com.payway.models.passesCostDetails;
+import com.payway.repositories.TollStationRepository;
 import com.payway.services.TollStationService;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -27,10 +29,12 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 public class PassesCostController {
 
     private final PassService passService;
+    private final TollStationRepository tollStationRepository;
 
     @Autowired
-    public PassesCostController(PassService passService) {
+    public PassesCostController(PassService passService, TollStationRepository tollStationRepository) {
         this.passService = passService;
+        this.tollStationRepository = tollStationRepository;
     }
 
     @GetMapping(value = "/passesCost/{tollOpID}/{tagOpID}/{date_from}/{date_to}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -49,16 +53,36 @@ public class PassesCostController {
             @RequestParam(required = false, defaultValue = "json") String format) {
         try {
             if (tollOpID == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing tollOpID.");
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Bad request: Missing tollOpID.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
             if (tagOpID == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing tagOpID.");
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Bad request: Missing tagOpID.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
             if (dateFrom == null || dateFrom.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing or empty date_from parameter.");
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Bad request: Missing or empty date_from parameter.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
             if (dateTo == null || dateTo.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Missing or empty date_to parameter.");
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Bad request: Missing or empty date_from parameter.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            if (tollStationRepository.tollOpExists(tollOpID) == 0){
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Bad request: Invalid tollOpID.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+            }
+
+            if (tollStationRepository.tollOpExists(tagOpID) == 0){
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Bad request: Invalid tagOpID.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
 
             // Validate and parse dates
@@ -68,7 +92,9 @@ public class PassesCostController {
 
             // Validate date range
             if (fromDate.isAfter(toDate)) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid date range: 'date_from' must be before or equal to 'date_to'.");
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Bad request: 'date_from' must be before or equal to 'date_to'.");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
 
             // Fetch data from the service
@@ -87,12 +113,16 @@ public class PassesCostController {
                         .body(csv);
             }
 
-            return ResponseEntity.ok(passesCost);
+            return ResponseEntity.ok(passesCost);   
 
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request: " + e.getMessage());
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Bad request: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred: " + e.getMessage());
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "An unexpected error occurred: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
@@ -100,6 +130,8 @@ public class PassesCostController {
         try {
             return LocalDate.parse(date, formatter);
         } catch (DateTimeParseException e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "'date_from' must be before or equal to 'date_to'.");
             throw new IllegalArgumentException("Invalid date format for '" + date + "'. Expected format: yyyyMMdd.");
         }
     }
@@ -109,7 +141,7 @@ public class PassesCostController {
         try (CSVWriter csvWriter = new CSVWriter(writer)) {
             // Write the cost details header
             csvWriter.writeNext(new String[]{
-                    "TollOpID", "TagOpID", "RequestTimestamp", "PeriodFrom", "PeriodTo", "nPasses", "TotalCost"
+                    "TollOpID", "TagOpID", "RequestTimestamp", "PeriodFrom", "PeriodTo", "nPasses", "passesCost"
             });
             csvWriter.writeNext(new String[]{
                     costDetails.gettollOpID(),
@@ -118,7 +150,7 @@ public class PassesCostController {
                     costDetails.getPeriodFrom(),
                     costDetails.getPeriodTo(),
                     String.valueOf(costDetails.getnPasses()),
-                    String.valueOf(costDetails.getTotalCost())
+                    String.valueOf(costDetails.getPassesCost())
             });
 
         } catch (Exception e) {

@@ -33,7 +33,7 @@ public interface PassRepository extends JpaRepository<Pass, Long> {
     :endTime AS periodTo,
     CURRENT_TIMESTAMP AS requestTimestamp,
     COUNT(p.pass_id) AS nPasses,
-    SUM(p.charge) AS totalCost
+    SUM(p.charge) AS passesCost
 FROM\s
     Pass p
 JOIN\s
@@ -50,7 +50,7 @@ GROUP BY\s
 
            
 """, nativeQuery = true)
-    Map<String, Object> passesCost(
+    Map<String, Object> getpassesCost(
             @Param("tollOpID") String tollOpID,
             @Param("tagOpID") String tagOpID,
             @Param("startTime") LocalDate startTime,

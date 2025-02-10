@@ -34,6 +34,7 @@ export const login = (username, password) => {
 // Logout endpoint
 export const logout = () => api.post('/logout');
 // Health Check
+
 export const getHealthCheck = () => api.get('/admin/healthcheck');
 
 // Station Management
@@ -118,7 +119,6 @@ export const getMyPayments = async () => {
     }
 };
 
-// Function to fetch debts from others
 export const getPaymentsFromOthers = async () => {
     try {
         const response = await api.get('/payments/toOp');
@@ -129,24 +129,8 @@ export const getPaymentsFromOthers = async () => {
     }
 };
 
-
-
-// Fetch operator names from debts
-export const getOperatorsFromMyDebts = async () => {
-    try {
-        const response = await api.get('/payments/debtsfrom');
-        // Map only the operator names
-        const operators = response.data.map((debt) => ({
-            name: debt.fromOpName,
-            id: debt.fromOpId,
-        }));
-        return operators;
-    } catch (error) {
-        console.error('Error fetching operators:', error);
-        throw error;
-    }
-};
-
+//Get All Operators
+export const getAllOperators = () => api.get('/passAnalysis/operators');
 
 // Get Passes
 export const getPasses = (station, fromDate, toDate) => {
@@ -158,7 +142,6 @@ export const getStations = () => api.get('/stations');
 
 export const passAnalysis = async (stationOp, tagOp, fromDate, toDate, format = 'json') => {
     return api.get(`/passAnalysis/${stationOp}/${tagOp}/${fromDate}/${toDate}`);
-
 }
 
 export const getPassesCost = async (tollOp, tagOp, fromDate, toDate, format = 'json') => {

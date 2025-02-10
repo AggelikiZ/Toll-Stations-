@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { passAnalysis, getOperatorId } from '../api/api';
-import { Bar } from 'react-chartjs-2'; // ✅ Use Bar Chart Instead of Line Chart
+import { passAnalysis, getPassesCost, getOperatorId, getAllOperators } from '../api/api';
+import {Bar, Line} from 'react-chartjs-2';
 import Chart from 'chart.js/auto';
+import 'chartjs-adapter-date-fns';
 
 export default function PassAnalysis() {
     const [stationOp, setStationOp] = useState('');
@@ -10,8 +11,11 @@ export default function PassAnalysis() {
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
     const [passes, setPasses] = useState([]);
+    const [totalCost, setTotalCost] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [mode, setMode] = useState(null);
+    const [operators, setOperators] = useState([]);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -25,15 +29,40 @@ export default function PassAnalysis() {
             }
         };
 
+        const fetchOperators = async () => {
+            try {
+                const response = await getAllOperators();
+                console.log("Operators received:", response.data);
+
+                if (Array.isArray(response.data)) {
+                    setOperators(response.data);
+                } else {
+                    setOperators([]);
+                    console.error("Unexpected response format:", response.data);
+                }
+            } catch (err) {
+                console.error('Error fetching operators:', err);
+                setOperators([]);
+            }
+        };
+
         fetchUserData();
+        fetchOperators();
     }, []);
+
+    const handleModeChange = (selectedMode) => {
+        setMode(selectedMode);
+        setError(null);
+        setPasses([]);
+        setTotalCost(null);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
 
-        if (!stationOp || !tagOp || !fromDate || !toDate) {
+        if (!tagOp || !fromDate || !toDate) {
             setError('All fields are required.');
             setLoading(false);
             return;
@@ -42,14 +71,20 @@ export default function PassAnalysis() {
         const formattedDateFrom = fromDate.replace(/-/g, '');
         const formattedDateTo = toDate.replace(/-/g, '');
 
+        const homeOperator = mode === "myStations" ? stationOp : tagOp;
+        const visitingOperator = mode === "myStations" ? tagOp : stationOp;
+
         try {
-            const response = await passAnalysis(stationOp, tagOp, formattedDateFrom, formattedDateTo);
-            if (response.data && response.data.passList) {
-                setPasses(response.data.passList);
+            const passResponse = await passAnalysis(homeOperator, visitingOperator, formattedDateFrom, formattedDateTo);
+            if (passResponse.data && passResponse.data.passList) {
+                setPasses(passResponse.data.passList);
             } else {
                 setPasses([]);
                 setError('No data found for the given criteria.');
             }
+
+            const costResponse = await getPassesCost(homeOperator, visitingOperator, formattedDateFrom, formattedDateTo);
+            setTotalCost(costResponse.data.totalCost || 0);
         } catch (err) {
             console.error('Error fetching pass analysis:', err);
             setError('Failed to fetch Pass Analysis. Please try again.');
@@ -58,174 +93,153 @@ export default function PassAnalysis() {
         }
     };
 
-    // ✅ New: Aggregate Passes by Station ID for Bar Chart
     const prepareChartData = () => {
+        const passesByMonth = {};
         const passesByStation = {};
 
         passes.forEach((pass) => {
-            const station = pass.stationID;
-            passesByStation[station] = (passesByStation[station] || 0) + 1;
+            const date = new Date(pass.timestamp);
+            const month = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+
+            passesByMonth[month] = (passesByMonth[month] || 0) + 1;
+            passesByStation[pass.stationID] = (passesByStation[pass.stationID] || 0) + 1;
         });
 
-        const sortedStations = Object.keys(passesByStation).sort();
+        const sortedMonths = Object.keys(passesByMonth).sort();
+        const sortedStations = Object.keys(passesByStation);
 
         return {
-            labels: sortedStations, // X-axis: Station IDs
-            datasets: [
-                {
-                    label: 'Number of Passes per Station',
-                    data: sortedStations.map((station) => passesByStation[station]), // Y-axis: Number of Passes
-                    backgroundColor: '#4CAF50', // ✅ Same green color for all bars
-                    borderColor: '#388E3C', // Slightly darker green border
-                    borderWidth: 1,
-                },
-            ],
+            monthlyData: {
+                labels: sortedMonths,
+                datasets: [
+                    {
+                        label: 'Passes Per Month',
+                        data: sortedMonths.map((month) => passesByMonth[month]),
+                        borderColor: '#4CAF50',
+                        backgroundColor: 'rgba(76, 175, 80, 0.2)',
+                        fill: true,
+                    },
+                ],
+            },
+            stationData: {
+                labels: sortedStations,
+                datasets: [
+                    {
+                        data: sortedStations.map((station) => passesByStation[station]),
+                        backgroundColor: 'rgba(76, 175, 80, 0.7)',
+                        borderColor: '#388E3C',
+                        borderWidth: 2,
+                        barThickness: 50, // Adjust bar width
+                    },
+                ],
+            },
         };
     };
 
     return (
-        <div style={{ padding: '20px', backgroundColor: '#f4f4f4' }}>
-            <h2 style={{ textAlign: 'center', color: '#4CAF50' }}>Pass Analysis</h2>
-            <form
-                onSubmit={handleSubmit}
-                style={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    gap: '10px',
-                    marginBottom: '20px',
-                }}
-            >
-                <input
-                    type="text"
-                    placeholder="Station Operator ID"
-                    value={stationOp}
-                    onChange={(e) => setStationOp(e.target.value)}
-                    readOnly={!(role === 'admin' || role === 'ministry')}
-                    style={{
-                        padding: '10px',
-                        width: '300px',
-                        borderRadius: '4px',
-                        backgroundColor: role === 'admin' || role === 'ministry' ? 'white' : '#e9e9e9',
-                        cursor: role === 'admin' || role === 'ministry' ? 'text' : 'not-allowed',
-                    }}
-                />
-                <input
-                    type="text"
-                    placeholder="Tag Operator ID"
-                    value={tagOp}
-                    onChange={(e) => setTagOp(e.target.value)}
-                    required
-                    style={{ padding: '10px', width: '300px', borderRadius: '4px' }}
-                />
-                <input
-                    type="date"
-                    placeholder="From Date"
-                    value={fromDate}
-                    onChange={(e) => setFromDate(e.target.value)}
-                    required
-                    style={{ padding: '10px', width: '300px', borderRadius: '4px' }}
-                />
-                <input
-                    type="date"
-                    placeholder="To Date"
-                    value={toDate}
-                    onChange={(e) => setToDate(e.target.value)}
-                    required
-                    style={{ padding: '10px', width: '300px', borderRadius: '4px' }}
-                />
-                <button
-                    type="submit"
-                    style={{
-                        padding: '10px 20px',
-                        backgroundColor: '#4CAF50',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                    }}
-                >
-                    {loading ? 'Fetching...' : 'Fetch Analysis'}
-                </button>
-            </form>
+        <div style={{ padding: '20px', backgroundColor: '#f4f4f4', textAlign: 'center', width: 500, minHeight: 400}}>
+            <h2 style={{ color: '#4CAF50' }}>Passes and Costs Analysis</h2>
 
-            {loading && <p>Loading...</p>}
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '20px' }}>
+                <button onClick={() => handleModeChange("myStations")} style={{ padding: '15px 20px', backgroundColor: mode === "myStations" ? '#4CAF50' : 'lightgray', color: 'white', border: 'none', borderRadius: '5px', fontSize: '16px', cursor: 'pointer', width: '200px', transition: '0.3s' }}>
+                    For My Stations
+                </button>
+
+                <button onClick={() => handleModeChange("otherStations")} style={{ padding: '15px 20px', backgroundColor: mode === "otherStations" ? '#4CAF50' : 'lightgray', color: 'white', border: 'none', borderRadius: '5px', fontSize: '16px', cursor: 'pointer', width: '200px', transition: '0.3s' }}>
+                    For My Tags
+                </button>
+            </div>
+
+            {mode && (
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+                    <select value={tagOp} onChange={(e) => setTagOp(e.target.value)} style={{ padding: '10px', width: '320px', borderRadius: '4px' }}>
+                        <option value="">{mode === "myStations" ? "Select Visiting Operator" : "Select Home Operator"}</option>
+                        {operators.map((op) => (
+                            <option key={op.opId} value={op.opId}>{op.opName}</option>
+                            ))}
+                    </select>
+
+                    <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} required style={{ padding: '10px', width: '300px', borderRadius: '4px' }} />
+                    <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} required style={{ padding: '10px', width: '300px', borderRadius: '4px' }} />
+
+                    <button type="submit" style={{ padding: '10px 20px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                        {loading ? 'Fetching...' : 'Fetch Analysis'}
+                    </button>
+                </form>
+            )}
+
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
             {passes.length > 0 && (
                 <>
-                    <div
-                        style={{
-                            backgroundColor: '#fff',
-                            padding: '20px',
-                            borderRadius: '8px',
-                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                            marginBottom: '20px',
-                        }}
-                    >
-                        <h3>Passes:</h3>
-                        <table
-                            style={{
-                                width: '100%',
-                                borderCollapse: 'collapse',
-                                marginTop: '10px',
-                            }}
-                        >
-                            <thead>
-                            <tr style={{ backgroundColor: '#4CAF50', color: 'white' }}>
-                                <th>Pass Index</th>
-                                <th>Pass ID</th>
-                                <th>Timestamp</th>
-                                <th>Station ID</th>
-                                <th>Tag ID</th>
-                                <th>Pass Charge</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {passes.map((pass, index) => (
-                                <tr key={index} style={{ textAlign: 'center', backgroundColor: index % 2 === 0 ? '#f9f9f9' : '#ffffff' }}>
-                                    <td>{pass.passIndex}</td>
-                                    <td>{pass.passID}</td>
-                                    <td>{pass.timestamp}</td>
-                                    <td>{pass.stationID}</td>
-                                    <td>{pass.tagID}</td>
-                                    <td>{pass.passCharge}</td>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
+                    <p style={{textAlign: "left"}}><strong>Total Passes:</strong> {passes.length}</p>
+                    <p style={{textAlign: "left"}}><strong>Total Cost:</strong> {totalCost?.toFixed(2)} €</p>
+
+                    <div style={{ marginBottom: '20px', padding: '20px', backgroundColor: 'white', borderRadius: '8px' }}>
+                        <h3 style={{ color: '#4CAF50', marginBottom: '10px' }}>Passes Over Time (Monthly)</h3>
+                        <Line key={JSON.stringify(passes)} data={prepareChartData().monthlyData} />
                     </div>
 
-                    {/* ✅ New: Bar Chart for Passes Per Station */}
-                    <div
-                        style={{
-                            backgroundColor: '#fff',
-                            padding: '20px',
-                            borderRadius: '8px',
-                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                        }}
-                    >
-                        <h3 style={{ textAlign: 'center', color: '#4CAF50' }}>Passes Per Toll Station</h3>
+                    <div style={{ padding: '10px', backgroundColor: 'white', borderRadius: '8px' }}>
+                        <h3 style={{ color: '#4CAF50', marginBottom: '10px' }}>Passes Per Station</h3>
                         <Bar
                             key={JSON.stringify(passes)}
-                            data={prepareChartData()}
+                            data={prepareChartData().stationData}
                             options={{
                                 responsive: true,
+                                maintainAspectRatio: false,
+                                indexAxis: "y",
                                 plugins: {
-                                    legend: { position: 'top' },
-                                    title: { display: true, text: 'Passes Per Toll Station' },
-                                },
+                                    legend: { display: false },},
                                 scales: {
-                                    x: { title: { display: true, text: 'Station ID' } },
-                                    y: {
-                                        title: { display: true, text: 'Number of Passes' },
+                                    x: {
                                         beginAtZero: true,
-                                        ticks: { stepSize: 1 },
+                                        ticks: {
+                                            font: { size: 14 },
+                                            stepSize: Math.ceil(passes.length / 20), // More stations → more spacing
+                                        },
+                                        grid: { drawBorder: false, color: "rgba(200, 200, 200, 0.3)" },
+                                    },
+                                    y: {
+                                        ticks: {
+                                            font: { size: 14 },
+                                            autoSkip: false,
+                                        },
+                                        grid: { display: false },
                                     },
                                 },
+                                barThickness: passes.length > 10 ? 10 : 30,
+                                maxBarThickness: 30, // Prevent too-thick bars
+                            }}
+
+                            style={{
+                                height: Math.min(700, passes.length * 30),
+                                minHeight: 200,
+                                maxHeight: 700,
                             }}
                         />
                     </div>
+
+                    <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
+                        <thead>
+                        <tr style={{ backgroundColor: '#4CAF50', color: 'white' }}>
+                            <th style={{ padding: '10px', border: '1px solid #ddd' }}>Timestamp</th>
+                            <th style={{ padding: '10px', border: '1px solid #ddd' }}>Station ID</th>
+                            <th style={{ padding: '10px', border: '1px solid #ddd' }}>Tag ID</th>
+                            <th style={{ padding: '10px', border: '1px solid #ddd' }}>Pass Charge</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {passes.map((pass, index) => (
+                            <tr key={index} style={{ textAlign: 'center', backgroundColor: index % 2 === 0 ? '#f9f9f9' : '#ffffff' }}>
+                                <td style={{ padding: '10px', border: '1px solid #ddd' }}>{pass.timestamp}</td>
+                                <td style={{ padding: '10px', border: '1px solid #ddd' }}>{pass.stationID}</td>
+                                <td style={{ padding: '10px', border: '1px solid #ddd' }}>{pass.tagID}</td>
+                                <td style={{ padding: '10px', border: '1px solid #ddd' }}>{pass.passCharge} €</td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
                 </>
             )}
         </div>
