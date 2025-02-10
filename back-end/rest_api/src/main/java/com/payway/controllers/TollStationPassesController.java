@@ -4,10 +4,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.opencsv.CSVWriter;
 import com.payway.models.*;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.*;
 import com.payway.services.TollStationService;
 import com.payway.models.TollStationPassesDetails;
@@ -40,8 +46,27 @@ public class TollStationPassesController {
 
     @Operation(
             summary = "Toll Station Passes",
-            description = "Get information for the Passes from a toll station for a period of time"
+            description = "Get information for the passes from a toll station for a period of time"
     )
+ @ApiResponses({
+         @ApiResponse(responseCode = "200", description = "Successful Response",
+                 content = @Content(
+                         mediaType = "application/json",
+                         schema = @Schema(type = "object"),
+                         examples = @ExampleObject(value = "{\"Requested Data Names\": \"Requested Data Values\"}")
+                 )),
+         @ApiResponse(responseCode = "400", description = "Bad Request",
+                 content = @Content(
+                         mediaType = "application/json",
+                         schema = @Schema(type = "object"),
+                         examples = @ExampleObject(value = "{\"error\": \"Bad request: <Error Analysis>\"}")
+                 )),
+        @ApiResponse(responseCode = "204", description = "Successful but no content"),
+        @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid credentials",
+                     content = @Content(schema = @Schema(implementation = Unauthorized401Response.class))),
+        @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                     content = @Content(schema = @Schema(implementation = Generic500Response.class)))
+    })
 
     public ResponseEntity<?> getTollStationPasses(
             @PathVariable("tollStationID") String tollStationID,
@@ -51,23 +76,23 @@ public class TollStationPassesController {
         try {
             if (tollStationID == null) {
                 Map<String, String> response = new HashMap<>();
-                response.put("message", "Missing tollStationID.");
+                response.put("error", "Missing tollStationID.");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
             if (dateFrom == null || dateFrom.isEmpty()) {
                 Map<String, String> response = new HashMap<>();
-                response.put("message", "Missing date from.");
+                response.put("error", "Missing date from.");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
             if (dateTo == null || dateTo.isEmpty()) {
                 Map<String, String> response = new HashMap<>();
-                response.put("message", "Missing date to.");
+                response.put("error", "Missing date to.");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
 
             if (tollStationRepository.tollStationExists(tollStationID) == 0){
                 Map<String, String> response = new HashMap<>();
-                response.put("message", "Bad request: Invalid stationID.");
+                response.put("error", "Bad request: Invalid stationID.");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
 
@@ -79,7 +104,7 @@ public class TollStationPassesController {
             // Validate date range
             if (fromDate.isAfter(toDate)) {
                 Map<String, String> response = new HashMap<>();
-                response.put("message", "Bad request: Invalid date range: 'date_from' must be before or equal to 'date_to'.");
+                response.put("error", "Bad request: Invalid date range: 'date_from' must be before or equal to 'date_to'.");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
 
@@ -101,11 +126,11 @@ public class TollStationPassesController {
 
         } catch (IllegalArgumentException e) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Bad request: " + e.getMessage());
+            response.put("error", "Bad request: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
             Map<String, String> response = new HashMap<>();
-            response.put("message", "An unexpected error occurred: " + e.getMessage());
+            response.put("error", "An unexpected error occurred: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }

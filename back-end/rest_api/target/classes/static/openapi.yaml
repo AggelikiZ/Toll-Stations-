@@ -1,216 +1,653 @@
 openapi: 3.0.1
 info:
-  title: Toll Station API
-  version: 1.0.0
+  title: OpenAPI definition
+  version: v0
 servers:
-  - url: http://localhost:9115/api
-    variables:
-      host:
-        default: localhost
+  - url: http://localhost:9115
+    description: Generated server url
+security:
+  - observatoryAuth: []
 paths:
-  /login:
+  /api/payments/submitproof:
     post:
       tags:
-        - Authentication
-      summary: User login
+        - payment-controller
+      summary: Submit payment proof
+      description: Allows a user to submit a payment proof (PDF) along with optional
+        metadata to update debts.
+      operationId: submitPaymentProof
+      parameters:
+        - name: toOpName
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: details
+          in: query
+          required: false
+          schema:
+            type: string
       requestBody:
-        required: true
         content:
-          application/x-www-form-urlencoded:
+          multipart/form-data:
             schema:
+              required:
+                - file
               type: object
               properties:
-                username:
+                file:
                   type: string
-                  description: User's username
-                password:
-                  type: string
-                  description: User's password
+                  format: binary
       responses:
-        '200':
-          description: Successful login
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized401Response'
+        "500":
+          description: Reset failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Generic500Response'
+        "400":
+          description: Invalid input data or file format
           content:
             application/json:
               schema:
                 type: object
-                properties:
-                  token:
-                    type: string
-                    description: Authentication token
-        '401':
-          description: Unauthorized access
-  /logout:
+        "200":
+          description: Payment proof processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/logout:
     post:
       tags:
-        - Authentication
-      summary: User logout
+        - authentication-controller
+      summary: Logout user
+      description: Logs out the user by invalidating their token.
+      operationId: logout
       responses:
-        '200':
-          description: Successful logout
-        '401':
-          description: Unauthorized access
-
-  /tollStationPasses/{tollStationID}/{date_from}/{date_to}:
+        "401":
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                type: string
+                example:
+                  error: Invalid or expired token
+        "200":
+          description: Logout successful
+  /api/login:
+    post:
+      tags:
+        - authentication-controller
+      summary: User Login
+      description: Authenticate a user and return a token for accessing protected
+        endpoints.
+      operationId: login
+      requestBody:
+        description: User credentials
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      responses:
+        "401":
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Unauthorized401Response'
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: string
+                example:
+                  token: FOO
+        "400":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                type: string
+                example:
+                  error: Invalid credentials
+  /api/admin/resetstations:
+    post:
+      tags:
+        - admin-controller
+      summary: Reset toll stations
+      description: Resets the toll stations table with the data from the `tollstations2024.csv`
+        file.
+      operationId: resetStations
+      responses:
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized401Response'
+        "200":
+          description: Reset successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResetStations200Response'
+        "400":
+          description: Reset failed due to illegal argument
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResetStations400Response'
+        "500":
+          description: Reset failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Generic500Response'
+  /api/admin/resetpasses:
+    post:
+      tags:
+        - admin-controller
+      summary: Reset passes
+      description: Resets the toll stations table with the data from the `tollstations2024.csv`
+        file.
+      operationId: resetPasses
+      responses:
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized401Response'
+        "200":
+          description: Reset successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResetStations200Response'
+        "400":
+          description: Reset failed due to illegal argument
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResetStations400Response'
+        "500":
+          description: Reset failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Generic500Response'
+  /api/admin/addpasses:
+    post:
+      tags:
+        - admin-controller
+      summary: Add passes
+      description: Adds passes and updates data structures with the data from the
+        provided csv file.
+      operationId: addPasses
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - file
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Unauthorized401Response'
+        "200":
+          description: Update successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResetStations200Response'
+        "500":
+          description: Update failed due to interval server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Generic500Response'
+        "400":
+          description: Update failed due to illegal argument
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResetStations400Response'
+  /api/tollStationPasses/{tollStationID}/{date_from}/{date_to}:
     get:
       tags:
-        - tollStationPasses
-      summary: Get total toll station passes from a period
-      description: Returns the total number of station passes from `date_from` to `date_to` for a given station.
+        - toll-station-passes-controller
+      summary: Toll Station Passes
+      description: Get information for the Passes from a toll station for a period
+        of time
       operationId: getTollStationPasses
       parameters:
         - name: tollStationID
           in: path
           required: true
-          description: ID of the toll station
           schema:
             type: string
         - name: date_from
           in: path
           required: true
-          description: Start date in the format YYYYMMDD
           schema:
             type: string
-            pattern: '^\d{8}$'  # Ensures the format is YYYYMMDD
         - name: date_to
           in: path
           required: true
-          description: End date in the format YYYYMMDD
           schema:
             type: string
-            pattern: '^\d{8}$'  # Ensures the format is YYYYMMDD
         - name: format
           in: query
           required: false
-          description: Response format (json or csv). Defaults to json.
           schema:
             type: string
-            enum: [ json, csv ]
             default: json
       responses:
-        '200':
-          description: Success - Returns the toll passes data for the requested period
+        "401":
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Unauthorized401Response'
+        "200":
+          description: OK
           content:
             application/json:
               schema:
                 type: object
-                properties:
-                  stationID:
-                    type: string
-                    description: ID of the station
-                  stationOperator:
-                    type: string
-                    description: Name of the worker at the station
-                  requestTimestamp:
-                    type: string
-                    description: Timestamp of the request
-                  periodFrom:
-                    type: string
-                    description: Start of the period (YYYYMMDD)
-                  periodTo:
-                    type: string
-                    description: End of the period (YYYYMMDD)
-                  nPasses:
-                    type: integer
-                    description: Number of passes in the given period
-                  passList:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        passIndex:
-                          type: integer
-                          description: The pass number
-                        passID:
-                          type: string
-                          description: ID of the pass
-                        timestamp:
-                          type: string
-                          description: Timestamp when the pass was recorded
-                        tagID:
-                          type: string
-                          description: Tag ID associated with the pass
-                        tagProvider:
-                          type: string
-                          description: The provider of the tag
-                        passType:
-                          type: string
-                          enum: [ home, visitor ]
-                          description: Type of pass
-                        passCharge:
-                          type: string
-                          description: Charging details for the pass
-        '204':
-          description: No Content - The request was successful, but no data is available
-        '400':
-          description: Bad Request - Invalid parameters or missing information
-        '401':
-          description: Unauthorized Access
-        '500':
-          description: Internal Server Error - An unexpected error occurred
-
-  /admin/resetstations:
-    post:
+  /api/stations:
+    get:
       tags:
-        - Admin
-      summary: Reset toll stations
-      description: Resets the toll stations table with the data from the `tollstations2024.csv` file.
-      operationId: ResetStations
+        - toll-station-passes-controller
+      operationId: getAllStations
       responses:
-        '200':
-          description: Reset successful
+        "401":
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Unauthorized401Response'
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TollStation'
+  /api/payments/toOp:
+    get:
+      tags:
+        - payment-controller
+      operationId: paymentsToMe
+      responses:
+        "401":
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Unauthorized401Response'
+        "200":
+          description: OK
           content:
             application/json:
               schema:
                 type: object
-                properties:
-                  status:
-                    type: string
-                    example: OK
-        '400':
-          description: Reset failed
+  /api/payments/fromOp:
+    get:
+      tags:
+        - payment-controller
+      operationId: myPayments
+      responses:
+        "401":
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Unauthorized401Response'
+        "200":
+          description: OK
           content:
             application/json:
               schema:
                 type: object
-                properties:
-                  status:
-                    type: string
-                    example: failed
-                  info:
-                    type: string
-                    example: File not found or could not parse CSV
-        '500':
-          description: Internal server error
+  /api/payments/debtsto:
+    get:
+      tags:
+        - payment-controller
+      operationId: DebtsTo
+      responses:
+        "401":
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Unauthorized401Response'
+        "200":
+          description: OK
           content:
             application/json:
               schema:
                 type: object
-                properties:
-                  status:
-                    type: string
-                    example: failed
-                  info:
-                    type: string
-                    example: Unexpected internal server error occurred while resetting toll stations
-
+  /api/payments/debtsfrom:
+    get:
+      tags:
+        - payment-controller
+      operationId: DebtsFrom
+      responses:
+        "401":
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Unauthorized401Response'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/passesCost/{tollOpID}/{tagOpID}/{date_from}/{date_to}:
+    get:
+      tags:
+        - passes-cost-controller
+      summary: Passes Cost
+      description: Returns info for the total passes of someone with a certain tag
+        ID from toll stations of someone with other ID
+      operationId: getpassesCost
+      parameters:
+        - name: tollOpID
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: tagOpID
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date_from
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date_to
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: format
+          in: query
+          required: false
+          schema:
+            type: string
+            default: json
+      responses:
+        "401":
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Unauthorized401Response'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/passAnalysis/{stationOpID}/{tagOpID}/{date_from}/{date_to}:
+    get:
+      tags:
+        - analysis-controller
+      operationId: getPassAnalysis
+      parameters:
+        - name: stationOpID
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: tagOpID
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date_from
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date_to
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: format
+          in: query
+          required: false
+          schema:
+            type: string
+            default: json
+      responses:
+        "401":
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Unauthorized401Response'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/passAnalysis/operators:
+    get:
+      tags:
+        - analysis-controller
+      operationId: getAllOperators
+      responses:
+        "401":
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Unauthorized401Response'
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Operator'
+  /api/chargesBy/{tollOpID}/{date_from}/{date_to}:
+    get:
+      tags:
+        - charges-by-controller
+      operationId: getChargesBy
+      parameters:
+        - name: tollOpID
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date_from
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: date_to
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: format
+          in: query
+          required: false
+          schema:
+            type: string
+            default: json
+      responses:
+        "401":
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Unauthorized401Response'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+  /api/auth/operatorId:
+    get:
+      tags:
+        - authentication-controller
+      summary: Get Operator ID and Role
+      description: Retrieves the operator ID (opId) and role of the logged-in user.
+      operationId: getOperatorId
+      responses:
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: string
+                example:
+                  error: Invalid or expired token
+        "200":
+          description: Operator ID and role retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: string
+                example:
+                  opId: EG
+                  role: admin
+  /api/admin/healthcheck:
+    get:
+      tags:
+        - admin-controller
+      operationId: healthCheck
+      responses:
+        "401":
+          description: Unauthorized
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Unauthorized401Response'
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
 components:
   schemas:
-    Pass:
+    Unauthorized401Response:
       type: object
       properties:
-        passIndex:
+        status:
+          type: string
+          example: failed
+        info:
+          type: string
+          example: Invalid or expired token
+      description: Unauthorized_401_response
+    Generic500Response:
+      type: object
+      properties:
+        status:
+          type: string
+          example: failed
+        info:
+          type: string
+          example: Unexpected internal server error
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          description: User's username
+          example: username1
+        password:
+          type: string
+          description: User's password
+          example: password1
+    ResetStations200Response:
+      type: object
+      properties:
+        status:
+          type: string
+          example: OK
+    ResetStations400Response:
+      type: object
+      properties:
+        status:
+          type: string
+          example: failed
+        info:
+          type: string
+          example: "Invalid input: Check file structure or parameters"
+    TollStation:
+      type: object
+      properties:
+        opId:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+        locality:
+          type: string
+        road:
+          type: string
+        lat:
+          type: number
+        lng:
+          type: number
+        price1:
+          type: number
+        price2:
+          type: number
+        price3:
+          type: number
+        price4:
+          type: number
+        tollId:
+          type: string
+    Operator:
+      type: object
+      properties:
+        opId:
+          type: string
+        userId:
           type: integer
-        passID:
+          format: int32
+        opName:
           type: string
-        timestamp:
+        email:
           type: string
-        tagID:
-          type: string
-        tagProvider:
-          type: string
-        passType:
-          type: string
-          enum: [ home, visitor ]
-        passCharge:
-          type: string
-
+  securitySchemes:
+    observatoryAuth:
+      type: apiKey
+      name: X-OBSERVATORY-AUTH
+      in: header
