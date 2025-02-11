@@ -1,0 +1,1186 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+      "title": "OpenAPI definition",
+      "version": "v0"
+    },
+    "servers": [
+      {
+        "url": "http://localhost:9115",
+        "description": "Generated server url"
+      }
+    ],
+    "security": [
+      {
+        "observatoryAuth": []
+      }
+    ],
+    "paths": {
+      "/api/payments/submitproof": {
+        "post": {
+          "tags": [
+            "payment-controller"
+          ],
+          "summary": "Submit payment proof",
+          "description": "Allows a user to submit a payment proof (PDF) along with optional metadata to update debts.",
+          "operationId": "submitPaymentProof",
+          "parameters": [
+            {
+              "name": "toOpName",
+              "in": "query",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "details",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "required": [
+                    "file"
+                  ],
+                  "type": "object",
+                  "properties": {
+                    "file": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Unauthorized401Response"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Reset failed",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Generic500Response"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid input data or file format",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "Payment proof processed successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/logout": {
+        "post": {
+          "tags": [
+            "authentication-controller"
+          ],
+          "summary": "Logout user",
+          "description": "Logs out the user by invalidating their token.",
+          "operationId": "logout",
+          "responses": {
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "type": "string",
+                    "example": {
+                      "error": "Invalid or expired token"
+                    }
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "Logout successful"
+            }
+          }
+        }
+      },
+      "/api/login": {
+        "post": {
+          "tags": [
+            "authentication-controller"
+          ],
+          "summary": "User Login",
+          "description": "Authenticate a user and return a token for accessing protected endpoints.",
+          "operationId": "login",
+          "requestBody": {
+            "description": "User credentials",
+            "content": {
+              "application/x-www-form-urlencoded": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginRequest"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Unauthorized401Response"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "Login successful",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "string",
+                    "example": {
+                      "token": "FOO"
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid credentials",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "string",
+                    "example": {
+                      "error": "Invalid credentials"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/admin/resetstations": {
+        "post": {
+          "tags": [
+            "admin-controller"
+          ],
+          "summary": "Reset toll stations",
+          "description": "Resets the toll stations table with the data from the `tollstations2024.csv` file.",
+          "operationId": "resetStations",
+          "responses": {
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Unauthorized401Response"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Reset failed",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Generic500Response"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Reset failed due to illegal argument",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ResetStations400Response"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "Reset successful",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ResetStations200Response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/admin/resetpasses": {
+        "post": {
+          "tags": [
+            "admin-controller"
+          ],
+          "summary": "Reset passes",
+          "description": "Resets the toll stations table with the data from the `tollstations2024.csv` file.",
+          "operationId": "resetPasses",
+          "responses": {
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Unauthorized401Response"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Reset failed",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Generic500Response"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Reset failed due to illegal argument",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ResetStations400Response"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "Reset successful",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ResetStations200Response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/admin/addpasses": {
+        "post": {
+          "tags": [
+            "admin-controller"
+          ],
+          "summary": "Add passes",
+          "description": "Adds passes and updates data structures with the data from the provided csv file.",
+          "operationId": "addPasses",
+          "requestBody": {
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "required": [
+                    "file"
+                  ],
+                  "type": "object",
+                  "properties": {
+                    "file": {
+                      "type": "string",
+                      "format": "binary"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Unauthorized401Response"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Update failed due to illegal argument",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ResetStations400Response"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Update failed due to interval server error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Generic500Response"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "Update successful",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ResetStations200Response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/tollStationPasses/{tollStationID}/{date_from}/{date_to}": {
+        "get": {
+          "tags": [
+            "toll-station-passes-controller"
+          ],
+          "summary": "Toll Station Passes",
+          "description": "Get information for the passes from a toll station for a period of time.",
+          "operationId": "getTollStationPasses",
+          "parameters": [
+            {
+              "name": "tollStationID",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "date_from",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "date_to",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "format",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "default": "json"
+              }
+            }
+          ],
+          "responses": {
+            "401": {
+              "description": "Unauthorized - Invalid credentials",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Unauthorized401Response"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object"
+                  },
+                  "example": {
+                    "Requested Data Names": "Requested Data Values"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object"
+                  },
+                  "example": {
+                    "error": "Bad request: \u003CError Analysis\u003E"
+                  }
+                }
+              }
+            },
+            "204": {
+              "description": "Successful but no content",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal Server Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Generic500Response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/stations": {
+        "get": {
+          "tags": [
+            "toll-station-passes-controller"
+          ],
+          "operationId": "getAllStations",
+          "responses": {
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Unauthorized401Response"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "OK",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/TollStation"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/payments/toOp": {
+        "get": {
+          "tags": [
+            "payment-controller"
+          ],
+          "operationId": "paymentsToMe",
+          "responses": {
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Unauthorized401Response"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/payments/fromOp": {
+        "get": {
+          "tags": [
+            "payment-controller"
+          ],
+          "operationId": "myPayments",
+          "responses": {
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Unauthorized401Response"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/payments/debtsto": {
+        "get": {
+          "tags": [
+            "payment-controller"
+          ],
+          "operationId": "DebtsTo",
+          "responses": {
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Unauthorized401Response"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/payments/debtsfrom": {
+        "get": {
+          "tags": [
+            "payment-controller"
+          ],
+          "operationId": "DebtsFrom",
+          "responses": {
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Unauthorized401Response"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/passesCost/{tollOpID}/{tagOpID}/{date_from}/{date_to}": {
+        "get": {
+          "tags": [
+            "passes-cost-controller"
+          ],
+          "summary": "Passes Cost",
+          "description": "Get information on the number of passes with a tag of an operator from stations of an operator and total cost for a period of time.",
+          "operationId": "getpassesCost",
+          "parameters": [
+            {
+              "name": "tollOpID",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "tagOpID",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "date_from",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "date_to",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "format",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "default": "json"
+              }
+            }
+          ],
+          "responses": {
+            "401": {
+              "description": "Unauthorized - Invalid credentials",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Unauthorized401Response"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object"
+                  },
+                  "example": {
+                    "Requested Data Names": "Requested Data Values"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object"
+                  },
+                  "example": {
+                    "error": "Bad request: \u003CError Analysis\u003E"
+                  }
+                }
+              }
+            },
+            "204": {
+              "description": "Successful but no content",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal Server Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Generic500Response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/passAnalysis/{stationOpID}/{tagOpID}/{date_from}/{date_to}": {
+        "get": {
+          "tags": [
+            "analysis-controller"
+          ],
+          "summary": "Passes Analysis",
+          "description": "Get information for the passes of a vehicle with tag from an operator from stations of an operator for a period of time.",
+          "operationId": "getPassAnalysis",
+          "parameters": [
+            {
+              "name": "stationOpID",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "tagOpID",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "date_from",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "date_to",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "format",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "default": "json"
+              }
+            }
+          ],
+          "responses": {
+            "401": {
+              "description": "Unauthorized - Invalid credentials",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Unauthorized401Response"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object"
+                  },
+                  "example": {
+                    "Requested Data Names": "Requested Data Values"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object"
+                  },
+                  "example": {
+                    "error": "Bad request: \u003CError Analysis\u003E"
+                  }
+                }
+              }
+            },
+            "204": {
+              "description": "Successful but no content",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal Server Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Generic500Response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/passAnalysis/operators": {
+        "get": {
+          "tags": [
+            "analysis-controller"
+          ],
+          "operationId": "getAllOperators",
+          "responses": {
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Unauthorized401Response"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "OK",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Operator"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/chargesBy/{tollOpID}/{date_from}/{date_to}": {
+        "get": {
+          "tags": [
+            "charges-by-controller"
+          ],
+          "summary": "Charges By",
+          "description": "Get information on passes from stations of an operator with tags of any other operator and total value owed to the operator.",
+          "operationId": "getChargesBy",
+          "parameters": [
+            {
+              "name": "tollOpID",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "date_from",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "date_to",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "format",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "default": "json"
+              }
+            }
+          ],
+          "responses": {
+            "401": {
+              "description": "Unauthorized - Invalid credentials",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Unauthorized401Response"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object"
+                  },
+                  "example": {
+                    "Requested Data Names": "Requested Data Values"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object"
+                  },
+                  "example": {
+                    "error": "Bad request: \u003CError Analysis\u003E"
+                  }
+                }
+              }
+            },
+            "204": {
+              "description": "Successful but no content",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal Server Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Generic500Response"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/auth/operatorId": {
+        "get": {
+          "tags": [
+            "authentication-controller"
+          ],
+          "summary": "Get Operator ID and Role",
+          "description": "Retrieves the operator ID (opId) and role of the logged-in user.",
+          "operationId": "getOperatorId",
+          "responses": {
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "string",
+                    "example": {
+                      "error": "Invalid or expired token"
+                    }
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "Operator ID and role retrieved successfully",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "string",
+                    "example": {
+                      "opId": "EG",
+                      "role": "admin"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/admin/healthcheck": {
+        "get": {
+          "tags": [
+            "admin-controller"
+          ],
+          "operationId": "healthCheck",
+          "responses": {
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Unauthorized401Response"
+                  }
+                }
+              }
+            },
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "Unauthorized401Response": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "example": "failed"
+            },
+            "info": {
+              "type": "string",
+              "example": "Invalid or expired token"
+            }
+          },
+          "description": "Unauthorized_401_response"
+        },
+        "Generic500Response": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "example": "failed"
+            },
+            "info": {
+              "type": "string",
+              "example": "Unexpected internal server error"
+            }
+          }
+        },
+        "LoginRequest": {
+          "type": "object",
+          "properties": {
+            "username": {
+              "type": "string",
+              "description": "User's username",
+              "example": "username1"
+            },
+            "password": {
+              "type": "string",
+              "description": "User's password",
+              "example": "password1"
+            }
+          }
+        },
+        "ResetStations400Response": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "example": "failed"
+            },
+            "info": {
+              "type": "string",
+              "example": "Invalid input: Check file structure or parameters"
+            }
+          }
+        },
+        "ResetStations200Response": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "type": "string",
+              "example": "OK"
+            }
+          }
+        },
+        "TollStation": {
+          "type": "object",
+          "properties": {
+            "opId": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "locality": {
+              "type": "string"
+            },
+            "road": {
+              "type": "string"
+            },
+            "lat": {
+              "type": "number"
+            },
+            "lng": {
+              "type": "number"
+            },
+            "price1": {
+              "type": "number"
+            },
+            "price2": {
+              "type": "number"
+            },
+            "price3": {
+              "type": "number"
+            },
+            "price4": {
+              "type": "number"
+            },
+            "tollId": {
+              "type": "string"
+            }
+          }
+        },
+        "Operator": {
+          "type": "object",
+          "properties": {
+            "opId": {
+              "type": "string"
+            },
+            "userId": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "opName": {
+              "type": "string"
+            },
+            "email": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "securitySchemes": {
+        "observatoryAuth": {
+          "type": "apiKey",
+          "name": "X-OBSERVATORY-AUTH",
+          "in": "header"
+        }
+      }
+    }
+  }
