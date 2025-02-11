@@ -125,7 +125,7 @@ public class PaymentController {
 
         try {
             Claims claims = jwtTokenUtil.validateToken(token);
-            String username = jwtTokenUtil.validateToken(token).getSubject();
+            String username = claims.getSubject();
             String role = claims.get("role", String.class);
             String toOpId = paymentService.ToOpId(toOpName);
             String sourceOpId = paymentService.SourceOpId(username);

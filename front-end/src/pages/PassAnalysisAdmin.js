@@ -14,6 +14,7 @@ export default function PassAnalysisAdmin() {
     const [totalCost, setTotalCost] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [searched, setSearched] = useState(false);
 
     useEffect(() => {
         const fetchOperators = async () => {
@@ -38,6 +39,7 @@ export default function PassAnalysisAdmin() {
         e.preventDefault();
         setLoading(true);
         setError(null);
+        setSearched(true);
 
         if (!homeOperator || !visitingOperator || !fromDate || !toDate) {
             setError('All fields are required.');
@@ -52,17 +54,16 @@ export default function PassAnalysisAdmin() {
             const passResponse = await passAnalysis(homeOperator, visitingOperator, formattedDateFrom, formattedDateTo);
             if (passResponse.data && passResponse.data.passList) {
                 setPasses(passResponse.data.passList);
-            } else {
-                setPasses([]);
-                setError('No data found for the given criteria.');
             }
 
             const costResponse = await getPassesCost(homeOperator, visitingOperator, formattedDateFrom, formattedDateTo);
-            setTotalCost(costResponse.data.totalCost || 0);
+            setTotalCost(costResponse.data.passesCost || 0);
         } catch (err) {
-            console.error('Error fetching pass analysis:', err);
-            setError('Failed to fetch Pass Analysis. Please try again.');
-        } finally {
+            if (err.response.status === 400) {
+                setError('Invalid given search criteria');
+            } else {
+                setError('Failed to fetch analysis. Please try again.');
+            }} finally {
             setLoading(false);
         }
     };
@@ -135,7 +136,7 @@ export default function PassAnalysisAdmin() {
 
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
-            {passes.length > 0 && (
+            {passes.length > 0 && !error  && (
                 <>
                     <p style={{ textAlign: "left" }}><strong>Total Passes:</strong> {passes.length}</p>
                     <p style={{ textAlign: "left" }}><strong>Total Cost:</strong> {totalCost?.toFixed(2)} €</p>
@@ -187,6 +188,10 @@ export default function PassAnalysisAdmin() {
                     </table>
                 </>
             )}
+            {passes.length===0 && !error && searched === true &&(
+                    <p style={{ color: "#555" }}>{"No data found for the given criteria."}</p>
+                )
+            }
         </div>
     );
 }

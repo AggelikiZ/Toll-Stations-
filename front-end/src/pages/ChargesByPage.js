@@ -11,7 +11,7 @@ export default function ChargesBy() {
     const [operators, setOperators] = useState([]); // Stores all operators
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [searched, setSearched] = useState(false); // ✅ Tracks if search was made
+    const [searched, setSearched] = useState(false);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -48,7 +48,7 @@ export default function ChargesBy() {
         e.preventDefault();
         setLoading(true);
         setError(null);
-        setSearched(true); // ✅ Marks that a search has been made
+        setSearched(true);
 
         const formattedDateFrom = fromDate.replace(/-/g, '');
         const formattedDateTo = toDate.replace(/-/g, '');
@@ -61,8 +61,11 @@ export default function ChargesBy() {
                 setChargesData([]);
             }
         } catch (err) {
-            console.error('Error fetching charges by operator data:', err);
-            setError('Failed to fetch charges. Please try again.');
+            if (err.response.status === 400) {
+                setError('Invalid given search criteria');
+            } else {
+                setError('Failed to fetch charges. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
