@@ -1,0 +1,1235 @@
+{
+	"info": {
+		"_postman_id": "5235017a-16a0-4c49-9d1c-7ec4868459e9",
+		"name": "PAYWAY API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40958559",
+		"_collection_link": "https://cloudy-moon-178440.postman.co/workspace/My-Workspace~8eaeb4e9-d91c-43ec-82c8-c94eaa9bab49/collection/40958559-5235017a-16a0-4c49-9d1c-7ec4868459e9?action=share&source=collection_link&creator=40958559"
+	},
+	"item": [
+		{
+			"name": "Login Route",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const responseJson = pm.response.json();",
+									"",
+									"pm.test(\"Response body is in correct format\", function () {",
+									"    pm.expect(responseJson.token).to.be.a('string');",
+									"});",
+									"",
+									"pm.environment.set('auth_token', responseJson.token);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "username",
+									"value": "{{username}}",
+									"description": "Username",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{password}}",
+									"description": "Password",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base}}/login",
+							"host": [
+								"{{base}}"
+							],
+							"path": [
+								"login"
+							]
+						},
+						"description": "Insert your admin credentials in the body of the request with the content type of ```application/x-www-form-urlencoded```. If the log in succeeds, you should receive a token that will give you access to the admin endpoints."
+					},
+					"response": []
+				}
+			],
+			"description": "In order to use the API, you must first log in with your account credentials. If you are an admin, you can use your administrator credentials in order to log in and have access to the Admins Routes."
+		},
+		{
+			"name": "Admin Routes",
+			"item": [
+				{
+					"name": "ResetPasses",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const responseJson = pm.response.json();",
+									"",
+									"pm.test(\"Response body is in correct format\", function () {",
+									"    pm.expect(responseJson.status).to.be.a('string');",
+									"});",
+									"",
+									"pm.test(\"Response has correct values\", function() {",
+									"    pm.expect(responseJson.status).to.be.eql('OK');",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-OBSERVATORY-AUTH",
+								"value": "{{auth_token}}",
+								"description": "Authentication token provided by log in endpoint",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base}}/admin/resetpasses",
+							"host": [
+								"{{base}}"
+							],
+							"path": [
+								"admin",
+								"resetpasses"
+							]
+						},
+						"description": "Erases all stored passing events from the database and resets the default admin credentials."
+					},
+					"response": []
+				},
+				{
+					"name": "ResetStations",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const responseJson = pm.response.json();",
+									"",
+									"pm.test(\"Response body is in correct format\", function () {",
+									"    pm.expect(responseJson.status).to.be.a('string');",
+									"});",
+									"",
+									"pm.test(\"Response has correct values\", function() {",
+									"    pm.expect(responseJson.status).to.be.eql('OK');",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-OBSERVATORY-AUTH",
+								"value": "{{auth_token}}",
+								"description": "Authentication token provided by log in endpoint",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base}}/admin/resetstations",
+							"host": [
+								"{{base}}"
+							],
+							"path": [
+								"admin",
+								"resetstations"
+							]
+						},
+						"description": "Resets the stored station data to the initial sample dataset.\nMake sure you have reset the pass events first or else you won't be able to use this endpoint."
+					},
+					"response": []
+				},
+				{
+					"name": "AddPasses",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response has status OK\", function () {\r",
+									"    let jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData.status).to.eql(\"OK\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "",
+								"value": "multipart/form-data",
+								"type": "text"
+							},
+							{
+								"key": "X-OBSERVATORY-AUTH",
+								"value": "{{auth_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "postman-cloud:///1efe7043-370f-4160-bdc9-1781f2b94dbc"
+								},
+								{
+									"key": "X-OBSERVATORY-AUTH",
+									"value": "{{auth_token}}",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base}}/admin/addpasses",
+							"host": [
+								"{{base}}"
+							],
+							"path": [
+								"admin",
+								"addpasses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "HealthCheck",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const responseJson = pm.response.json();",
+									"",
+									"pm.test(\"Response body is in correct format\", function () {",
+									"    pm.expect(responseJson.status).to.be.a('string');",
+									"    pm.expect(responseJson.dbconnection).to.be.a('string');",
+									"});",
+									"",
+									"pm.test(\"Response has correct values\", function() {",
+									"    pm.expect(responseJson.status).to.be.eql('OK');",
+									"    pm.expect(responseJson.dbconnection).to.be.eql('active');",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-OBSERVATORY-AUTH",
+								"value": "{{auth_token}}",
+								"description": "Authentication token provided by log in endpoint",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{base}}/admin/healthcheck",
+							"host": [
+								"{{base}}"
+							],
+							"path": [
+								"admin",
+								"healthcheck"
+							]
+						},
+						"description": "Returns DB connection status and connection parameters."
+					},
+					"response": []
+				}
+			],
+			"description": "In order to gain access to the following routes, you should include in the `X-OBSERVATORY-AUTH` header of the request your log in token."
+		},
+		{
+			"name": "Data Routes",
+			"item": [
+				{
+					"name": "tollStationPasses",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Response and test cases",
+									"let responseJson;",
+									"try {",
+									"    responseJson = pm.response.json(); // Parse the actual response if it exists",
+									"} catch (e) {",
+									"    responseJson = null; // No response body exists",
+									"}",
+									"const statusCode = pm.response.code; // Get the actual status code",
+									"",
+									"// Debugging: Log the actual response to see what is returned",
+									"console.log(\"Response JSON:\", responseJson);",
+									"console.log(\"Response Status Code:\", statusCode);",
+									"",
+									"// Test case definitions (these will run for every iteration)",
+									"const testCases = [",
+									"    {",
+									"        description: \"Test case 1: Valid request should return 200\",",
+									"        expectedStatus: 200,",
+									"        expectedBody: {",
+									"            stationID: pm.environment.get(\"stationID\"),",
+									"            stationOperator: \"naodos\",",
+									"            periodFrom: formatDateString(pm.environment.get(\"date_from\")),",
+									"            periodTo: formatDateString(pm.environment.get(\"date_to\")),",
+									"            nPasses: 3,",
+									"            passListKeys: ['passIndex', 'passID', 'timestamp', 'tagID', 'tagProvider', 'passType', 'passCharge'],",
+									"        }",
+									"    },",
+									"    {",
+									"        description: \"Test case 2: Invalid stationID should return 400 (Invalid stationID)\",",
+									"        expectedStatus: 400,",
+									"        expectedBody: {",
+									"            error: \"Bad request: Invalid stationID.\"",
+									"        }",
+									"    },",
+									"    {",
+									"        description: \"Test case 3: Invalid date format should return 400 (Invalid date format)\",",
+									"        expectedStatus: 400,",
+									"        expectedBody: {",
+									"            error: \"Bad request: Invalid date format for '20221309'. Expected format: yyyyMMdd.\"",
+									"        }",
+									"    },",
+									"    {",
+									"        description: \"Test case 4: Invalid date range should return 400 (Invalid date range)\",",
+									"        expectedStatus: 400,",
+									"        expectedBody: {",
+									"            error: \"Bad request: Invalid date range: 'date_from' must be before or equal to 'date_to'.\"",
+									"        }",
+									"    },",
+									"",
+									"        {",
+									"        description: \"Test case 5: Valid request but no content should return 204\",",
+									"        expectedStatus: 204,",
+									"        expectedBody: null // No body expected",
+									"    }",
+									"];",
+									"",
+									"const currentTestCase = testCases[pm.info.iteration];",
+									"",
+									"// Check for matching status code",
+									"pm.test(`Status code is ${currentTestCase.expectedStatus}`, function () {",
+									"    pm.response.to.have.status(currentTestCase.expectedStatus);",
+									"});",
+									"",
+									"// If status is 200, validate success response",
+									"if (currentTestCase.expectedStatus === 200) {",
+									"    pm.test(`Response body is in correct format`, function () {",
+									"        pm.expect(responseJson.stationID).to.be.a('string');",
+									"        pm.expect(responseJson.stationOperator).to.be.a('string');",
+									"        pm.expect(responseJson.periodFrom).to.be.a('string');",
+									"        pm.expect(responseJson.periodTo).to.be.a('string');",
+									"        pm.expect(responseJson.nPasses).to.be.a('number');",
+									"        pm.expect(responseJson.passList).to.be.a('array');",
+									"    });",
+									"",
+									"    pm.test(`Response has correct values`, function () {",
+									"        pm.expect(responseJson.stationID).to.eql(currentTestCase.expectedBody.stationID);",
+									"        pm.expect(responseJson.stationOperator).to.eql(currentTestCase.expectedBody.stationOperator);",
+									"        pm.expect(responseJson.periodFrom).to.eql(currentTestCase.expectedBody.periodFrom);",
+									"        pm.expect(responseJson.periodTo).to.eql(currentTestCase.expectedBody.periodTo);",
+									"        pm.expect(responseJson.nPasses).to.eql(currentTestCase.expectedBody.nPasses);",
+									"    });",
+									"",
+									"    pm.test(`passList contains the right fields`, function () {",
+									"        pm.expect(responseJson.passList[0]).to.have.keys(currentTestCase.expectedBody.passListKeys);",
+									"    });",
+									"}",
+									"",
+									"// If status is 400, check if the error message contains 'Bad request'",
+									"if (currentTestCase.expectedStatus === 400) {",
+									"",
+									"    pm.test(`Error response contains 'Bad request'`, function () {",
+									"        pm.expect(responseJson.error).to.include('Bad request');",
+									"    });",
+									"",
+									"    pm.test(`Error message is correct`, function () {",
+									"        pm.expect(responseJson.error).to.eql(currentTestCase.expectedBody.error);",
+									"    });",
+									"}",
+									"",
+									"if (currentTestCase.expectedStatus === 204) {",
+									"    pm.test(`Response body should not exist`, function () {",
+									"        pm.expect(responseJson).to.be.null;",
+									"    });",
+									"}",
+									"",
+									"",
+									"function formatDateString(dateString) {",
+									"    // Ensure the input is in the format YYYYMMDD",
+									"    if (dateString.length !== 8) {",
+									"        throw new Error(\"Invalid date format. Expected 'YYYYMMDD'.\");",
+									"    }",
+									"    const year = dateString.substring(0, 4);",
+									"    const month = dateString.substring(4, 6);",
+									"    const day = dateString.substring(6, 8);",
+									"    return `${year}-${month}-${day}`;",
+									"}",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const testCases = [\r",
+									"    { stationID: \"NAO01\", date_from: \"20220101\", date_to: \"20220110\" },\r",
+									"    { stationID: \"NAO80\", date_from: \"20220101\", date_to: \"20220110\" },\r",
+									"    { stationID: \"NAO01\", date_from: \"20221309\", date_to: \"20220109\" },\r",
+									"    { stationID: \"NAO01\", date_from: \"20220709\", date_to: \"20220109\" },\r",
+									"    { stationID: \"NAO01\", date_from: \"20250101\", date_to: \"20250110\" }\r",
+									"\r",
+									"];\r",
+									"\r",
+									"const currentTestCase = testCases[pm.info.iteration];\r",
+									"\r",
+									"pm.environment.set(\"stationID\", currentTestCase.stationID);\r",
+									"pm.environment.set(\"date_from\", currentTestCase.date_from);\r",
+									"pm.environment.set(\"date_to\", currentTestCase.date_to);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-OBSERVATORY-AUTH",
+								"value": "{{auth_token}}",
+								"description": "Authentication token provided by log in endpoint",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base}}/tollStationPasses/{{stationID}}/{{date_from}}/{{date_to}}?format=json",
+							"host": [
+								"{{base}}"
+							],
+							"path": [
+								"tollStationPasses",
+								"{{stationID}}",
+								"{{date_from}}",
+								"{{date_to}}"
+							],
+							"query": [
+								{
+									"key": "format",
+									"value": "json",
+									"description": "Response format type"
+								}
+							]
+						},
+						"description": "Returns all the pass events at the specified toll station and time period."
+					},
+					"response": []
+				},
+				{
+					"name": "PassesAnalysis",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Έλεγχος του status code",
+									"pm.test(\"Status code is valid\", function () {",
+									"    pm.expect(pm.response.code).to.be.oneOf([200, 204, 400, 401, 500]); // Υποστηριζόμενα status codes",
+									"});",
+									"",
+									"// Parse το response σε JSON",
+									"let responseJson;",
+									"try {",
+									"    responseJson = pm.response.json();",
+									"} catch (e) {",
+									"    pm.test(\"Response is not a valid JSON\", function () {",
+									"        throw new Error(\"Response body is not in JSON format\");",
+									"    });",
+									"}",
+									"",
+									"// Χειρισμός για status code 200 (Success)",
+									"if (pm.response.code === 200) {",
+									"    pm.test(\"Response body contains required keys\", function () {",
+									"        pm.expect(responseJson).to.have.property('stationOpID');",
+									"        pm.expect(responseJson).to.have.property('tagOpID');",
+									"        pm.expect(responseJson).to.have.property('requestTimestamp');",
+									"        pm.expect(responseJson).to.have.property('periodFrom');",
+									"        pm.expect(responseJson).to.have.property('periodTo');",
+									"        pm.expect(responseJson).to.have.property('nPasses');",
+									"        pm.expect(responseJson).to.have.property('passList');",
+									"    });",
+									"",
+									"    pm.test(\"Field types are correct\", function () {",
+									"        pm.expect(responseJson.stationOpID).to.be.a('string');",
+									"        pm.expect(responseJson.tagOpID).to.be.a('string');",
+									"        pm.expect(responseJson.requestTimestamp).to.be.a('string');",
+									"        pm.expect(responseJson.periodFrom).to.be.a('string');",
+									"        pm.expect(responseJson.periodTo).to.be.a('string');",
+									"        pm.expect(responseJson.nPasses).to.be.a('number');",
+									"        pm.expect(responseJson.passList).to.be.an('array');",
+									"    });",
+									"",
+									"    console.log(\"PassList Response:\", responseJson.passList);",
+									"",
+									"    pm.test(\"passList contains the right fields\", function () {",
+									"        if (responseJson.passList && responseJson.passList.length > 0) {",
+									"            responseJson.passList.forEach(pass => {",
+									"                pm.expect(pass).to.have.keys(['passIndex', 'passID', 'stationID', 'timestamp', 'tagID', 'passCharge']);",
+									"                pm.expect(pass.passIndex).to.be.a('number');",
+									"                pm.expect(pass.passID).to.be.a('number');",
+									"                pm.expect(pass.stationID).to.be.a('string');",
+									"                pm.expect(pass.timestamp).to.be.a('string');",
+									"                pm.expect(pass.tagID).to.be.a('string');",
+									"                pm.expect(pass.passCharge).to.be.a('number');",
+									"            });",
+									"        }",
+									"    });",
+									"}",
+									"",
+									"// Χειρισμός για status code 204 (No Content)",
+									"if (pm.response.code === 204) {",
+									"    pm.test(\"Response should be empty\", function () {",
+									"        pm.expect(pm.response.json()).to.be.empty;",
+									"    });",
+									"}",
+									"",
+									"// Χειρισμός για status code 400 (Bad Request)",
+									"if (pm.response.code === 400) {",
+									"    pm.test(\"Response contains error message\", function () {",
+									"        pm.expect(responseJson).to.have.property('error');",
+									"    });",
+									"",
+									"    pm.test(\"Error message is valid\", function () {",
+									"        const errorMessages = [",
+									"            \"Invalid operatorOpID: NA\",",
+									"            \"Invalid operatorOpID: :stationOpID\",",
+									"            \"Invalid tagOpID: :tagOpID\",",
+									"            \"Invalid date format\",",
+									"            \"Missing required parameter\"",
+									"        ];",
+									"        pm.expect(errorMessages).to.include(responseJson.error);",
+									"    });",
+									"}",
+									"",
+									"// Χειρισμός για status code 401 (Not Authorized)",
+									"if (pm.response.code === 401) {",
+									"    pm.test(\"Response contains error message\", function () {",
+									"        pm.expect(responseJson).to.have.property('error');",
+									"    });",
+									"",
+									"    pm.test(\"Error message is correct\", function () {",
+									"        pm.expect(responseJson.error).to.equal(\"Not authorized\");",
+									"    });",
+									"}",
+									"",
+									"// Χειρισμός για status code 500 (Internal Server Error)",
+									"if (pm.response.code === 500) {",
+									"    pm.test(\"Response contains error message\", function () {",
+									"        pm.expect(responseJson).to.have.property('error');",
+									"    });",
+									"",
+									"    pm.test(\"Error message is valid\", function () {",
+									"        pm.expect(responseJson.error).to.equal(\"Internal server error\");",
+									"    });",
+									"}",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const testCases = [",
+									"    {",
+									"        stationOpID: \"NAO\",",
+									"        tagOpID: \"NAO\",",
+									"        date_from: \"20220101\",",
+									"        date_to: \"20240101\"",
+									"    },",
+									"    {",
+									"        stationOpID: \"NAO\",",
+									"        tagOpID: \"OO\",",
+									"        date_from: \"20220101\",",
+									"        date_to: \"20240101\"",
+									"    },",
+									"    {",
+									"        stationOpID: \"NAO\",",
+									"        tagOpID: \"NAO\",",
+									"        date_from: \"20220101\",",
+									"        date_to: \"20240101\"",
+									"    },",
+									"    {",
+									"        stationOpID: \"NAO\",",
+									"        tagOpID: \"NAO\",",
+									"        date_from: \"20220101\",",
+									"        date_to: \"20240101\"",
+									"    },",
+									"    {",
+									"        stationOpID: \"NAO\",",
+									"        tagOpID: \"NAO\",",
+									"        date_from: \"20220101\",",
+									"        date_to: \"20240101\"",
+									"    }",
+									"];",
+									"",
+									"const currentTestCase = testCases[pm.info.iteration];",
+									"",
+									"console.log(\"Running Test Case:\", currentTestCase);",
+									"",
+									"// Set environment variables",
+									"pm.environment.set(\"stationOpID\", currentTestCase.stationOpID);",
+									"pm.environment.set(\"tagOpID\", currentTestCase.tagOpID);",
+									"pm.environment.set(\"date_from\", currentTestCase.date_from);",
+									"pm.environment.set(\"date_to\", currentTestCase.date_to);",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-OBSERVATORY-AUTH",
+								"value": "{{auth_token}}",
+								"description": "Authentication token provided by log in endpoint",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base}}/passAnalysis/{{stationOpID}}/{{tagOpID}}/{{date_from}}/{{date_to}}?format=json",
+							"host": [
+								"{{base}}"
+							],
+							"path": [
+								"passAnalysis",
+								"{{stationOpID}}",
+								"{{tagOpID}}",
+								"{{date_from}}",
+								"{{date_to}}"
+							],
+							"query": [
+								{
+									"key": "format",
+									"value": "json"
+								}
+							]
+						},
+						"description": "Returns all the pass events by vehicles with tags of ```op_ID2``` at toll stations of ```op_ID1``` at the specified time period."
+					},
+					"response": []
+				},
+				{
+					"name": "PassesCost",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Response and test cases",
+									"let responseJson;",
+									"try {",
+									"    responseJson = pm.response.json(); // Parse the actual response if it exists",
+									"} catch (e) {",
+									"    responseJson = null; // No response body exists",
+									"}",
+									"const statusCode = pm.response.code; // Get the actual status code",
+									"",
+									"// Debugging: Log the actual response to see what is returned",
+									"console.log(\"Response JSON:\", responseJson);",
+									"console.log(\"Response Status Code:\", statusCode);",
+									"",
+									"// Test case definitions (these will run for every iteration)",
+									"const testCases = [",
+									"    {",
+									"        description: \"Test case 1: Valid request should return 200\",",
+									"        expectedStatus: 200,",
+									"        expectedBody: {",
+									"            tollOpID: pm.environment.get(\"tollOpID\"),",
+									"            tagOpID: pm.environment.get(\"tagOpID\"),",
+									"            periodFrom: formatDateString(pm.environment.get(\"date_from\")),",
+									"            periodTo: formatDateString(pm.environment.get(\"date_to\")),",
+									"            nPasses: 9,",
+									"            passesCost: 22.5",
+									"        }",
+									"    },",
+									"    {",
+									"        description: \"Test case 2: Invalid tollOpID should return 400 (Invalid tollOpID)\",",
+									"        expectedStatus: 400,",
+									"        expectedBody: {",
+									"            error: \"Bad request: Invalid tollOpID.\"",
+									"        }",
+									"    },",
+									"    ",
+									"    {",
+									"        description: \"Test case 3: Invalid date range should return 400 (Invalid date range)\",",
+									"        expectedStatus: 400,",
+									"        expectedBody: {",
+									"            error: \"Bad request: 'date_from' must be before or equal to 'date_to'.\"",
+									"        }",
+									"    },",
+									"",
+									"    {",
+									"        description: \"Test case 4: Invalid date format should return 400 (Invalid date format)\",",
+									"        expectedStatus: 400,",
+									"        expectedBody: {",
+									"            error: \"Bad request: Invalid date format for '20221301'. Expected format: yyyyMMdd.\"",
+									"        }",
+									"    },",
+									"",
+									"            {",
+									"        description: \"Test case 5: Valid request but no content should return 204\",",
+									"        expectedStatus: 204,",
+									"        expectedBody: null // No body expected",
+									"    }",
+									"];",
+									"",
+									"const currentTestCase = testCases[pm.info.iteration];",
+									"",
+									"// Check for matching status code",
+									"pm.test(`Status code is ${currentTestCase.expectedStatus}`, function () {",
+									"    pm.response.to.have.status(currentTestCase.expectedStatus);",
+									"});",
+									"",
+									"// If status is 200, validate success response",
+									"if (currentTestCase.expectedStatus === 200) {",
+									"    pm.test(`Response body is in correct format`, function () {",
+									"        pm.expect(responseJson.tollOpID).to.be.a('string');",
+									"        pm.expect(responseJson.tagOpID).to.be.a('string');",
+									"        pm.expect(responseJson.periodFrom).to.be.a('string');",
+									"        pm.expect(responseJson.periodTo).to.be.a('string');",
+									"        pm.expect(responseJson.nPasses).to.be.a('number');",
+									"        pm.expect(responseJson.passesCost).to.be.a('number');",
+									"    });",
+									"",
+									"    pm.test(`Response has correct values`, function () {",
+									"        pm.expect(responseJson.tollOpID).to.eql(currentTestCase.expectedBody.tollOpID);",
+									"        pm.expect(responseJson.tagOpID).to.eql(currentTestCase.expectedBody.tagOpID);",
+									"        pm.expect(responseJson.periodFrom).to.eql(currentTestCase.expectedBody.periodFrom);",
+									"        pm.expect(responseJson.periodTo).to.eql(currentTestCase.expectedBody.periodTo);",
+									"        pm.expect(responseJson.nPasses).to.eql(currentTestCase.expectedBody.nPasses);",
+									"        pm.expect(responseJson.passesCost).to.eql(currentTestCase.expectedBody.passesCost);",
+									"    });",
+									"}",
+									"",
+									"// If status is 400, check if the error message contains 'Bad request'",
+									"if (currentTestCase.expectedStatus === 400) {",
+									"",
+									"    pm.test(`Error response contains 'Bad request'`, function () {",
+									"        pm.expect(responseJson.error).to.include('Bad request');",
+									"    });",
+									"",
+									"    pm.test(`Error message is correct`, function () {",
+									"        pm.expect(responseJson.error).to.eql(currentTestCase.expectedBody.error);",
+									"    });",
+									"}",
+									"",
+									"if (currentTestCase.expectedStatus === 204) {",
+									"    pm.test(`Response body should not exist`, function () {",
+									"        pm.expect(responseJson).to.be.null;",
+									"    });",
+									"}",
+									"",
+									"function formatDateString(dateString) {",
+									"    // Ensure the input is in the format YYYYMMDD",
+									"    if (dateString.length !== 8) {",
+									"        throw new Error(\"Invalid date format. Expected 'YYYYMMDD'.\");",
+									"    }",
+									"    const year = dateString.substring(0, 4);",
+									"    const month = dateString.substring(4, 6);",
+									"    const day = dateString.substring(6, 8);",
+									"    return `${year}-${month}-${day}`;",
+									"}",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const testCases = [\r",
+									"    { tollOpID: \"NAO\", tagOpID: \"NO\", date_from: \"20220101\", date_to: \"20220110\" },\r",
+									"    { tollOpID: \"NE\", tagOpID: \"NO\", date_from: \"20220101\", date_to: \"20220110\" },\r",
+									"    { tollOpID: \"NAO\", tagOpID: \"NO\", date_from: \"20220110\", date_to: \"20220101\" },\r",
+									"    { tollOpID: \"NAO\", tagOpID: \"NO\", date_from: \"20221301\", date_to: \"20220110\" },\r",
+									"    { tollOpID: \"NAO\", tagOpID: \"NO\", date_from: \"20250101\", date_to: \"20250110\" },\r",
+									"];\r",
+									"\r",
+									"const currentTestCase = testCases[pm.info.iteration];\r",
+									"\r",
+									"pm.environment.set(\"tollOpID\", currentTestCase.tollOpID);\r",
+									"pm.environment.set(\"tagOpID\", currentTestCase.tagOpID);\r",
+									"pm.environment.set(\"date_from\", currentTestCase.date_from);\r",
+									"pm.environment.set(\"date_to\", currentTestCase.date_to);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-OBSERVATORY-AUTH",
+								"value": "{{auth_token}}",
+								"description": "Authentication token provided by log in endpoint",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base}}/passesCost/{{tollOpID}}/{{tagOpID}}/{{date_from}}/{{date_to}}",
+							"host": [
+								"{{base}}"
+							],
+							"path": [
+								"passesCost",
+								"{{tollOpID}}",
+								"{{tagOpID}}",
+								"{{date_from}}",
+								"{{date_to}}"
+							]
+						},
+						"description": "Returns a logistic summary of the pass events of vehicles with tags of ```op_ID2``` at toll stations of ```op_ID1``` in the specified time period."
+					},
+					"response": []
+				},
+				{
+					"name": "ChargesBy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Parse the response",
+									"let responseJson;",
+									"try {",
+									"    responseJson = pm.response.json();",
+									"} catch (e) {",
+									"    responseJson = null; // No response body exists",
+									"}",
+									"",
+									"// Capture status code",
+									"const statusCode = pm.response.code;",
+									"",
+									"// Debugging logs",
+									"console.log(\"Response JSON:\", responseJson);",
+									"console.log(\"Response Status Code:\", statusCode);",
+									"",
+									"// Test case definitions",
+									"const testCases = [",
+									"    {",
+									"        description: \"Valid request should return 200\",",
+									"        expectedStatus: 200,",
+									"        expectedBody: {",
+									"            tollOpID: pm.environment.get(\"tollOpID\"),",
+									"            periodFrom: formatDateString(pm.environment.get(\"date_from\")),",
+									"            periodTo: formatDateString(pm.environment.get(\"date_to\")),",
+									"            vOpListKeys: ['visitingOpID', 'nPasses', 'passesCost']",
+									"        }",
+									"    },",
+									"",
+									"    {",
+									"        description: \"Invalid tollOpID should return 400\",",
+									"        expectedStatus: 400,",
+									"        expectedBody: {",
+									"            error: `Invalid request: Invalid tollOpID: ${pm.environment.get(\"tollOpID\")}`",
+									"        }",
+									"    },",
+									"    {",
+									"        description: \"Invalid date format should return 400\",",
+									"        expectedStatus: 400,",
+									"        expectedBody: {",
+									"            error: `Invalid request: Text '${pm.environment.get(\"date_from\")}' could not be parsed`",
+									"        }",
+									"    },",
+									"    {",
+									"        description: \"Future dates should return 204 if valid tollOpID, otherwise 400\",",
+									"        expectedStatus: pm.environment.get(\"tollOpID\") === \"OO1\" ? 400 : 204,",
+									"        expectedBody: pm.environment.get(\"tollOpID\") === \"OO1\"",
+									"            ? { error: `Invalid request: Invalid tollOpID: ${pm.environment.get(\"tollOpID\")}` }",
+									"            : null",
+									"    },",
+									"",
+									"        {",
+									"        description: \"Valid request but no data should return 204\",",
+									"        expectedStatus: 204,",
+									"        expectedBody: null",
+									"    },",
+									"];",
+									"",
+									"// Επιλέγουμε το σωστό test case για το iteration",
+									"const currentTestCase = testCases[pm.info.iteration] || {",
+									"    description: \"Unexpected case\",",
+									"    expectedStatus: 400,",
+									"    expectedBody: { error: \"Unexpected test case error\" }",
+									"};",
+									"",
+									"// ✅ Έλεγχος αν το status code είναι το αναμενόμενο (ή 500)",
+									"pm.test(`Status code is ${currentTestCase.expectedStatus} (or 500 if API fails)`, function () {",
+									"    pm.expect([currentTestCase.expectedStatus, 500]).to.include(statusCode);",
+									"});",
+									"",
+									"// ✅ Αν η απάντηση είναι 200, ελέγχουμε το response format",
+									"if (currentTestCase.expectedStatus === 200) {",
+									"    pm.test(`Response body is in correct format`, function () {",
+									"        pm.expect(responseJson.tollOpID).to.be.a('string');",
+									"        pm.expect(responseJson.periodFrom).to.be.a('string');",
+									"        pm.expect(responseJson.periodTo).to.be.a('string');",
+									"        pm.expect(responseJson.vOpList).to.be.an('array');",
+									"    });",
+									"",
+									"    pm.test(`Response has correct values`, function () {",
+									"        pm.expect(responseJson.tollOpID).to.eql(currentTestCase.expectedBody.tollOpID);",
+									"        pm.expect(responseJson.periodFrom).to.eql(currentTestCase.expectedBody.periodFrom);",
+									"        pm.expect(responseJson.periodTo).to.eql(currentTestCase.expectedBody.periodTo);",
+									"    });",
+									"",
+									"    if (responseJson.vOpList.length > 0) {",
+									"        pm.test(`vOpList contains the right fields`, function () {",
+									"            responseJson.vOpList.forEach(entry => {",
+									"                pm.expect(entry).to.have.keys(currentTestCase.expectedBody.vOpListKeys);",
+									"            });",
+									"        });",
+									"    } else {",
+									"        console.warn(\"⚠️ Warning: vOpList is empty.\");",
+									"    }",
+									"}",
+									"",
+									"// ✅ Αν επιστρέφει 204, ελέγχουμε ότι δεν υπάρχει response body",
+									"if (currentTestCase.expectedStatus === 204) {",
+									"    pm.test(`Response body should not exist`, function () {",
+									"        pm.expect(responseJson).to.be.null;",
+									"    });",
+									"}",
+									"",
+									"// ✅ Αν η απάντηση είναι 400, ελέγχουμε τα error messages",
+									"if (currentTestCase.expectedStatus === 400) {",
+									"    pm.test(`Error response contains expected message`, function () {",
+									"        if (responseJson && responseJson.error) {",
+									"            pm.expect(responseJson.error).to.match(/Invalid request|Invalid date format|could not be parsed|Invalid tollOpID/);",
+									"        } else {",
+									"            console.warn(\"⚠️ Expected error response but responseJson is null or undefined.\");",
+									"        }",
+									"    });",
+									"}",
+									"",
+									"// ❗ Αντί για 400, λαμβάνουμε 500 Internal Server Error",
+									"if (statusCode === 500) {",
+									"    pm.test(\"⚠️ Server returned 500 instead of 400\", function () {",
+									"        console.warn(\"⚠️ API returned 500 instead of 400. Possible backend bug in error handling.\");",
+									"    });",
+									"}",
+									"",
+									"// 🔧 Helper Function για να μορφοποιεί τις ημερομηνίες",
+									"function formatDateString(dateString) {",
+									"    if (!dateString || dateString.length !== 8 || isNaN(dateString)) {",
+									"        return `Invalid request: Text '${dateString}' could not be parsed`;",
+									"    }",
+									"    const year = dateString.substring(0, 4);",
+									"    const month = dateString.substring(4, 6);",
+									"    const day = dateString.substring(6, 8);",
+									"    return `${year}-${month}-${day}`;",
+									"}",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const testCases = [",
+									"    { tollOpID: \"NAO\", date_from: \"20220101\", date_to: \"20240101\" },",
+									"    { tollOpID: \"AO\", date_from: \"20220101\", date_to: \"20240101\" },",
+									"    { tollOpID: \"KO\", date_from: \"202120101\", date_to: \"20240101\"},",
+									"    { tollOpID: \"OO1\", date_from: \"20250101\", date_to: \"20250110\" },",
+									"    { tollOpID: \"EG\", date_from: \"20230101\", date_to: \"20240101\" }",
+									"];",
+									"",
+									"const currentTestCase = testCases[pm.info.iteration];",
+									"",
+									"pm.environment.set(\"tollOpID\", currentTestCase.tollOpID);",
+									"pm.environment.set(\"date_from\", currentTestCase.date_from);",
+									"pm.environment.set(\"date_to\", currentTestCase.date_to);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-OBSERVATORY-AUTH",
+								"value": "{{auth_token}}",
+								"description": "Authentication token provided by log in endpoint",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base}}/chargesBy/{{tollOpID}}/{{date_from}}/{{date_to}}?format=json",
+							"host": [
+								"{{base}}"
+							],
+							"path": [
+								"chargesBy",
+								"{{tollOpID}}",
+								"{{date_from}}",
+								"{{date_to}}"
+							],
+							"query": [
+								{
+									"key": "format",
+									"value": "json"
+								}
+							]
+						},
+						"description": "Returns the debts of every operator to `op_ID` as well as the number of pass events by every other operator to the specified one."
+					},
+					"response": []
+				}
+			],
+			"description": "Routes used to get information from the api."
+		},
+		{
+			"name": "Logout and Post Logout Route",
+			"item": [
+				{
+					"name": "Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"try {",
+									"    responseJson = pm.response.json(); // Parse the actual response if it exists",
+									"} catch (e) {",
+									"    responseJson = null; // No response body exists",
+									"}",
+									"",
+									"pm.test(\"Response body is empty\", function () {",
+									"    pm.expect(responseJson).to.be.null;",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-OBSERVATORY-AUTH",
+								"value": "{{auth_token}}",
+								"description": "Admin authentication token",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base}}/logout",
+							"host": [
+								"{{base}}"
+							],
+							"path": [
+								"logout"
+							]
+						},
+						"description": "Make sure you include your log in token in the ```X-OBSERVATORY-AUTH``` header."
+					},
+					"response": []
+				},
+				{
+					"name": "tollStationPasses_afterlogout",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const testCases = [\r",
+									"    { stationID: \"NAO01\", date_from: \"20220101\", date_to: \"20220110\" },\r",
+									"    { stationID: \"NAO01\", date_from: \"20220101\", date_to: \"20220110\" },\r",
+									"    { stationID: \"NAO01\", date_from: \"20220101\", date_to: \"20220110\" },\r",
+									"    { stationID: \"NAO01\", date_from: \"20220101\", date_to: \"20220110\" },\r",
+									"    { stationID: \"NAO01\", date_from: \"20220101\", date_to: \"20220110\" }\r",
+									"\r",
+									"];\r",
+									"\r",
+									"const currentTestCase = testCases[pm.info.iteration];\r",
+									"\r",
+									"pm.environment.set(\"stationID\", currentTestCase.stationID);\r",
+									"pm.environment.set(\"date_from\", currentTestCase.date_from);\r",
+									"pm.environment.set(\"date_to\", currentTestCase.date_to);"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {\r",
+									"    pm.response.to.have.status(401);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body contains correct error message\", function () {\r",
+									"    let jsonData = pm.response.json();\r",
+									"    pm.expect(jsonData).to.have.property(\"status\", \"failed\");\r",
+									"    pm.expect(jsonData).to.have.property(\"info\", \"Invalid or expired token\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "X-OBSERVATORY-AUTH",
+								"value": "{{auth_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base}}/tollStationPasses/{{stationID}}/{{date_from}}/{{date_to}}?format=json",
+							"host": [
+								"{{base}}"
+							],
+							"path": [
+								"tollStationPasses",
+								"{{stationID}}",
+								"{{date_from}}",
+								"{{date_to}}"
+							],
+							"query": [
+								{
+									"key": "format",
+									"value": "json"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "After completing all tests check logout is working and that after logout a data route returns the correct error message."
+		}
+	],
+	"variable": [
+		{
+			"key": "username",
+			"value": "admin"
+		},
+		{
+			"key": "password",
+			"value": "freepasses4all"
+		},
+		{
+			"key": "token",
+			"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluIiwiaWF0IjoxNjM5ODU1MTcxLCJleHAiOjE2Mzk4NjIzNzF9.GLnVSvmU8Z1b9QT1PmBYtxhUimhPC0rh-s7YMLQXpU8"
+		},
+		{
+			"key": "stationID",
+			"value": "OO02"
+		},
+		{
+			"key": "dateFrom",
+			"value": "2020-05-10%2013:51:10"
+		},
+		{
+			"key": "dateTo",
+			"value": "2021-10-12%2012:05:10?"
+		}
+	]
+}

@@ -1,6 +1,7 @@
 package com.payway.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.payway.models.*;
 import com.payway.models.LoginRequest;
 import com.payway.models.Operator;
 import com.payway.models.TollStation;
@@ -8,6 +9,12 @@ import com.payway.models.User;
 import com.payway.repositories.UserRepository;
 import com.payway.services.PassService;
 import com.payway.utils.Json2CSV;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -31,12 +38,42 @@ import java.util.Map;
 public class AnalysisController {
 
     private final PassService passService;
+    private final ObjectMapper objectMapper;
+    private final Json2CSV json2CSV;
+
     public AnalysisController(PassService passService) {
         this.passService = passService;
+        this.objectMapper = new ObjectMapper();
+        this.json2CSV = new Json2CSV();
     }
 
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping(value = "/{stationOpID}/{tagOpID}/{date_from}/{date_to}", produces = "application/json")
+
+    @Operation(
+            summary = "Passes Analysis",
+            description = "Get information for the passes of a vehicle with tag from an operator from stations of an operator for a period of time."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Successful Response",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(type = "object"),
+                            examples = @ExampleObject(value = "{\"Requested Data Names\": \"Requested Data Values\"}")
+                    )),
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(type = "object"),
+                            examples = @ExampleObject(value = "{\"error\": \"Bad request: <Error Analysis>\"}")
+                    )),
+            @ApiResponse(responseCode = "204", description = "Successful but no content"),
+            @ApiResponse(responseCode = "401", description = "Unauthorized - Invalid credentials",
+                    content = @Content(schema = @Schema(implementation = Unauthorized401Response.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(schema = @Schema(implementation = Generic500Response.class)))
+    })
+
     public ResponseEntity<?> getPassAnalysis(
             @PathVariable String stationOpID,
             @PathVariable String tagOpID,
