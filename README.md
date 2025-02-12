@@ -16,7 +16,7 @@ Payway App provides a connection between owners of motorways to settle economica
 ## Table of contents
 
 - [Installation](#installation)
-  - [Prerequisites](#prerequisities)
+  - [Prerequisites](#prerequisites)
 - [Usage](#usage)
   - [Database](#database)
   - [Back-End](#back-end)
