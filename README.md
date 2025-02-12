@@ -190,6 +190,14 @@ You can use the following command to list all available CLI options:
 ./se2425 --help
 ```
 ### Testing
+
+#### Running API functional testing in Postman
+
+1. Import the collection and environment from /backend/functional_testing in Postman.
+2. Make sure the API is running.
+3. Run the collection in Postman using 5 iterations for better results.
+
+
 ####  ClI Testing
 ##### Running CLI Functional Tests
 1.Navigate to the CLI directory
