@@ -14,4 +14,8 @@ This project is part of the **PayWay System**, a full-stack solution for toll in
 **Debts & Payments** – Operators can track and manage their toll debts.  
 **Admin Control** – Admin users can reset stations, manage passes, and oversee system operations.  
 
-
+## Tech Stack  
+- **Frontend**: React.js (with React Router for navigation)  
+- **State Management**: useState, useEffect  
+- **UI Components**: CSS, React Icons  
+- **Authentication**: JWT-based authentication (token storage in `localStorage`)  
