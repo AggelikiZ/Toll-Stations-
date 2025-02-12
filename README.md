@@ -196,10 +196,11 @@ You can use the following command to list all available CLI options:
 ```bash
 cd ../../cli-client/test/functional test
 ```
+2.Run one of the scripts below
 ```bash
 python cli_testing.py cli_testing.py
 ```
-
+Or
 ```bash
 python cli_testingv2.py
 ```
