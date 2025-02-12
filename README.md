@@ -25,7 +25,6 @@ Payway App provides a connection between owners of motorways to settle economica
   - [CLI Client](#cli-client)
   - [Documentation](#documentation)
   - [Testing](#testing)
-- [AI Assistance Log](#ai_assistance_log)
 
 ## Installation
 ### Prerequisites
@@ -52,7 +51,7 @@ It is advised that all software requirements are downloaded and installed by the
 
 #### Clone the repository to your local machine:
 ```sh
-git clone https://github.com/your-username/your-repository-name.git
+git clone https://github.com/ntua/softeng24-25.git
 ```
 
 ### Database
@@ -221,8 +220,6 @@ cd ../../cli-client/test/unit-test
 ```bash
 python cli-unit-test.py
 ```
-## AI_Assistance_Log
-
 
 
 
