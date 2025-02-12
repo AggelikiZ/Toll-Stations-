@@ -4,6 +4,7 @@
 
 - Πηγαίος κώδικας εφαρμογής για εισαγωγή, διαχείριση και
   πρόσβαση σε δεδομένα (backend).
-- Database dump (sql ή json)
+- Database dump (sql).
 - RESTful API.
-- Το testing του backend.
+- REST API documentation (json and yaml).
+- Το testing του backend (json for Postman).
