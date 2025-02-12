@@ -37,7 +37,13 @@ Payway App provides a connection between owners of motorways to settle economica
 ```bash
 cd ../../cli-client
 ```
+2.Access the CLI
 
+You can access the CLI through the terminal using the ./se2425 command followed by the action you want to perform.
+Below is an example usage for retrieving toll station passes:
+```bash
+./se2425 tollstationpasses --station NAO01 --from 20220101 --to 20221212
+```
 ## AI_Assistance_Log
 
 
