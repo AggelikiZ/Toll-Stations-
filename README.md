@@ -18,7 +18,6 @@ Payway App provides a connection between owners of motorways to settle economica
 - [Installation](#installation)
   - [Prerequisities](#Prerequisities)
   - [Installation Process](#Installation)
-  - [CLI Installation](#cli-installation) 
 - [Usage](#usage)
   - [Back-End](#back-end)
   - [API Documentation](#documentation)
@@ -55,14 +54,19 @@ It is advised that all software requirements are downloaded and installed by the
 ```bash
 cd ../../cli-client
 ```
-#### 2.Access the CLI
+#### 2.Install Requirements
+After installing Python from the requirements table, run the following command to install the necessary packages:
+```bash
+pip install -r requirements.txt
+```
+#### 3.Access the CLI
 
 You can access the CLI through the terminal using the ./se2425 command followed by the action you want to perform.
 Below is an example usage for retrieving toll station passes:
 ```bash
 ./se2425 tollstationpasses --station NAO01 --from 20220101 --to 20221212
 ```
-#### 3.CLI Commands  
+#### 4.CLI Commands  
 
 The CLI includes several commands that allow interaction with the backend. Below is the list of available commands:  
 
@@ -84,7 +88,7 @@ The CLI includes several commands that allow interaction with the backend. Below
 ```bash
 ./se2425 <command> [--options]
 ```
-####  4.Viewing Available Commands  
+####  5.Viewing Available Commands  
 You can use the following command to list all available CLI options:  
 ```bash
 ./se2425 --help
