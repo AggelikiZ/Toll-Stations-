@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { submitProof } from "../api/api"; // Importing API function
+import {getMyDebts, submitProof} from "../api/api"; // Importing API function
 import { FaArrowLeft } from "react-icons/fa";
 
 export default function PayDebts() {
@@ -18,6 +18,22 @@ export default function PayDebts() {
     const handleFileChange = (event) => {
         setSelectedFile(event.target.files[0]);
         setUploadMessage(""); // Reset message on new file selection
+    };
+
+    const refreshDebtData = async () => {
+        try {
+            const allDebts = await getMyDebts();
+            const updatedDebt = allDebts.find(debt => debt.fromOpName === operator);
+
+            if (updatedDebt) {
+                const updatedParams = new URLSearchParams(window.location.search);
+                updatedParams.set("amount", updatedDebt.debtAmount);
+                navigate(`?${updatedParams.toString()}`, { replace: true });
+            }
+
+        } catch (error) {
+            console.error("Error refreshing debt data:", error);
+        }
     };
 
     const handleUpload = async () => {
@@ -39,6 +55,7 @@ export default function PayDebts() {
         try {
             setLoading(true);
             const response = await submitProof(operator, selectedFile);
+            await refreshDebtData();
             setUploadMessage(response.message || "Payment proof submitted successfully!");
         } catch (error) {
             console.error("Error submitting payment proof:", error);

@@ -62,9 +62,11 @@ export default function TollStationPasses() {
             const response = await getPasses(stationId, formattedDateFrom, formattedDateTo);
             if (response.data && response.data.passList) {
                 setPasses(response.data.passList);
-            }
-
-        } catch (err) {
+            }else {
+                setPasses([]);
+        }
+    } catch (err) {
+            setPasses([]);
             if (err.response.status === 400) {
                 setError('Invalid given search criteria');
             } else {
@@ -172,7 +174,7 @@ export default function TollStationPasses() {
             {loading && <p>Loading...</p>}
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
-            {passes.length > 0 && !error && (
+            {passes.length > 0 && !error && searched && (
                 <>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px', gap: '20px' }}>
                         <div style={{ flex: '1', backgroundColor: '#fff', padding: '20px', borderRadius: '8px' }}>
@@ -210,7 +212,7 @@ export default function TollStationPasses() {
                 </>
             )}
 
-            {passes.length===0 && !error && searched === true &&(
+            {passes.length===0 && !error && searched &&(
                 <p style={{ color: "#555" }}>{"No data found for the given criteria."}</p>
             )
             }

@@ -82,6 +82,8 @@ export default function PassAnalysis() {
             const passResponse = await passAnalysis(homeOperator, visitingOperator, formattedDateFrom, formattedDateTo);
             if (passResponse.data && passResponse.data.passList) {
                 setPasses(passResponse.data.passList);
+            } else {
+                setPasses([]);
             }
 
             const costResponse = await getPassesCost(homeOperator, visitingOperator, formattedDateFrom, formattedDateTo);

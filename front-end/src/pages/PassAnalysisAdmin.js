@@ -54,6 +54,8 @@ export default function PassAnalysisAdmin() {
             const passResponse = await passAnalysis(homeOperator, visitingOperator, formattedDateFrom, formattedDateTo);
             if (passResponse.data && passResponse.data.passList) {
                 setPasses(passResponse.data.passList);
+            } else {
+                setPasses([]);
             }
 
             const costResponse = await getPassesCost(homeOperator, visitingOperator, formattedDateFrom, formattedDateTo);
@@ -136,7 +138,7 @@ export default function PassAnalysisAdmin() {
 
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
-            {passes.length > 0 && !error  && (
+            {passes.length > 0 && !error && (
                 <>
                     <p style={{ textAlign: "left" }}><strong>Total Passes:</strong> {passes.length}</p>
                     <p style={{ textAlign: "left" }}><strong>Total Cost:</strong> {totalCost?.toFixed(2)} €</p>

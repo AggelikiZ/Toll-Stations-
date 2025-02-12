@@ -76,8 +76,5 @@ public interface TollStationRepository extends JpaRepository<TollStation, String
     Integer tollOpExists(@Param("operatorId") String operatorId);
 
 
-    // Επιστρέφει true αν υπάρχει το συγκεκριμένο opId
-    boolean existsByOpId(String opId);
-
     List<TollStation> findByOpId(String opId);
 }

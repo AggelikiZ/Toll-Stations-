@@ -84,6 +84,7 @@ public class TollStationPassesController {
                 response.put("error", "Missing date from.");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
             }
+
             if (dateTo == null || dateTo.isEmpty()) {
                 Map<String, String> response = new HashMap<>();
                 response.put("error", "Missing date to.");

@@ -23,9 +23,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -81,7 +79,7 @@ public class PaymentService {
         return null;
     }
 
-    private Map<String, Object> extractPaymentDetails(MultipartFile file) throws IOException {
+    private Map<String, Object> extractPaymentDetails(MultipartFile file) throws Exception {
         // Save file temporarily
         File tempFile = saveTempFile(file);
         String contentType = file.getContentType();
@@ -93,16 +91,19 @@ public class PaymentService {
         String extractedText = extractTextFromPdf(tempFile);
         System.out.println("Extracted text: " + extractedText);
 
+        String[] lines = extractedText.split("\\r?\\n");
+
         // Parse text for payment details
         BigDecimal amount = extractAmount(extractedText);
         LocalDate paymentDate = extractPaymentDate(extractedText);
         System.out.println("Extracted amount: " + amount);
         System.out.println("Extracted payment date: " + paymentDate);
+        List<String> detailsList = new ArrayList<>();
 
         // Ensure extracted details are valid
         if (amount == null || paymentDate == null) {
             System.out.println("Failed to extract valid payment details from the file.");
-            throw new IllegalArgumentException("Failed to extract valid payment details from the file.");
+            throw new Exception("Failed to extract valid payment details from the file.");
         }
 
         // Clean up temporary file
@@ -112,10 +113,21 @@ public class PaymentService {
             System.out.println("Failed to delete temporary file: " + tempFile.getAbsolutePath());
         }
 
+        for (String line : lines) {
+            String lowerline = line.toLowerCase();
+            if (lowerline.contains("payment receipt") || lowerline.contains("amount paid") || lowerline.contains("payment date")) {
+                continue; // Skip this line
+            } else {
+                detailsList.add(line); // Collect everything after the payment date
+            }
+        }
+        String details = String.join("\n", detailsList).trim();
+
         // Return extracted details
         Map<String, Object> paymentDetails = new HashMap<>();
         paymentDetails.put("amount", amount);
         paymentDetails.put("paymentDate", paymentDate);
+        paymentDetails.put("details", details);
 
         return paymentDetails;
     }
@@ -173,7 +185,7 @@ public class PaymentService {
         // Retrieve the details from the map
         BigDecimal amount = (BigDecimal) paymentDetails.get("amount");
         LocalDate paymentDate = (LocalDate) paymentDetails.get("paymentDate");
-
+        String newdetails = (String)paymentDetails.get("details");
         // Find Debt
         Debt debt = debtRepository.findByFromOpIdAndToOpId(sourceOpID, toOpID)
                 .orElseThrow(() -> new IllegalArgumentException("Debt record not found for sourceOpId: " + sourceOpID + " and toOpId: " + toOpID));
@@ -193,11 +205,13 @@ public class PaymentService {
         payment.setAmount(amount);
         payment.setDate(paymentDate);
         payment.setUpdateTime(LocalDateTime.now());
-        payment.setDetails(details);
+        if (Objects.equals(details, null)) {
+            payment.setDetails(newdetails);
+        } else {
+            payment.setDetails(details);
+        }
 
         debtRepository.save(debt);
         paymentRepository.save(payment);
     }
-
-
 }

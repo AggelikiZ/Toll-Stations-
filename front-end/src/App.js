@@ -7,7 +7,6 @@ import StationMap from './pages/Stations';
 import Passes from './pages/Passes';
 import PassAnalysis from './pages/PassAnalysisPage';
 import AdminPage from './pages/AdminPage';
-import PassCost from './pages/PassCostPage';
 import ChargesBy from './pages/ChargesByPage';
 import Login from './pages/Login';
 import DebtsPage from "./pages/DebtsPage";
@@ -48,7 +47,7 @@ export default function App() {
             links.push(<Link key="dashboard" to="/dashboard" className="nav-item">Dashboard</Link>);
         }
         links.push(<Link key="stations" to="/stations" className="nav-item">Stations</Link>);
-        links.push(<Link key="passes" to="/passes" className="nav-item">Passes</Link>);
+        links.push(<Link key="passes" to="/passes" className="nav-item">Toll Station Passes</Link>);
         if (userRole === 'operator') {
             links.push(<Link key="passanalysis" to="/passanalysis" className="nav-item">Passes and Cost Analysis</Link>);
         } else {
