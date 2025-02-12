@@ -194,19 +194,25 @@ You can use the following command to list all available CLI options:
 ##### Running CLI Functional Tests
 1.Navigate to the CLI directory
 ```bash
-cd ../../cli-client/test/functional test
+cd ../../cli-client/test/functional-test
 ```
 2.Run one of the scripts below
 ```bash
 python cli_testing.py cli_testing.py
 ```
-Or
 ```bash
 python cli_testingv2.py
 ```
-
-📌 Note: cli_testingv2.py requires the se2425.bat file on Windows.
-
+Note: cli_testingv2.py requires the se2425.bat file on Windows.
+##### Running CLI Unit Test
+1.Navigate to the CLI directory
+```bash
+cd ../../cli-client/test/unit-test
+```
+2.Run the following script
+```bash
+python cli-unit-test.py
+```
 ## AI_Assistance_Log
 
 
