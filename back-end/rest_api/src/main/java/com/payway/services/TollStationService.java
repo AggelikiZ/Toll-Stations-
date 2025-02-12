@@ -17,6 +17,7 @@ import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -42,7 +43,7 @@ public class TollStationService {
                 throw new FileNotFoundException("File not found in classpath: " + resourcePath);
             }
 
-            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
+            BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
             tollStationRepository.deleteAll();
             System.out.println("All toll stations deleted.");
 

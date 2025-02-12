@@ -15,6 +15,7 @@ import com.payway.utils.Json2CSV;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -55,7 +56,7 @@ public class PassService {
 
     @Transactional
     public void addPasses(MultipartFile file) throws Exception {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
             String line;
             List<Pass> passes = new ArrayList<>();
             List<Tag> newTags = new ArrayList<>();
