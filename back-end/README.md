@@ -1,10 +1,11 @@
 # Back-end
 
-Ενδεικτικά περιεχόμενα:
+Περιεχόμενα:
 
 - Πηγαίος κώδικας εφαρμογής για εισαγωγή, διαχείριση και
   πρόσβαση σε δεδομένα (backend).
-- Database dump (sql ή json)
-- Back-end functional tests.
-- Back-end unit tests.
+- Database dump (sql).
 - RESTful API.
+- Τesting του backend (json for Postman).
+
+To documentation του API βρίσκεται στον φάκελο ../api.

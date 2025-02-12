@@ -28,9 +28,9 @@ def get_db_connection():
             database="paywaydb"  # Your database name
         )
         return conn
-    except Error as e:
-        print(f"Error connecting to the database: {e}")
-        exit(1)
+    except mysql.connector.Error as e:  # Catch database-specific errors
+            print(f"Error connecting to the database: {e}")
+            exit(1)  # **Ensure the function exits**
 
 
 # Function for login (no token check needed here)
@@ -117,7 +117,6 @@ def is_admin():
         conn.close()
 
 
-# Function for user creation or password update (Admin Only)
 def usermod(args):
     if not is_admin():
         print("Error: Only admin users can modify users.")
@@ -126,21 +125,31 @@ def usermod(args):
     token = check_auth()
     conn = get_db_connection()
     cursor = conn.cursor()
+
     try:
-        cursor.execute("SELECT * FROM user WHERE username = %s", (args.username,))
+        # Check if user exists
+        cursor.execute("SELECT user_role FROM user WHERE username = %s", (args.username,))
         user = cursor.fetchone()
+
         if user:
-            cursor.execute("UPDATE user SET password = %s WHERE username = %s", (args.passw, args.username))
+            # Only update password, do NOT change role
+            cursor.execute("UPDATE user SET password = %s WHERE username = %s",
+                           (args.passw, args.username))
             print(f"Password updated successfully for user: {args.username}")
         else:
-            cursor.execute("INSERT INTO user (username, password, user_role) VALUES (%s, %s, 'operator')", (args.username, args.passw))
-            print(f"User created successfully: {args.username}")
+            # If user does not exist, create new user with default or provided role
+            role = args.role if args.role else "operator"
+            cursor.execute("INSERT INTO user (username, password, user_role) VALUES (%s, %s, %s)",
+                           (args.username, args.passw, role))
+            print(f"User created successfully: {args.username} with role: {role}")
+
         conn.commit()
     except Error as e:
         print(f"Error during user operation: {e}")
     finally:
         cursor.close()
         conn.close()
+
 
 # Function to list users (Admin Only)
 def list_users(args):
@@ -174,7 +183,7 @@ def healthcheck(args):
         response.raise_for_status()
         print("Healthcheck successful:", response.json())
     except requests.exceptions.RequestException as e:
-        print(f"Healthcheck failed: {e}")
+        print(f"Healthcheck failed: {e}.  Status Code: {response.status_code}")
 
 
 # Function to reset stations
@@ -187,7 +196,7 @@ def resetstations(args):
         response.raise_for_status()
         print("Stations reset successfully.")
     except requests.exceptions.RequestException as e:
-        print(f"Error resetting stations: {e}")
+        print(f"Error resetting stations: {e}.  Status Code: {response.status_code}")
 
 
 # Function to reset passes
@@ -218,19 +227,40 @@ def addpasses(file_path):
     except requests.exceptions.Timeout:
         print("Error: The request timed out.")
     except requests.exceptions.RequestException as e:
-        print(f"Error adding passes: {e}")
+        print(f"Error adding passes: {e}  Status Code: {response.status_code}")
 
 # Function to retrieve toll station passes
 def tollstationpasses(args):
     token = check_auth()  # Ensure the user is logged in
     url = f"http://localhost:9115/api/tollStationPasses/{args.station}/{args.from_date}/{args.to_date}"
+
     try:
         headers = {"X-OBSERVATORY-AUTH": token}
         response = requests.get(url, headers=headers, params={"format": args.format}, timeout=5)
         response.raise_for_status()
-        print("Toll station passes retrieved:", response.json())
+
+        # Get content type to determine response format
+        content_type = response.headers.get("Content-Type", "")
+
+        # Check if the response is empty (204 No Content)
+        if response.status_code == 204 or not response.text.strip():
+            print("No data available. Status Code: 204")
+            return
+
+        if args.format == "json":
+                print("Toll station passes retrieved:", response.json())
+                print("Response Content:", response.text)
+
+        elif args.format == "csv":
+                print("CSV data retrieved:")
+                print(response.text)  # Print raw CSV content
+        else:
+            print("Unsupported format specified.")
+
+    except requests.exceptions.HTTPError as e:
+        print(f"HTTP Error: {e}. Status Code: {response.status_code}")
     except requests.exceptions.RequestException as e:
-        print(f"Error retrieving toll station passes: {e}")
+        print(f"Error retrieving toll station passes: {e}. Status Code: {response.status_code}")
 
 
 # Function for pass analysis
@@ -238,12 +268,26 @@ def pass_analysis(args):
     token = check_auth()  # Ensure the user is logged in
     url = f"http://localhost:9115/api/passAnalysis/{args.stationop}/{args.tagop}/{args.from_date}/{args.to_date}"
     try:
+        
         headers = {"X-OBSERVATORY-AUTH": token}
         response = requests.get(url, headers=headers, params={"format": args.format}, timeout=5)
         response.raise_for_status()
-        print("Pass Analysis Data:", response.json())
+
+        # Check if the response is empty (204 No Content)
+        if response.status_code == 204 or not response.text.strip():
+            print("No data available. Status Code: 204")
+            return
+        
+        if args.format == "json":
+            print("Passes Cost Data:", response.json())
+        elif args.format == "csv":
+            print("CSV data retrieved:")
+            print(response.text)  # Print raw CSV data
+        else:
+            print("Unsupported format specified.")
+
     except requests.exceptions.RequestException as e:
-        print(f"Error retrieving pass analysis data: {e}")
+        print(f"Error retrieving pass analysis data: {e}.  Status Code: {response.status_code}")
 
 
 #function for passes cost
@@ -255,6 +299,11 @@ def passes_cost(args):
         headers = {"X-OBSERVATORY-AUTH": token}
         response = requests.get(url, headers=headers, params={"format": args.format}, timeout=5)
         response.raise_for_status()
+
+        # Check if the response is empty (204 No Content)
+        if response.status_code == 204 or not response.text.strip():
+            print("No data available. Status Code: 204")
+            return
         
         if args.format == "json":
             print("Passes Cost Data:", response.json())
@@ -264,7 +313,7 @@ def passes_cost(args):
         else:
             print("Unsupported format specified.")
     except requests.exceptions.RequestException as e:
-        print(f"Error retrieving passes cost data: {e}")
+        print(f"Error retrieving passes cost data: {e}.  Status Code: {response.status_code}")
 
 # Function for charges by operator
 def charges_by(args):
@@ -274,6 +323,11 @@ def charges_by(args):
         headers = {"X-OBSERVATORY-AUTH": token}
         response = requests.get(url, headers=headers, params={"format": args.format}, timeout=5)
         response.raise_for_status()
+
+        # Check if the response is empty (204 No Content)
+        if response.status_code == 204 or not response.text.strip():
+            print("No data available. Status Code: 204")
+            return
         
         if args.format == "json":
             print("Charges By Data:", response.json())
@@ -283,7 +337,7 @@ def charges_by(args):
         else:
             print("Unsupported format specified.")
     except requests.exceptions.RequestException as e:
-        print(f"Error retrieving charges by operator data: {e}")
+        print(f"Error retrieving charges by operator data: {e}.  Status Code: {response.status_code}")
 
 # Function for admin operations
 def handle_admin(args):
@@ -326,6 +380,7 @@ def main():
     admin_parser.add_argument("--users", action="store_true", help="List all users")
     admin_parser.add_argument("--addpasses", action="store_true", help="Add passes from a CSV file")
     admin_parser.add_argument("--source", help="Path to the CSV file containing passes")
+    admin_parser.add_argument("--role", help="Role to assign to the user (operator, admin, user)")
     admin_parser.set_defaults(func=handle_admin)
 
     # Subcommand: healthcheck
