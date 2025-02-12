@@ -1,6 +1,6 @@
 ## CLI Client
 
-### 📌 Contents
+### Contents
 
 - **Command Line Interface (CLI)** – A terminal-based tool for interacting with the system.
 - **CLI Requirements** – A txt file that contains all the requirements for the cli.
