@@ -25,7 +25,6 @@ Payway App provides a connection between owners of motorways to settle economica
   - [CLI Client](#cli-client)
   - [Documentation](#documentation)
   - [Testing](#testing)
-- [AI Assistance Log](#ai_assistance_log)
 
 ## Installation
 ### Prerequisites
@@ -52,7 +51,7 @@ It is advised that all software requirements are downloaded and installed by the
 
 #### Clone the repository to your local machine:
 ```sh
-git clone https://github.com/your-username/your-repository-name.git
+git clone https://github.com/ntua/softeng24-25.git
 ```
 
 ### Database
@@ -125,7 +124,7 @@ This will download dependencies and compile the project.
  ```sh
 mvn spring-boot:run
 ```
-If everything is correct, the backend API will now be running at: http://localhost:9115
+If everything is correct, the backend API will now be running at: http://localhost:9115/api
 
 
 ### Front-end
@@ -190,6 +189,14 @@ You can use the following command to list all available CLI options:
 ./se2425 --help
 ```
 ### Testing
+
+#### Running API functional testing in Postman
+
+1. Import the collection and environment from /backend/functional_testing in Postman.
+2. Make sure the API is running.
+3. Run the collection in Postman using 5 iterations for better results.
+
+
 ####  ClI Testing
 ##### Running CLI Functional Tests
 1.Navigate to the CLI directory
@@ -213,8 +220,6 @@ cd ../../cli-client/test/unit-test
 ```bash
 python cli-unit-test.py
 ```
-## AI_Assistance_Log
-
 
 
 
