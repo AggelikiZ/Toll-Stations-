@@ -31,7 +31,7 @@ Payway App provides a connection between owners of motorways to settle economica
 ## Installation
 
 ## Usage
-### 🔹 CLI Client
+### CLI Client
 
 
 
