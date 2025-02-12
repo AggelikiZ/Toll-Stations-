@@ -16,12 +16,13 @@ Payway App provides a connection between owners of motorways to settle economica
 ## Table of contents
 
 - [Installation](#installation)
-  - [Prerequisities](#Prerequisities)
+  - [Prerequisites](#prerequisities)
 - [Usage](#usage)
+  - [Database](#database)
   - [Back-End](#back-end)
-  - [API Documentation](#documentation)
-  - [CLI Client](#cli-client)
   - [Front-End](#front-end)
+  - [API Documentation](#api-documentation)
+  - [CLI Client](#cli-client)
   - [Documentation](#documentation)
   - [AI Assistance Log](#ai_assistance_log)
 
@@ -44,7 +45,6 @@ Before running the application, ensure you have the met the following software r
 It is advised that all software requirements are downloaded and installed by the latest version.
 
 
-
 ## Usage
 
 ### Cloning the Repository
@@ -54,7 +54,8 @@ It is advised that all software requirements are downloaded and installed by the
 git clone https://github.com/your-username/your-repository-name.git
 ```
 
-### Setting Up the Database
+### Database
+#### Setting Up the Database
 1. Ensure the database server is running by executing the command
 ```sh
 net start MariaDB
@@ -91,7 +92,7 @@ SOURCE /absolute/path/to/your/project/back-end/database/DML_test.sql;
 EXIT;
 ```
 
-### Configuring the Database Connection
+#### Configuring the Database Connection
 1. Navigate to the application.properties of the project:
 ```sh
 cd yourpath/back-end/rest_api/src/main/resources/application.properties;
@@ -106,27 +107,41 @@ spring.datasource.username = your_username
 spring.datasource.password = your password
 ```
 
-### Installing backend and frontend dependencies
+### Back-end
 
-#### Backend
-1. Navigate to the directory of your project and run
+1. Navigate to the rest_api directory of your project
  ```sh
 cd /absolute/path/to/your/project/back-end/rest_api
 ```
-2. Run the following command to install all maven depednencies
+2. Compile and build the project using Maven
  ```sh
 mvn clean install
 ```
 
-#### Frontend
-1. Navigate to the directory of your project and run
+
+This will download dependencies and compile the project.
+3. Run the Backend Server
+ ```sh
+mvn spring-boot:run
+```
+If everything is correct, the backend API will now be running at: http://localhost:9115
+
+
+### Front-end
+1. Navigate to the frot-end directory of your project.
  ```sh
 cd /absolute/path/to/your/project/front-end
 ```
-2. Run the following command to install all npm dependencies
+2. Run the following command to install all required Node.js packages.
  ```sh
 npm install
 ```
+3. Then start the frontend.
+ ```sh
+npm start
+```
+
+If everything is correct, the frontend will be available at: http://localhost:3000
 
 ### CLI Client
 
