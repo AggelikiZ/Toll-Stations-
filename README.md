@@ -17,7 +17,6 @@ Payway App provides a connection between owners of motorways to settle economica
 
 - [Installation](#installation)
   - [Prerequisities](#Prerequisities)
-  - [Installation Process](#Installation)
 - [Usage](#usage)
   - [Back-End](#back-end)
   - [API Documentation](#documentation)
@@ -25,7 +24,6 @@ Payway App provides a connection between owners of motorways to settle economica
   - [Front-End](#front-end)
   - [Documentation](#documentation)
   - [AI Assistance Log](#ai_assistance_log)
-
 
 ## Installation
 ### Prerequisites
@@ -48,6 +46,88 @@ It is advised that all software requirements are downloaded and installed by the
 
 
 ## Usage
+
+### Cloning the Repository
+
+#### Clone the repository to your local machine:
+```sh
+git clone https://github.com/your-username/your-repository-name.git
+```
+
+### Setting Up the Database
+1. Ensure the database server is running by executing the command
+```sh
+net start MariaDB
+```
+2. Access the database shell with your credentials.
+```sh
+mysql -u root -p
+```
+3. Run the schema (DDL.sql) to create tables:
+ ```sh
+SOURCE /absolute/path/to/your/project/back-end/database/DDL.sql;
+```
+
+Make sure to replace /absolute/path/to/your/project/ with the actual path of the directory where you cloned the project.
+
+
+4. Run the triggers.sql to ensure data integrity:
+ ```sh
+SOURCE /absolute/path/to/your/project/back-end/database/triggers.sql;
+```
+5. (Optional) :
+
+
+The DML_test.sql contains data insertions into User and Operator tables for the basic toll station operators.
+
+
+Run the script or manually add them later (through CLI).
+ ```sh
+SOURCE /absolute/path/to/your/project/back-end/database/DML_test.sql;
+
+```
+6. Exit the database shell
+ ```sh
+EXIT;
+```
+
+### Configuring the Database Connection
+1. Navigate to the application.properties of the project:
+```sh
+cd yourpath/back-end/rest_api/src/main/resources/application.properties;
+```
+2. Configure the database connection with your credentials.
+
+
+The name of the database should remain 'paywaydb' or you should also change it in the sql scripts.
+```sh
+spring.datasource.url=jdbc:mariadb://localhost:3306/paywaydb
+spring.datasource.username = your_username
+spring.datasource.password = your password
+```
+
+### Installing backend and frontend dependencies
+
+#### Backend
+1. Navigate to the directory of your project and run
+ ```sh
+cd /absolute/path/to/your/project/back-end/rest_api
+```
+2. Run the following command to install all maven depednencies
+ ```sh
+mvn clean install
+```
+
+#### Frontend
+1. Navigate to the directory of your project and run
+ ```sh
+cd /absolute/path/to/your/project/front-end
+```
+2. Run the following command to install all npm dependencies
+ ```sh
+npm install
+```
+
 ### CLI Client
 
 #### 1.Navigate to the CLI directory  
