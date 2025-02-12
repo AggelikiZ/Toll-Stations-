@@ -64,7 +64,7 @@ The CLI includes several commands that allow interaction with the backend. Below
 
 **Run any command using the following format:**  
 ```bash
-./se2425 <command> [options]
+./se2425 <command> [--options]
 ```
 ####  4.Viewing Available Commands  
 You can use the following command to list all available CLI options:  
