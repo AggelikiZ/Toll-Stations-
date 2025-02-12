@@ -125,7 +125,7 @@ This will download dependencies and compile the project.
  ```sh
 mvn spring-boot:run
 ```
-If everything is correct, the backend API will now be running at: http://localhost:9115
+If everything is correct, the backend API will now be running at: http://localhost:9115/api
 
 
 ### Front-end
