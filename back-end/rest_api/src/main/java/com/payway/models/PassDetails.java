@@ -1,11 +1,14 @@
 package com.payway.models;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.math.BigDecimal;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.List;
 
 // Class to represent each pass detail
+@Schema(description = "Pass details associated with a toll station")
 public class PassDetails {
     private Long passIndex;
     private String passID;

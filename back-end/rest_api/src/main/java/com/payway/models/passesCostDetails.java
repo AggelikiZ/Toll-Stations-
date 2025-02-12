@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.List;
 
+
 public class passesCostDetails {
     private String tollOpID;
     private String tagOpID;

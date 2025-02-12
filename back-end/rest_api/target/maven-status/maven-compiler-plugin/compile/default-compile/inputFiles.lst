@@ -36,7 +36,6 @@ C:\Users\jimkam\OneDrive\Desktop\softeng24-25\back-end\rest_api\src\main\java\co
 C:\Users\jimkam\OneDrive\Desktop\softeng24-25\back-end\rest_api\src\main\java\com\payway\services\HealthCheckService.java
 C:\Users\jimkam\OneDrive\Desktop\softeng24-25\back-end\rest_api\src\main\java\com\payway\models\ResetStations400Response.java
 C:\Users\jimkam\OneDrive\Desktop\softeng24-25\back-end\rest_api\src\main\java\com\payway\controllers\AuthenticationController.java
-C:\Users\jimkam\OneDrive\Desktop\softeng24-25\back-end\rest_api\src\main\java\com\payway\models\Generic400Response.java
 C:\Users\jimkam\OneDrive\Desktop\softeng24-25\back-end\rest_api\src\main\java\com\payway\services\jwtBlackListService.java
 C:\Users\jimkam\OneDrive\Desktop\softeng24-25\back-end\rest_api\src\main\java\com\payway\models\TollStation.java
 C:\Users\jimkam\OneDrive\Desktop\softeng24-25\back-end\rest_api\src\main\java\com\payway\repositories\DebtRepository.java

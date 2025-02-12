@@ -3,8 +3,10 @@ package com.payway.models;
 import java.sql.Timestamp;
 import java.util.List;
 import com.payway.models.PassDetails;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 // Class to represent the main toll station pass details
+@Schema(description = "Details of a toll station pass")
 public class TollStationPassesDetails {
     private String stationID;
     private String stationOperator;
