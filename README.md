@@ -16,7 +16,7 @@ Payway App provides a connection between owners of motorways to settle economica
 ## Table of contents
 
 - [Installation](#installation)
-  - [Prerequisities](#prerequisities)
+  - [Prerequisities](#Prerequisities)
   - [Installation Process](#Installation)
 - [Usage](#usage)
   - [Back-End](#back-end)
@@ -54,7 +54,7 @@ Payway App provides a connection between owners of motorways to settle economica
 
 
 
-## AI_Assistance_Log
+## AI_Log
 
 
 
