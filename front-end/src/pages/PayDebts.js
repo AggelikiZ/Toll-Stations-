@@ -31,7 +31,6 @@ export default function PayDebts() {
             return;
         }
 
-        // ✅ Check if the uploaded file is a PDF
         if (selectedFile.type !== "application/pdf") {
             setUploadMessage("Only PDF files are allowed.");
             return;
@@ -95,7 +94,7 @@ export default function PayDebts() {
             </table>
 
             <p style={{ textAlign: "left", fontSize: 16 }}>
-                Upload your payment confirmation (PDF):
+                Upload your payment confirmation (PDF up to 10MB):
             </p>
 
             <div style={{ textAlign: "left", marginBottom: "30px" }}>
@@ -127,11 +126,10 @@ export default function PayDebts() {
                     }}
                     disabled={loading}
                 >
-                    {loading ? "Uploading..." : "Confirm"}
+                    {loading ? "Uploading..." : "Submit"}
                 </button>
             </div>
 
-            {/* ✅ Upload Status Message */}
             {uploadMessage && (
                 <p
                     style={{

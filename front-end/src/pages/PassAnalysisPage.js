@@ -16,6 +16,8 @@ export default function PassAnalysis() {
     const [error, setError] = useState(null);
     const [mode, setMode] = useState(null);
     const [operators, setOperators] = useState([]);
+    const [searched, setSearched] = useState(false);
+
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -55,12 +57,14 @@ export default function PassAnalysis() {
         setError(null);
         setPasses([]);
         setTotalCost(null);
+        setSearched(false)
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
+        setSearched(true);
 
         if (!tagOp || !fromDate || !toDate) {
             setError('All fields are required.');
@@ -78,16 +82,16 @@ export default function PassAnalysis() {
             const passResponse = await passAnalysis(homeOperator, visitingOperator, formattedDateFrom, formattedDateTo);
             if (passResponse.data && passResponse.data.passList) {
                 setPasses(passResponse.data.passList);
-            } else {
-                setPasses([]);
-                setError('No data found for the given criteria.');
             }
 
             const costResponse = await getPassesCost(homeOperator, visitingOperator, formattedDateFrom, formattedDateTo);
-            setTotalCost(costResponse.data.totalCost || 0);
+            setTotalCost(costResponse.data.passesCost || 0);
         } catch (err) {
-            console.error('Error fetching pass analysis:', err);
-            setError('Failed to fetch Pass Analysis. Please try again.');
+            if (err.response.status === 400) {
+                setError('Invalid given search criteria');
+            } else {
+                setError('Failed to fetch analysis. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
@@ -170,7 +174,7 @@ export default function PassAnalysis() {
 
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
-            {passes.length > 0 && (
+            {passes.length > 0 && !error && (
                 <>
                     <p style={{textAlign: "left"}}><strong>Total Passes:</strong> {passes.length}</p>
                     <p style={{textAlign: "left"}}><strong>Total Cost:</strong> {totalCost?.toFixed(2)} €</p>
@@ -182,42 +186,36 @@ export default function PassAnalysis() {
 
                     <div style={{ padding: '10px', backgroundColor: 'white', borderRadius: '8px' }}>
                         <h3 style={{ color: '#4CAF50', marginBottom: '10px' }}>Passes Per Station</h3>
-                        <Bar
-                            key={JSON.stringify(passes)}
-                            data={prepareChartData().stationData}
-                            options={{
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                indexAxis: "y",
-                                plugins: {
-                                    legend: { display: false },},
-                                scales: {
-                                    x: {
-                                        beginAtZero: true,
-                                        ticks: {
-                                            font: { size: 14 },
-                                            stepSize: Math.ceil(passes.length / 20), // More stations → more spacing
+                        <div style={{
+                            height: `${Math.min(40 * passes.length, 1200)}px`,
+                            minHeight: "300px",
+                            maxHeight: "1200px"
+                        }}>
+                            <Bar
+                                key={JSON.stringify(passes)}
+                                data={prepareChartData().stationData}
+                                options={{
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    indexAxis: "y",
+                                    plugins: { legend: { display: false }},
+                                    scales: {
+                                        x: {
+                                            beginAtZero: true,
+                                            ticks: { font: { size: 14 }, stepSize: 1 },
+                                            grid: { drawBorder: false, color: "rgba(200, 200, 200, 0.3)" }
                                         },
-                                        grid: { drawBorder: false, color: "rgba(200, 200, 200, 0.3)" },
+                                        y: {
+                                            ticks: { font: { size: 14 }, autoSkip: false, padding: 5 },
+                                            grid: { display: false }
+                                        }
                                     },
-                                    y: {
-                                        ticks: {
-                                            font: { size: 14 },
-                                            autoSkip: false,
-                                        },
-                                        grid: { display: false },
-                                    },
-                                },
-                                barThickness: passes.length > 10 ? 10 : 30,
-                                maxBarThickness: 30, // Prevent too-thick bars
-                            }}
-
-                            style={{
-                                height: Math.min(700, passes.length * 30),
-                                minHeight: 200,
-                                maxHeight: 700,
-                            }}
-                        />
+                                    categoryPercentage: 0.9, // Ensures better bar spacing
+                                    barPercentage: 0.8, // Prevents bars from touching each other
+                                    maxBarThickness: 30,
+                                }}
+                            />
+                        </div>
                     </div>
 
                     <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
@@ -241,7 +239,12 @@ export default function PassAnalysis() {
                         </tbody>
                     </table>
                 </>
-            )}
+            )
+            }
+            {passes.length===0 && !error && searched === true &&(
+                <p style={{ color: "#555" }}>{"No data found for the given criteria."}</p>
+            )
+            }
         </div>
     );
 }

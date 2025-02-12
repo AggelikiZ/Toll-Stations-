@@ -13,6 +13,7 @@ export default function TollStationPasses() {
     const [passes, setPasses] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [searched, setSearched] = useState(false);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -46,6 +47,7 @@ export default function TollStationPasses() {
         e.preventDefault();
         setLoading(true);
         setError(null);
+        setSearched(true);
 
         if (!stationId || !dateFrom || !dateTo) {
             setError('All fields are required.');
@@ -60,13 +62,14 @@ export default function TollStationPasses() {
             const response = await getPasses(stationId, formattedDateFrom, formattedDateTo);
             if (response.data && response.data.passList) {
                 setPasses(response.data.passList);
-            } else {
-                setPasses([]);
-                setError('No data found for the selected period.');
             }
+
         } catch (err) {
-            console.error('Error fetching passes:', err);
-            setError('Failed to fetch passes. Please try again.');
+            if (err.response.status === 400) {
+                setError('Invalid given search criteria');
+            } else {
+                setError('Failed to fetch passes. Please try again.');
+            }
         } finally {
             setLoading(false);
         }
@@ -169,7 +172,7 @@ export default function TollStationPasses() {
             {loading && <p>Loading...</p>}
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
-            {passes.length > 0 && (
+            {passes.length > 0 && !error && (
                 <>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px', gap: '20px' }}>
                         <div style={{ flex: '1', backgroundColor: '#fff', padding: '20px', borderRadius: '8px' }}>
@@ -206,6 +209,11 @@ export default function TollStationPasses() {
                     </div>
                 </>
             )}
+
+            {passes.length===0 && !error && searched === true &&(
+                <p style={{ color: "#555" }}>{"No data found for the given criteria."}</p>
+            )
+            }
         </div>
     );
 }
