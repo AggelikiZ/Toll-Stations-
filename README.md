@@ -35,7 +35,7 @@ Payway App provides a connection between owners of motorways to settle economica
 
 1.Navigate to the CLI directory  
 ```bash
-cd ./../cli-client
+cd ../../cli-client
 ```
 
 ## AI_Assistance_Log
