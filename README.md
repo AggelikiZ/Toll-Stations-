@@ -33,6 +33,10 @@ Payway App provides a connection between owners of motorways to settle economica
 ## Usage
 ### CLI Client
 
+1.Navigate to the CLI directory  
+```bash
+cd ./../cli-client
+
 
 
 
