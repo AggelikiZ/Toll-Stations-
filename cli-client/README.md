@@ -1,4 +1,4 @@
-## 🚀 CLI Client
+## CLI Client
 
 ### 📌 Contents
 
