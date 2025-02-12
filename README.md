@@ -24,7 +24,8 @@ Payway App provides a connection between owners of motorways to settle economica
   - [API Documentation](#api-documentation)
   - [CLI Client](#cli-client)
   - [Documentation](#documentation)
-  - [AI Assistance Log](#ai_assistance_log)
+  - [Testing](#testing)
+- [AI Assistance Log](#ai_assistance_log)
 
 ## Installation
 ### Prerequisites
@@ -188,6 +189,23 @@ You can use the following command to list all available CLI options:
 ```bash
 ./se2425 --help
 ```
+### Testing
+####  ClI Testing
+##### Running CLI Functional Tests
+1.Navigate to the CLI directory
+```bash
+cd ../../cli-client/test/functional test
+```
+```bash
+python cli_testing.py cli_testing.py
+```
+
+```bash
+python cli_testingv2.py
+```
+
+📌 Note: cli_testingv2.py requires the se2425.bat file on Windows.
+
 ## AI_Assistance_Log
 
 
