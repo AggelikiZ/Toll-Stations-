@@ -21,9 +21,7 @@ Payway App provides a connection between owners of motorways to settle economica
   - [Database](#database)
   - [Back-End](#back-end)
   - [Front-End](#front-end)
-  - [API Documentation](#api-documentation)
   - [CLI Client](#cli-client)
-  - [Documentation](#documentation)
   - [Testing](#testing)
 
 ## Installation
@@ -194,7 +192,8 @@ You can use the following command to list all available CLI options:
 
 1. Import the collection and environment from /backend/functional_testing in Postman.
 2. Make sure the API is running.
-3. Run the collection in Postman using 5 iterations for better results.
+3. Set the environment of the collection as the imported one.
+4. Run the collection in Postman using 5 iterations for better results.
 
 
 ####  ClI Testing
