@@ -6,5 +6,6 @@
   πρόσβαση σε δεδομένα (backend).
 - Database dump (sql).
 - RESTful API.
-- REST API documentation (json and yaml).
-- Το testing του backend (json for Postman).
+- Τesting του backend (json for Postman).
+
+To documentation του API βρίσκεται στον φάκελο ../api.
