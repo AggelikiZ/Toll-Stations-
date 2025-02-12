@@ -44,6 +44,30 @@ Below is an example usage for retrieving toll station passes:
 ```bash
 ./se2425 tollstationpasses --station NAO01 --from 20220101 --to 20221212
 ```
+3.ClI Commands
+## 📌 CLI Commands  
+
+The CLI includes several commands that allow interaction with the backend. Below is the list of available commands:  
+
+| **Command**            | **Description** |
+|------------------------|------------------------------------|
+| `login`               | Login to the system |
+| `logout`              | Logout from the system |
+| `admin`               | Admin commands |
+| `healthcheck`         | Check system health |
+| `resetstations`       | Reset toll stations |
+| `resetpasses`         | Reset all toll passes |
+| `tollstationpasses`   | Retrieve toll station passes |
+| `passanalysis`        | Analyze passes between two operators |
+| `passescost`          | Retrieve pass cost between two operators |
+| `chargesby`           | Retrieve charges by operator |
+| `help`                | Show all the possible arguments |
+
+**Run any command using the following format:**  
+```bash
+./se2425 <command> [options]
+```
+
 ## AI_Assistance_Log
 
 
