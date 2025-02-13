@@ -24,8 +24,10 @@ def get_db_connection():
         conn = mysql.connector.connect(
             host="localhost",  # Change if your database is hosted elsewhere
             user="root",       # Your database username
-            password="",       # Your database password (leave empty if no password)
-            database="paywaydb"  # Your database name
+            password="anast",       # Your database password (leave empty if no password)
+            database="paywaydb",  # Your database name
+            charset="utf8mb4",
+            collation="utf8mb4_unicode_ci"
         )
         return conn
     except mysql.connector.Error as e:  # Catch database-specific errors
