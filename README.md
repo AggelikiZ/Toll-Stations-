@@ -153,14 +153,17 @@ After installing Python from the requirements table, run the following command t
 ```bash
 pip install -r requirements.txt
 ```
-#### 3.Access the CLI
+
+#### 3.Change the se2425.bat and se2425 file with your path of the cli
+
+#### 4.Access the CLI
 
 You can access the CLI through the terminal using the ./se2425 command followed by the action you want to perform.
 Below is an example usage for retrieving toll station passes:
 ```bash
 ./se2425 tollstationpasses --station NAO01 --from 20220101 --to 20221212
 ```
-#### 4.CLI Commands  
+#### 5.CLI Commands  
 
 The CLI includes several commands that allow interaction with the backend. Below is the list of available commands:  
 
@@ -182,7 +185,7 @@ The CLI includes several commands that allow interaction with the backend. Below
 ```bash
 ./se2425 <command> [--options]
 ```
-####  5.Viewing Available Commands  
+####  6.Viewing Available Commands  
 You can use the following command to list all available CLI options:  
 ```bash
 ./se2425 --help
