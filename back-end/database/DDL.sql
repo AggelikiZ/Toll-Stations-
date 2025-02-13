@@ -1,4 +1,6 @@
-CREATE DATABASE IF NOT EXISTS paywaydb;
+CREATE DATABASE IF NOT EXISTS paywaydb
+DEFAULT CHARACTER SET utf8mb4
+DEFAULT COLLATE utf8mb4_unicode_ci;
 USE paywaydb;
 
 CREATE TABLE IF NOT EXISTS User (
@@ -7,7 +9,9 @@ CREATE TABLE IF NOT EXISTS User (
     password VARCHAR(50) NOT NULL,
     user_role ENUM('operator', 'ministry', 'admin') NOT NULL,
     PRIMARY KEY (user_id)
-)ENGINE = InnoDB;
+)ENGINE = InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS Operator (
     op_id VARCHAR(5) NOT NULL,
@@ -18,7 +22,9 @@ CREATE TABLE IF NOT EXISTS Operator (
     CONSTRAINT fk_is_user FOREIGN KEY (user_id) REFERENCES User (user_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
-)ENGINE = InnoDB;
+)ENGINE = InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS TollStation (
     station_id VARCHAR(10) NOT NULL,
@@ -37,7 +43,9 @@ CREATE TABLE IF NOT EXISTS TollStation (
     CONSTRAINT fk_operated_by FOREIGN KEY (op_id) REFERENCES Operator (op_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
-)ENGINE = InnoDB;
+)ENGINE = InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS Tag (
     tag_ref VARCHAR(20) NOT NULL,
@@ -46,7 +54,9 @@ CREATE TABLE IF NOT EXISTS Tag (
     CONSTRAINT fk_belongs_to_operator FOREIGN KEY (op_id) REFERENCES Operator (op_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
-) ENGINE = InnoDB;
+) ENGINE = InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS Pass (
     pass_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -62,7 +72,9 @@ CREATE TABLE IF NOT EXISTS Pass (
         ON DELETE CASCADE
         ON UPDATE CASCADE,
     CONSTRAINT unique_tag_time UNIQUE (tag_ref, pass_time)
-)ENGINE = InnoDB;
+)ENGINE = InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS Debt (
     from_op_id VARCHAR(5) NOT NULL,
@@ -76,7 +88,9 @@ CREATE TABLE IF NOT EXISTS Debt (
     CONSTRAINT fk_debt_to_operator FOREIGN KEY (to_op_id) REFERENCES Operator (op_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
-)ENGINE = InnoDB;
+)ENGINE = InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS Payment (
     payment_id INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -90,4 +104,6 @@ CREATE TABLE IF NOT EXISTS Payment (
     CONSTRAINT fk_payment_of_debt FOREIGN KEY (from_op_id, to_op_id) REFERENCES Debt (from_op_id, to_op_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE
-)ENGINE = InnoDB;
+)ENGINE = InnoDB
+DEFAULT CHARSET=utf8mb4
+COLLATE=utf8mb4_unicode_ci;
