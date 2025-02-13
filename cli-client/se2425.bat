@@ -1,2 +1,2 @@
 @echo off
-python "absolutepath\cli.py" %*
+python "C:\Users\Anastasia\softeng24-25\cli-client\cli.py" %*
