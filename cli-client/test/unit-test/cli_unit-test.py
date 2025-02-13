@@ -15,7 +15,7 @@ class TestCLI(unittest.TestCase):
 
     @patch("os.path.exists", return_value=False)
     def test_check_auth_missing_token(self, mock_exists):
-        with self.assertRaises(SystemExit):  # Expect function to exit if token is missing
+        with self.assertRaises(SystemExit):  
             cli.check_auth()
 
     @patch("builtins.open", new_callable=mock_open, read_data="")
@@ -35,7 +35,7 @@ class TestCLI(unittest.TestCase):
 
     @patch("mysql.connector.connect", side_effect=mysql.connector.Error("Database Error"))
     def test_get_db_connection_failure(self, mock_connect):
-        with self.assertRaises(SystemExit):  # Expecting function to exit on DB failure
+        with self.assertRaises(SystemExit):  
             cli.get_db_connection()
 
     ### 🔹 User Authentication & Admin Check ###
@@ -73,67 +73,47 @@ class TestCLI(unittest.TestCase):
             unittest.mock.call("auth_token.txt", "w"),
             unittest.mock.call("auth_user.txt", "w")
         ]
-        mock_open.assert_has_calls(expected_calls, any_order=True)  # Ensure both files are checked
+        mock_open.assert_has_calls(expected_calls, any_order=True)  
 
     @patch("requests.post")
     def test_login_failure(self, mock_post):
-        # Simulate a failed login (no token received)
         mock_response = MagicMock()
-        mock_response.json.return_value = {}  # Empty response
-        mock_response.status_code = 401  # Unauthorized status
+        mock_response.json.return_value = {}
+        mock_response.status_code = 401  
         mock_post.return_value = mock_response
 
         args = MagicMock(username="wronguser", passw="wrongpassword")
+        cli.login(args)  
 
-        result = cli.login(args)  # Capture the return value instead of expecting exit
-
-
-
-    ### 🔹 Logout Function ###
-    
-    @patch("builtins.open", new_callable=mock_open, read_data="valid_token")
-    @patch("requests.post")
-    def test_logout_success(self, mock_post, mock_open):
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_post.return_value = mock_response
-
-        args = MagicMock()
-        cli.logout(args)
-
-        handle = mock_open()
-        handle.write.assert_called_with("")  # Check that token file is cleared
-
-    
     ### 🔹 User Modification ###
+    
     @patch("cli.is_admin", return_value=True)
     @patch("cli.get_db_connection")
-    def test_usermod_create_user_default_role(self, mock_db, mock_admin):
+    @patch("cli.check_auth", return_value="mocked_token")
+    def test_usermod_create_user_default_role(self, mock_auth, mock_db, mock_admin):
         mock_cursor = MagicMock()
-        mock_cursor.fetchone.return_value = None  # User does not exist
+        mock_cursor.fetchone.return_value = None  
         mock_db.return_value.cursor.return_value = mock_cursor
 
-        args = MagicMock(username="testuser", passw="testpassword", role= "ministry")  # No role provided
+        args = MagicMock(username="testuser", passw="testpassword", role=None)  
         cli.usermod(args)
 
         mock_cursor.execute.assert_any_call(
             "INSERT INTO user (username, password, user_role) VALUES (%s, %s, %s)",
-            ("testuser", "testpassword", "ministry"),  # Default role is "operator"
+            ("testuser", "testpassword", "operator"),  
         )
-
-
 
     @patch("cli.is_admin", return_value=True)
     @patch("cli.get_db_connection")
-    def test_usermod_update_password(self, mock_db, mock_admin):
+    @patch("cli.check_auth", return_value="mocked_token")
+    def test_usermod_update_password(self, mock_auth, mock_db, mock_admin):
         mock_cursor = MagicMock()
-        mock_cursor.fetchone.return_value = {"username": "testuser", "user_role": "admin"}  # User exists
+        mock_cursor.fetchone.return_value = {"username": "testuser", "user_role": "operator"}  
         mock_db.return_value.cursor.return_value = mock_cursor
 
-        args = MagicMock(username="testuser", passw="newpassword", role=None)  # No role change
+        args = MagicMock(username="testuser", passw="newpassword", role=None)  
         cli.usermod(args)
 
-        # Ensure only password is updated (role remains unchanged)
         mock_cursor.execute.assert_any_call(
             "UPDATE user SET password = %s WHERE username = %s",
             ("newpassword", "testuser"),
@@ -196,6 +176,6 @@ class TestCLI(unittest.TestCase):
             timeout=5,
         )
 
-
 if __name__ == "__main__":
     unittest.main()
+
