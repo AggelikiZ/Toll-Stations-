@@ -156,14 +156,26 @@ pip install -r requirements.txt
 
 #### 3.Change the se2425.bat and se2425 file with your path of the cli
 
-#### 4.Access the CLI
+#### 4.Change the database credentials in the following command of the cli.py file.
+```bash
+conn = mysql.connector.connect(
+            host="localhost",  # Change if your database is hosted elsewhere
+            user = your_username,       # Your database username
+            password = your_password,       # Your database password (leave empty if no password)
+            database="paywaydb",  # Your database name
+            charset="utf8mb4",
+            collation="utf8mb4_unicode_ci"
+        )
+```
+
+#### 5.Access the CLI
 
 You can access the CLI through the terminal using the ./se2425 command followed by the action you want to perform.
 Below is an example usage for retrieving toll station passes:
 ```bash
 ./se2425 tollstationpasses --station NAO01 --from 20220101 --to 20221212
 ```
-#### 5.CLI Commands  
+#### 6.CLI Commands  
 
 The CLI includes several commands that allow interaction with the backend. Below is the list of available commands:  
 
@@ -185,7 +197,7 @@ The CLI includes several commands that allow interaction with the backend. Below
 ```bash
 ./se2425 <command> [--options]
 ```
-####  6.Viewing Available Commands  
+####  7.Viewing Available Commands  
 You can use the following command to list all available CLI options:  
 ```bash
 ./se2425 --help
