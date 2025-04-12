@@ -1,0 +1,786 @@
+{
+	"id": "58806852-a233-4f04-a2e8-b8e35cba1c0f",
+	"name": "PAYWAY API",
+	"timestamp": "2025-02-10T21:19:37.599Z",
+	"collection_id": "40958559-5235017a-16a0-4c49-9d1c-7ec4868459e9",
+	"folder_id": 0,
+	"environment_id": "40958559-d3d400df-1891-4020-957d-04ed33073e99",
+	"totalPass": 146,
+	"delay": 0,
+	"persist": true,
+	"status": "finished",
+	"startedAt": "2025-02-10T21:19:12.754Z",
+	"totalFail": 0,
+	"results": [
+		{
+			"id": "0f3f4509-2785-43b6-9d6f-03c4430de17a",
+			"name": "Login",
+			"url": "http://localhost:9115/api/login",
+			"time": 6,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 200": true,
+				"Response body is in correct format": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 5,
+					"fail": 0
+				},
+				"Response body is in correct format": {
+					"pass": 5,
+					"fail": 0
+				}
+			},
+			"times": [
+				8,
+				7,
+				7,
+				5,
+				6
+			],
+			"allTests": [
+				{
+					"Status code is 200": true,
+					"Response body is in correct format": true
+				},
+				{
+					"Status code is 200": true,
+					"Response body is in correct format": true
+				},
+				{
+					"Status code is 200": true,
+					"Response body is in correct format": true
+				},
+				{
+					"Status code is 200": true,
+					"Response body is in correct format": true
+				},
+				{
+					"Status code is 200": true,
+					"Response body is in correct format": true
+				}
+			]
+		},
+		{
+			"id": "e0c67d73-4856-4df9-a691-144d584cb989",
+			"name": "ResetPasses",
+			"url": "http://localhost:9115/api/admin/resetpasses",
+			"time": 452,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 200": true,
+				"Response body is in correct format": true,
+				"Response has correct values": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 5,
+					"fail": 0
+				},
+				"Response body is in correct format": {
+					"pass": 5,
+					"fail": 0
+				},
+				"Response has correct values": {
+					"pass": 5,
+					"fail": 0
+				}
+			},
+			"times": [
+				524,
+				527,
+				500,
+				446,
+				452
+			],
+			"allTests": [
+				{
+					"Status code is 200": true,
+					"Response body is in correct format": true,
+					"Response has correct values": true
+				},
+				{
+					"Status code is 200": true,
+					"Response body is in correct format": true,
+					"Response has correct values": true
+				},
+				{
+					"Status code is 200": true,
+					"Response body is in correct format": true,
+					"Response has correct values": true
+				},
+				{
+					"Status code is 200": true,
+					"Response body is in correct format": true,
+					"Response has correct values": true
+				},
+				{
+					"Status code is 200": true,
+					"Response body is in correct format": true,
+					"Response has correct values": true
+				}
+			]
+		},
+		{
+			"id": "e6d619a3-180f-49da-8d72-480bcc247e4a",
+			"name": "ResetStations",
+			"url": "http://localhost:9115/api/admin/resetstations",
+			"time": 236,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 200": true,
+				"Response body is in correct format": true,
+				"Response has correct values": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 5,
+					"fail": 0
+				},
+				"Response body is in correct format": {
+					"pass": 5,
+					"fail": 0
+				},
+				"Response has correct values": {
+					"pass": 5,
+					"fail": 0
+				}
+			},
+			"times": [
+				287,
+				264,
+				354,
+				234,
+				236
+			],
+			"allTests": [
+				{
+					"Status code is 200": true,
+					"Response body is in correct format": true,
+					"Response has correct values": true
+				},
+				{
+					"Status code is 200": true,
+					"Response body is in correct format": true,
+					"Response has correct values": true
+				},
+				{
+					"Status code is 200": true,
+					"Response body is in correct format": true,
+					"Response has correct values": true
+				},
+				{
+					"Status code is 200": true,
+					"Response body is in correct format": true,
+					"Response has correct values": true
+				},
+				{
+					"Status code is 200": true,
+					"Response body is in correct format": true,
+					"Response has correct values": true
+				}
+			]
+		},
+		{
+			"id": "e6bcde6b-6922-4a9d-badf-5b1db479de7f",
+			"name": "AddPasses",
+			"url": "http://localhost:9115/api/admin/addpasses",
+			"time": 2839,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 200": true,
+				"Response has status OK": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 5,
+					"fail": 0
+				},
+				"Response has status OK": {
+					"pass": 5,
+					"fail": 0
+				}
+			},
+			"times": [
+				2417,
+				2689,
+				2279,
+				2362,
+				2839
+			],
+			"allTests": [
+				{
+					"Status code is 200": true,
+					"Response has status OK": true
+				},
+				{
+					"Status code is 200": true,
+					"Response has status OK": true
+				},
+				{
+					"Status code is 200": true,
+					"Response has status OK": true
+				},
+				{
+					"Status code is 200": true,
+					"Response has status OK": true
+				},
+				{
+					"Status code is 200": true,
+					"Response has status OK": true
+				}
+			]
+		},
+		{
+			"id": "8f2a8881-3eec-4dec-9f0a-1eb91a8c7d54",
+			"name": "HealthCheck",
+			"url": "http://localhost:9115/api/admin/healthcheck",
+			"time": 10,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 200": true,
+				"Response body is in correct format": true,
+				"Response has correct values": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 5,
+					"fail": 0
+				},
+				"Response body is in correct format": {
+					"pass": 5,
+					"fail": 0
+				},
+				"Response has correct values": {
+					"pass": 5,
+					"fail": 0
+				}
+			},
+			"times": [
+				8,
+				8,
+				8,
+				8,
+				10
+			],
+			"allTests": [
+				{
+					"Status code is 200": true,
+					"Response body is in correct format": true,
+					"Response has correct values": true
+				},
+				{
+					"Status code is 200": true,
+					"Response body is in correct format": true,
+					"Response has correct values": true
+				},
+				{
+					"Status code is 200": true,
+					"Response body is in correct format": true,
+					"Response has correct values": true
+				},
+				{
+					"Status code is 200": true,
+					"Response body is in correct format": true,
+					"Response has correct values": true
+				},
+				{
+					"Status code is 200": true,
+					"Response body is in correct format": true,
+					"Response has correct values": true
+				}
+			]
+		},
+		{
+			"id": "375923a5-62bd-4d36-b438-a8168ec8de71",
+			"name": "tollStationPasses",
+			"url": "http://localhost:9115/api/tollStationPasses/NAO01/20250101/20250110?format=json",
+			"time": 8,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {
+				"Status code is 204": true,
+				"Response body should not exist": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response body is in correct format": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response has correct values": {
+					"pass": 1,
+					"fail": 0
+				},
+				"passList contains the right fields": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Status code is 400": {
+					"pass": 3,
+					"fail": 0
+				},
+				"Error response contains 'Bad request'": {
+					"pass": 3,
+					"fail": 0
+				},
+				"Error message is correct": {
+					"pass": 3,
+					"fail": 0
+				},
+				"Status code is 204": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response body should not exist": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				8,
+				6,
+				7,
+				5,
+				8
+			],
+			"allTests": [
+				{
+					"Status code is 200": true,
+					"Response body is in correct format": true,
+					"Response has correct values": true,
+					"passList contains the right fields": true
+				},
+				{
+					"Status code is 400": true,
+					"Error response contains 'Bad request'": true,
+					"Error message is correct": true
+				},
+				{
+					"Status code is 400": true,
+					"Error response contains 'Bad request'": true,
+					"Error message is correct": true
+				},
+				{
+					"Status code is 400": true,
+					"Error response contains 'Bad request'": true,
+					"Error message is correct": true
+				},
+				{
+					"Status code is 204": true,
+					"Response body should not exist": true
+				}
+			]
+		},
+		{
+			"id": "750aa620-3fe0-4a78-bc90-4d7bf3d71b32",
+			"name": "PassesAnalysis",
+			"url": "http://localhost:9115/api/passAnalysis/NAO/NAO/20220101/20240101?format=json",
+			"time": 631,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is valid": true,
+				"Response body contains required keys": true,
+				"Field types are correct": true,
+				"passList contains the right fields": true
+			},
+			"testPassFailCounts": {
+				"Status code is valid": {
+					"pass": 5,
+					"fail": 0
+				},
+				"Response body contains required keys": {
+					"pass": 5,
+					"fail": 0
+				},
+				"Field types are correct": {
+					"pass": 5,
+					"fail": 0
+				},
+				"passList contains the right fields": {
+					"pass": 5,
+					"fail": 0
+				}
+			},
+			"times": [
+				523,
+				261,
+				529,
+				523,
+				631
+			],
+			"allTests": [
+				{
+					"Status code is valid": true,
+					"Response body contains required keys": true,
+					"Field types are correct": true,
+					"passList contains the right fields": true
+				},
+				{
+					"Status code is valid": true,
+					"Response body contains required keys": true,
+					"Field types are correct": true,
+					"passList contains the right fields": true
+				},
+				{
+					"Status code is valid": true,
+					"Response body contains required keys": true,
+					"Field types are correct": true,
+					"passList contains the right fields": true
+				},
+				{
+					"Status code is valid": true,
+					"Response body contains required keys": true,
+					"Field types are correct": true,
+					"passList contains the right fields": true
+				},
+				{
+					"Status code is valid": true,
+					"Response body contains required keys": true,
+					"Field types are correct": true,
+					"passList contains the right fields": true
+				}
+			]
+		},
+		{
+			"id": "c5d368c3-b3f0-42e1-9427-351fb8e22b72",
+			"name": "PassesCost",
+			"url": "http://localhost:9115/api/passesCost/NAO/NO/20250101/20250110",
+			"time": 10,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {
+				"Status code is 204": true,
+				"Response body should not exist": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response body is in correct format": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response has correct values": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Status code is 400": {
+					"pass": 3,
+					"fail": 0
+				},
+				"Error response contains 'Bad request'": {
+					"pass": 3,
+					"fail": 0
+				},
+				"Error message is correct": {
+					"pass": 3,
+					"fail": 0
+				},
+				"Status code is 204": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response body should not exist": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				10,
+				5,
+				6,
+				8,
+				10
+			],
+			"allTests": [
+				{
+					"Status code is 200": true,
+					"Response body is in correct format": true,
+					"Response has correct values": true
+				},
+				{
+					"Status code is 400": true,
+					"Error response contains 'Bad request'": true,
+					"Error message is correct": true
+				},
+				{
+					"Status code is 400": true,
+					"Error response contains 'Bad request'": true,
+					"Error message is correct": true
+				},
+				{
+					"Status code is 400": true,
+					"Error response contains 'Bad request'": true,
+					"Error message is correct": true
+				},
+				{
+					"Status code is 204": true,
+					"Response body should not exist": true
+				}
+			]
+		},
+		{
+			"id": "389a4d64-dd84-4537-a420-7b1d506be902",
+			"name": "ChargesBy",
+			"url": "http://localhost:9115/api/chargesBy/EG/20230101/20240101?format=json",
+			"time": 13,
+			"responseCode": {
+				"code": 204,
+				"name": "No Content"
+			},
+			"tests": {
+				"Status code is 204 (or 500 if API fails)": true,
+				"Response body should not exist": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200 (or 500 if API fails)": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response body is in correct format": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response has correct values": {
+					"pass": 1,
+					"fail": 0
+				},
+				"vOpList contains the right fields": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Status code is 400 (or 500 if API fails)": {
+					"pass": 3,
+					"fail": 0
+				},
+				"Error response contains expected message": {
+					"pass": 3,
+					"fail": 0
+				},
+				"Status code is 204 (or 500 if API fails)": {
+					"pass": 1,
+					"fail": 0
+				},
+				"Response body should not exist": {
+					"pass": 1,
+					"fail": 0
+				}
+			},
+			"times": [
+				72,
+				10,
+				7,
+				7,
+				13
+			],
+			"allTests": [
+				{
+					"Status code is 200 (or 500 if API fails)": true,
+					"Response body is in correct format": true,
+					"Response has correct values": true,
+					"vOpList contains the right fields": true
+				},
+				{
+					"Status code is 400 (or 500 if API fails)": true,
+					"Error response contains expected message": true
+				},
+				{
+					"Status code is 400 (or 500 if API fails)": true,
+					"Error response contains expected message": true
+				},
+				{
+					"Status code is 400 (or 500 if API fails)": true,
+					"Error response contains expected message": true
+				},
+				{
+					"Status code is 204 (or 500 if API fails)": true,
+					"Response body should not exist": true
+				}
+			]
+		},
+		{
+			"id": "bf553c1a-41d7-4a8e-9989-f35ed93e04e4",
+			"name": "Logout",
+			"url": "http://localhost:9115/api/logout",
+			"time": 6,
+			"responseCode": {
+				"code": 200,
+				"name": "OK"
+			},
+			"tests": {
+				"Status code is 200": true,
+				"Response body is empty": true
+			},
+			"testPassFailCounts": {
+				"Status code is 200": {
+					"pass": 5,
+					"fail": 0
+				},
+				"Response body is empty": {
+					"pass": 5,
+					"fail": 0
+				}
+			},
+			"times": [
+				6,
+				7,
+				7,
+				8,
+				6
+			],
+			"allTests": [
+				{
+					"Status code is 200": true,
+					"Response body is empty": true
+				},
+				{
+					"Status code is 200": true,
+					"Response body is empty": true
+				},
+				{
+					"Status code is 200": true,
+					"Response body is empty": true
+				},
+				{
+					"Status code is 200": true,
+					"Response body is empty": true
+				},
+				{
+					"Status code is 200": true,
+					"Response body is empty": true
+				}
+			]
+		},
+		{
+			"id": "a3d3cad1-1f7a-4c3a-a375-d3068763b1c3",
+			"name": "tollStationPasses_afterlogout",
+			"url": "http://localhost:9115/api/tollStationPasses/NAO01/20220101/20220110?format=json",
+			"time": 4,
+			"responseCode": {
+				"code": 401,
+				"name": "Unauthorized"
+			},
+			"tests": {
+				"Status code is 401": true,
+				"Response body contains correct error message": true
+			},
+			"testPassFailCounts": {
+				"Status code is 401": {
+					"pass": 5,
+					"fail": 0
+				},
+				"Response body contains correct error message": {
+					"pass": 5,
+					"fail": 0
+				}
+			},
+			"times": [
+				4,
+				3,
+				3,
+				3,
+				4
+			],
+			"allTests": [
+				{
+					"Status code is 401": true,
+					"Response body contains correct error message": true
+				},
+				{
+					"Status code is 401": true,
+					"Response body contains correct error message": true
+				},
+				{
+					"Status code is 401": true,
+					"Response body contains correct error message": true
+				},
+				{
+					"Status code is 401": true,
+					"Response body contains correct error message": true
+				},
+				{
+					"Status code is 401": true,
+					"Response body contains correct error message": true
+				}
+			]
+		}
+	],
+	"count": 5,
+	"totalTime": 19185,
+	"collection": {
+		"requests": [
+			{
+				"id": "0f3f4509-2785-43b6-9d6f-03c4430de17a",
+				"method": "POST"
+			},
+			{
+				"id": "e0c67d73-4856-4df9-a691-144d584cb989",
+				"method": "POST"
+			},
+			{
+				"id": "e6d619a3-180f-49da-8d72-480bcc247e4a",
+				"method": "POST"
+			},
+			{
+				"id": "e6bcde6b-6922-4a9d-badf-5b1db479de7f",
+				"method": "POST"
+			},
+			{
+				"id": "8f2a8881-3eec-4dec-9f0a-1eb91a8c7d54",
+				"method": "GET"
+			},
+			{
+				"id": "375923a5-62bd-4d36-b438-a8168ec8de71",
+				"method": "GET"
+			},
+			{
+				"id": "750aa620-3fe0-4a78-bc90-4d7bf3d71b32",
+				"method": "GET"
+			},
+			{
+				"id": "c5d368c3-b3f0-42e1-9427-351fb8e22b72",
+				"method": "GET"
+			},
+			{
+				"id": "389a4d64-dd84-4537-a420-7b1d506be902",
+				"method": "GET"
+			},
+			{
+				"id": "bf553c1a-41d7-4a8e-9989-f35ed93e04e4",
+				"method": "POST"
+			},
+			{
+				"id": "a3d3cad1-1f7a-4c3a-a375-d3068763b1c3",
+				"method": "GET"
+			}
+		]
+	}
+}

@@ -1,0 +1,68 @@
+.total-debts-container {
+    padding: 20px;
+    background-color: #f4f4f4;
+    text-align: center;
+}
+
+.total-debts-title {
+    color: #4CAF50;
+    margin-bottom: 20px;
+}
+
+.total-debts-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.total-debts-input {
+    padding: 10px;
+    width: 300px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+
+.total-debts-button {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.total-debts-button:hover {
+    background-color: #45a049;
+}
+
+.total-debts-loading {
+    color: #ff9800;
+    font-size: 18px;
+}
+
+.total-debts-error {
+    color: red;
+    font-size: 18px;
+}
+
+.total-debts-result {
+    margin-top: 20px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.total-debts-result h3 {
+    margin-bottom: 10px;
+    color: #4CAF50;
+}
+
+.total-debts-result p {
+    font-size: 24px;
+    color: #333;
+    font-weight: bold;
+}
